@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "serve": "python -m http.server 8000",
+    "serve": "python3 -m http.server 8000",
     "test:projection": "node scripts/test-projection.mjs",
     "test:rules": "node scripts/test-rules.mjs",
-    "test:household": "node scripts/test-household.mjs"
+    "test:household": "node scripts/test-household.mjs",
+    "test:logic": "node scripts/run-all-tests.mjs"
   }
 }
