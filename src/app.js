@@ -10,6 +10,10 @@ import { createEditorHelpers } from './ui/editors/index.js';
 import { calcHouseholdProjection } from './engines/householdEngine.js';
 import { renderOverviewKpis, renderRetirementLumpSumCard } from './ui/overview.js';
 import { renderProjectionTable } from './ui/projectionTable.js';
+import { evaluateStrategies } from './engines/strategyEngine.js';
+import { scoreStrategies } from './engines/strategyScorer.js';
+import { buildDecisionTimeline } from './services/decisionTimelineService.js';
+import { renderStrategyTab } from './ui/decisionTimeline.js';
 import { renderHouseholdSummary, renderHouseholdTab } from './ui/household.js';
 import { createRenderOrchestrator } from './services/renderOrchestrator.js';
 import { createNavigationController } from './ui/navigation.js';
@@ -30,6 +34,7 @@ import { createScenarioActions } from './services/scenarioActions.js';
 
 (function bootstrap() {
   const app = createInitialAppState();
+  window.__RP_APP = app;
   const toast = createToast({ getEl: $, window });
 
   const editors = createEditorHelpers({
@@ -103,6 +108,10 @@ import { createScenarioActions } from './services/scenarioActions.js';
     drawBarBreakdown,
     renderRetirementLumpSumCard: (base) => renderRetirementLumpSumCard({ getEl: $, fmtGBP }, base),
     renderProjectionTable: (base) => renderProjectionTable({ getEl: $, fmtGBP }, base),
+    evaluateStrategies,
+    scoreStrategies,
+    buildDecisionTimeline,
+    renderStrategyTab: (bundle) => renderStrategyTab({ getEl: $, fmtGBP, badge }, bundle),
     renderStress,
     renderBridge,
     computeBridgeStatus,

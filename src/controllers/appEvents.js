@@ -64,6 +64,11 @@ export function bindAppEvents({
     });
   });
 
+  getEl('strategySelect')?.addEventListener('change', (e)=>{
+    window.__RP_APP && (window.__RP_APP.strategySelectedId = e.target.value || null);
+    renderAll(false);
+  });
+
   getEl('btnSave')?.addEventListener('click', exportInputs);
   getEl('btnLoad')?.addEventListener('click', ()=> getEl('fileLoad').click());
   getEl('fileLoad')?.addEventListener('change', importInputs);

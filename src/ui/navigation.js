@@ -11,7 +11,7 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
     getEl('view-'+name).style.display='block';
     document.querySelector(`.nav button[data-view="${name}"]`)?.classList.add('active');
-    const titles={overview:'Overview', inputs:'Inputs', projection:'Projection', bridge:'Early Retirement Bridge', household:'Household', stress:'Stress tests', monte:'Monte Carlo', scenarios:'Scenarios', help:'Help'};
+    const titles={overview:'Overview', inputs:'Inputs', projection:'Projection', strategy:'Strategy', bridge:'Early Retirement Bridge', household:'Household', stress:'Stress tests', monte:'Monte Carlo', scenarios:'Scenarios', help:'Help'};
     getEl('viewTitle').textContent = titles[name] || 'Overview';
   }
 

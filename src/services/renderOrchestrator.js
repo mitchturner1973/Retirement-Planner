@@ -15,6 +15,10 @@ export function createRenderOrchestrator(deps){
     drawBarBreakdown,
     renderRetirementLumpSumCard,
     renderProjectionTable,
+    evaluateStrategies,
+    scoreStrategies,
+    buildDecisionTimeline,
+    renderStrategyTab,
     renderStress,
     renderBridge,
     computeBridgeStatus,
@@ -63,6 +67,24 @@ export function createRenderOrchestrator(deps){
     renderRetirementLumpSumCard(base);
 
     renderProjectionTable(base);
+
+    const strategyEval = evaluateStrategies(s);
+    const strategyScores = scoreStrategies(strategyEval);
+    if (!app.strategySelectedId && strategyScores.bestBalanced) app.strategySelectedId = strategyScores.bestBalanced.strategy.id;
+    const selected = strategyScores.ranked.find((r) => r.strategy.id === app.strategySelectedId) || strategyScores.bestBalanced || strategyScores.ranked[0] || null;
+    const strategyTimeline = buildDecisionTimeline(selected);
+
+
+    
+  renderStrategyTab({
+  ranked: strategyScores.ranked,
+  bestTax: strategyScores.bestTax,
+  bestSustainable: strategyScores.bestSustainable,
+  bestBalanced: strategyScores.bestBalanced,
+  selectedTimeline: strategyTimeline,
+  selectedStrategyId: selected?.strategy?.id || null,
+  selectedResult: selected,
+});
 
     const stressRes = renderStress(s, base);
     const br = renderBridge(s);
