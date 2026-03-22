@@ -1,5 +1,21 @@
+function applyDcOrderRule(dcPensions, rule = 'default') {
+  const order = String(rule || 'default');
+  if (order === 'default') return dcPensions;
+
+  const sorted = [...dcPensions];
+  if (order === 'highest-fee-first') {
+    sorted.sort((a, b) => Number(b.feePct || 0) - Number(a.feePct || 0));
+  } else if (order === 'smallest-pot-first') {
+    sorted.sort((a, b) => Number(a.currentValue || 0) - Number(b.currentValue || 0));
+  } else if (order === 'largest-pot-first') {
+    sorted.sort((a, b) => Number(b.currentValue || 0) - Number(a.currentValue || 0));
+  }
+
+  return sorted.map((pension, index) => ({ ...pension, priority: index + 1 }));
+}
+
 export function normaliseSourceData(state) {
-  const dc = [{
+  const baseDc = [{
     id: 'current-workplace',
     name: 'Current workplace pension',
     provider: 'Current scheme',
@@ -22,6 +38,8 @@ export function normaliseSourceData(state) {
       salaryLinked: false,
     })))
     .filter((pension) => pension.currentValue > 0 || pension.salaryLinked);
+
+  const dc = applyDcOrderRule(baseDc, state.dcOrderRule);
 
   const db = (state.dbPensions || []).map((pension, index) => ({
     id: pension.id || `db_${index}`,

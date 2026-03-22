@@ -16,23 +16,12 @@ function cloneState(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
-function reorderDcPensions(dcPensions, rule = 'default') {
-  const arr = (dcPensions || []).map((p) => ({ ...p }));
-  if (rule === 'highest-fee-first') {
-    arr.sort((a, b) => Number(b.feePct || 0) - Number(a.feePct || 0));
-  } else if (rule === 'smallest-pot-first') {
-    arr.sort((a, b) => Number(a.currentValue || 0) - Number(b.currentValue || 0));
-  } else if (rule === 'largest-pot-first') {
-    arr.sort((a, b) => Number(b.currentValue || 0) - Number(a.currentValue || 0));
-  }
-  return arr.map((p, idx) => ({ ...p, priority: idx + 1 }));
-}
-
 export function getCandidateStrategies(state) {
   const potCount = 1 + (state.dcPensions || []).length;
   const hasDb = (state.dbPensions || []).length > 0;
   const retireAge = Number(state.retireAge || state.stateAge || 67);
   const stateAge = Number(state.stateAge || 67);
+  const hasBridgeWindow = retireAge < stateAge;
   const bridgeTarget = Math.max(18000, Math.round((Number(state.salary || 0) * 0.33) / 1000) * 1000 || 24000);
 
   const candidates = [
@@ -47,19 +36,6 @@ export function getCandidateStrategies(state) {
         mode: 'pct-pot',
         beforeStatePensionPct: Number(state.drawdown || 0),
         afterStatePensionPct: Number(state.drawdown || 0),
-      },
-    },
-    {
-      id: 'bridge-to-state-pension',
-      name: 'Bridge to State Pension',
-      summary: 'Use DC more heavily before State Pension starts, then ease back once guaranteed income begins.',
-      objective: 'tax',
-      dcOrder: 'highest-fee-first',
-      retirementLumpSum: null,
-      drawdownPlan: {
-        mode: 'target-net-before-sp',
-        targetNetBeforeSp: bridgeTarget,
-        afterStatePensionPct: Math.max(2.5, Number(state.drawdown || 0) - 1),
       },
     },
     {
@@ -95,7 +71,24 @@ export function getCandidateStrategies(state) {
         afterStatePensionPct: Math.max(2.5, Number(state.drawdown || 0) - 0.25),
       },
     },
-    {
+  ];
+
+  if (hasBridgeWindow) {
+    candidates.push({
+      id: 'bridge-to-state-pension',
+      name: 'Bridge to State Pension',
+      summary: 'Use DC more heavily before State Pension starts, then ease back once guaranteed income begins.',
+      objective: 'tax',
+      dcOrder: 'highest-fee-first',
+      retirementLumpSum: null,
+      drawdownPlan: {
+        mode: 'target-net-before-sp',
+        targetNetBeforeSp: bridgeTarget,
+        afterStatePensionPct: Math.max(2.5, Number(state.drawdown || 0) - 1),
+      },
+    });
+
+    candidates.push({
       id: 'tax-smoothing',
       name: 'Tax smoothing before State Pension',
       summary: 'Aim for steadier taxable income before State Pension so later years do not spike as sharply.',
@@ -107,10 +100,10 @@ export function getCandidateStrategies(state) {
         targetNetBeforeSp: Math.max(16000, Math.round((bridgeTarget * 0.8) / 1000) * 1000),
         afterStatePensionPct: Math.max(2.0, Number(state.drawdown || 0) - 1.25),
       },
-    },
-  ];
+    });
+  }
 
-  if (hasDb) {
+  if (hasDb && hasBridgeWindow) {
     candidates.push({
       id: 'db-aware-balance',
       name: 'DB-aware balanced plan',
@@ -132,7 +125,8 @@ export function getCandidateStrategies(state) {
 
 function buildStrategyState(baseState, strategy) {
   const next = cloneState(baseState);
-  next.dcPensions = reorderDcPensions(baseState.dcPensions, strategy.dcOrder);
+  next.dcPensions = (baseState.dcPensions || []).map((p) => ({ ...p }));
+  next.dcOrderRule = String(strategy.dcOrder || 'default');
   next.strategyMeta = strategy;
   next.lumpSumEvents = [...(baseState.lumpSumEvents || [])];
   if (strategy.retirementLumpSum?.enabled) {
@@ -171,6 +165,7 @@ function simulateStrategy(state, strategy) {
     const lumpRes = processLumpSumEventsForAge(workingState, sources.lumpSums, pots, age, tflsUsed);
     const lumpSumGross = (lumpRes.flows.pclsGross || 0) + (lumpRes.flows.ufplsGross || 0) + (lumpRes.flows.taxableLumpGross || 0);
     let drawdownGross = 0;
+    let drawdownDetail = '';
     let contributionTotal = 0;
 
     if (!isRetired) {
@@ -188,9 +183,7 @@ function simulateStrategy(state, strategy) {
         const targetNet = Number(plan.targetNetBeforeSp || 0) * yearFrac;
         const solved = solveGrossForNetTarget(workingState, potAfterLumps, targetNet, stateIncome + dbIncome, workingState.otherIncome, lumpRes.tflsUsedAfterLumps);
         drawdownGross = withdrawFromPotsByPriority(pots, solved.gross);
-        if (drawdownGross > 0) {
-          actions.push({ age, type: 'drawdown', action: `Target net income before State Pension`, detail: `Gross DC withdrawal ${drawdownGross.toFixed(0)} to support approximately ${targetNet.toFixed(0)} net before State Pension starts.` });
-        }
+        drawdownDetail = `This targets approximately ${targetNet.toFixed(0)} net income before State Pension starts.`;
       } else {
         const pct = age < workingState.stateAge
           ? Number(plan.beforeStatePensionPct ?? workingState.drawdown)
@@ -243,7 +236,7 @@ function simulateStrategy(state, strategy) {
         age,
         type: 'drawdown',
         action: `Withdraw ${drawdownGross.toFixed(0)} gross from DC (${stateFlag})`,
-        detail: `Recurring DC net income is ${drawOnly.net.toFixed(0)} and total annual net income is ${recurringTotal.net.toFixed(0)}.`
+        detail: drawdownDetail || `Recurring DC net income is ${drawOnly.net.toFixed(0)} and total annual net income is ${recurringTotal.net.toFixed(0)}.`
       });
     }
 
@@ -282,16 +275,19 @@ function simulateStrategy(state, strategy) {
 
   const retRow = startRetirementRow || years.find((y) => y.age === workingState.retireAge) || years[years.length - 1];
   const potAt75Row = years.find((y) => y.age === 75) || years[years.length - 1];
+  const retirementYears = years.filter((y) => y.age >= workingState.retireAge);
   const metrics = {
     totalTax: years.reduce((sum, y) => sum + Number(y.tax || 0), 0),
     netAtRet: Number(retRow?.recurringNetIncome || 0),
     totalCashAtRet: Number(retRow?.totalCashReceived || 0),
-    lowestIncomeAfterRet: years.filter((y) => y.age >= workingState.retireAge).reduce((min, y) => Math.min(min, Number(y.recurringNetIncome || Infinity)), Infinity),
+    lowestIncomeAfterRet: retirementYears.length
+      ? retirementYears.reduce((min, y) => Math.min(min, Number(y.recurringNetIncome ?? 0)), Infinity)
+      : 0,
     potAt75: Number(potAt75Row?.potEnd || 0),
     potAtEnd: Number(years[years.length - 1]?.potEnd || 0),
     remainingLsaAtRet: Number(retRow?.remainingLsa || 0),
     totalLumpSums: years.reduce((sum, y) => sum + Number(y.lumpSumGross || 0), 0),
-    averageRetirementIncome: years.filter((y) => y.age >= workingState.retireAge).reduce((sum, y, idx, arr) => sum + Number(y.recurringNetIncome || 0) / Math.max(arr.length, 1), 0),
+    averageRetirementIncome: retirementYears.reduce((sum, y, idx, arr) => sum + Number(y.recurringNetIncome || 0) / Math.max(arr.length, 1), 0),
   };
 
   return {
