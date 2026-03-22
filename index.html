@@ -385,8 +385,8 @@
 
 
     <!-- STRATEGY -->
-    <section class="view" id="view-strategy" style="display:none">
-      <div class="card">
+    <section class="view strategy-view" id="view-strategy" style="display:none">
+      <div class="card strategy-intro-card">
         <h3>Retirement decision timeline</h3>
         <p class="muted" style="margin-top:0">This view compares coded withdrawal strategies, scores them for tax, sustainability and balance, then turns the selected plan into a year-by-year action timeline.</p>
         <div class="row" style="margin:12px 0 16px; gap:12px; align-items:center; flex-wrap:wrap">
@@ -397,14 +397,14 @@
           <span class="badge"><span class="ico">🧭</span>Deterministic engine only</span>
           <span class="badge"><span class="ico">£</span>Strategies scored on tax, stability and remaining pot</span>
         </div>
-        <div class="grid" id="strategyTopCards"></div>
+        <div id="strategyTopCards"></div>
       </div>
-      <div class="grid">
-        <div class="card" style="grid-column: span 12;">
+      <div class="grid strategy-detail-grid">
+        <div class="card strategy-compare-card" style="grid-column: span 12;">
           <h3>Strategy comparison</h3>
           <div id="strategyCompareWrap"></div>
         </div>
-        <div class="card" style="grid-column: span 12;">
+        <div class="card strategy-timeline-shell" style="grid-column: span 12;">
           <h3>Decision timeline</h3>
           <div id="strategyTimelineWrap"></div>
         </div>

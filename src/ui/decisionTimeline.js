@@ -57,34 +57,34 @@ export function renderStrategyTab(deps, strategyBundle) {
   cardsWrap.innerHTML =
     ranked.length === 0
       ? '<div class="muted">No strategies were generated for the current inputs.</div>'
-      : topCards
-          .map(({ label, result, scoreKey }) => {
+      : `<div class="grid strategy-card-grid">
+          ${topCards.map(({ label, result, scoreKey }) => {
             if (!result) return '';
-            return `<div class="card" style="grid-column: span 4; background:rgba(255,255,255,.04)">
-              <div class="muted small">${label}</div>
-              <h3 style="margin-top:6px">${result.strategy.name}</h3>
-              <div class="row" style="margin-top:8px; gap:8px; flex-wrap:wrap">
+            return `<div class="card strategy-top-card" style="grid-column: span 4; background:rgba(255,255,255,.04)">
+              <div class="muted small strategy-top-card-label">${label}</div>
+              <h3 class="strategy-top-card-title" style="margin-top:6px">${result.strategy.name}</h3>
+              <div class="row strategy-top-card-badges" style="margin-top:8px; gap:8px; flex-wrap:wrap">
                 ${badge('good', `${result.scores[scoreKey]}/100`, `${label} score`)}
                 ${badge('warn', `Tax to end age ${fmtGBP(result.metrics.totalTax)}`, 'Estimated total tax across the full projection horizon')}
               </div>
-              <div class="small muted" style="margin-top:10px">${result.strategy.summary}</div>
+              <div class="small muted strategy-top-card-summary" style="margin-top:10px">${result.strategy.summary}</div>
               ${baseline && baseline.strategy.id !== result.strategy.id
-                ? `<div class="small muted" style="margin-top:8px">Compared with baseline straight drawdown, this plan changes withdrawal timing and can materially change pot values by age.</div>`
+                ? `<div class="small muted strategy-top-card-note" style="margin-top:8px">Compared with baseline straight drawdown, this plan changes withdrawal timing and can materially change pot values by age.</div>`
                 : ''}
-              <div class="kpi" style="margin-top:12px">
-                <div class="item"><div class="label">Net at retirement</div><div class="value">${fmtGBP(result.summary.netAtRet)}</div></div>
-                <div class="item"><div class="label">Pot at retirement</div><div class="value">${fmtGBP(result.summary.potAtRet)}</div></div>
-                  <div class="item"><div class="label">${pot75LabelFor(result)}</div><div class="value">${fmtGBP(result.metrics.potAt75)}</div></div>
-                <div class="item"><div class="label">LSA left at retirement</div><div class="value">${fmtGBP(result.metrics.remainingLsaAtRet)}</div></div>
+              <div class="kpi strategy-top-card-kpis" style="margin-top:12px">
+                <div class="item strategy-kpi-item"><div class="label">Net at retirement</div><div class="value">${fmtGBP(result.summary.netAtRet)}</div></div>
+                <div class="item strategy-kpi-item"><div class="label">Pot at retirement</div><div class="value">${fmtGBP(result.summary.potAtRet)}</div></div>
+                <div class="item strategy-kpi-item"><div class="label">${pot75LabelFor(result)}</div><div class="value">${fmtGBP(result.metrics.potAt75)}</div></div>
+                <div class="item strategy-kpi-item"><div class="label">LSA left at retirement</div><div class="value">${fmtGBP(result.metrics.remainingLsaAtRet)}</div></div>
               </div>
             </div>`;
-          })
-          .join('');
+          }).join('')}
+        </div>`;
 
   compareWrap.innerHTML =
     ranked.length === 0
       ? '<div class="muted">No strategy comparison available yet.</div>'
-      : `<div style="overflow:auto"><table><thead><tr>
+        : `<div class="strategy-table-shell" style="overflow:auto"><table><thead><tr>
           <th>Strategy</th><th>Tax score</th><th>Sustainable score</th><th>Balanced score</th><th>Tax to end age</th><th>Net at retirement</th><th>Δ vs baseline net (ret)</th><th>Pot at retirement</th><th>Δ vs baseline pot (ret)</th><th>Lowest later income</th><th>Pot at 75 (or end age)</th><th>One-off lump sums</th></tr></thead><tbody>
           ${ranked
             .map(
@@ -113,15 +113,15 @@ export function renderStrategyTab(deps, strategyBundle) {
   timelineWrap.innerHTML =
     selectedTimeline.length === 0
       ? '<div class="muted">No strategy timeline available yet.</div>'
-      : selectedTimeline
+      : `<div class="strategy-timeline-list">${selectedTimeline
           .map(
             (entry) =>
-              `<div class="callout" style="margin-top:10px"><div class="dot" style="background:rgba(110,231,255,.9)"></div><div style="flex:1"><div style="font-weight:700">Age ${entry.age}</div>${entry.items
+              `<div class="callout strategy-timeline-card" style="margin-top:10px"><div class="dot strategy-timeline-dot" style="background:rgba(110,231,255,.9)"></div><div style="flex:1"><div class="strategy-timeline-age" style="font-weight:700">Age ${entry.age}</div>${entry.items
                 .map(
                   (item) =>
-                    `<div style="margin-top:8px"><div><strong>${item.action}</strong></div><div class="small muted" style="margin-top:4px">${item.reason}</div></div>`
+                    `<div class="strategy-timeline-block" style="margin-top:8px"><div><strong>${item.action}</strong></div><div class="small muted" style="margin-top:4px">${item.reason}</div></div>`
                 )
                 .join('')}</div></div>`
           )
-          .join('');
+          .join('')}</div>`;
 }

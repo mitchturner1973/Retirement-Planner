@@ -213,3 +213,202 @@ body.navOpen #sideOverlay{display:block}
     .repeatTitle{font-weight:700; font-size:13px}
     .miniBtn{all:unset; cursor:pointer; color:var(--bad); font-size:12px; padding:6px 8px; border:1px solid rgba(251,113,133,.35); border-radius:10px; background:rgba(251,113,133,.08)}
     .hint{font-size:11px; color:var(--muted)}
+
+    /* Strategy visual refinement */
+    #view-strategy{
+      color:#111827;
+    }
+    #view-strategy .strategy-intro-card,
+    #view-strategy .strategy-compare-card,
+    #view-strategy .strategy-timeline-shell{
+      background:linear-gradient(180deg, rgba(249,250,251,.96), rgba(242,245,248,.92));
+      border:1px solid rgba(15,23,42,.08);
+      box-shadow:0 18px 48px rgba(15,23,42,.12);
+      color:#111827;
+    }
+    #view-strategy .strategy-intro-card h3,
+    #view-strategy .strategy-compare-card h3,
+    #view-strategy .strategy-timeline-shell h3{
+      color:#111827;
+      font-size:18px;
+      letter-spacing:-.02em;
+    }
+    #view-strategy .strategy-intro-card > .muted,
+    #view-strategy .strategy-compare-card > .muted,
+    #view-strategy .strategy-timeline-shell > .muted,
+    #view-strategy .strategy-intro-card .muted,
+    #view-strategy .strategy-compare-card .muted,
+    #view-strategy .strategy-timeline-shell .muted{
+      color:#667085;
+    }
+    #view-strategy .strategy-intro-card .badge{
+      background:rgba(255,255,255,.84);
+      border-color:rgba(15,23,42,.08);
+      color:#475467;
+    }
+    #view-strategy .strategy-intro-card .badge .ico{
+      background:rgba(148,163,184,.18);
+    }
+    #view-strategy .strategy-intro-card select{
+      background:rgba(255,255,255,.92);
+      color:#111827;
+      border:1px solid rgba(15,23,42,.12);
+      min-height:46px;
+      box-shadow:0 1px 0 rgba(255,255,255,.7) inset;
+    }
+    #view-strategy .strategy-card-grid{
+      gap:16px;
+    }
+    #view-strategy .strategy-top-card{
+      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(246,248,251,.96)) !important;
+      border:1px solid rgba(15,23,42,.08);
+      box-shadow:0 14px 34px rgba(15,23,42,.08);
+      border-radius:24px;
+      padding:20px;
+      min-height:100%;
+    }
+    #view-strategy .strategy-top-card-label{
+      color:#6b7280;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-size:11px;
+    }
+    #view-strategy .strategy-top-card-title{
+      font-size:28px;
+      line-height:1.05;
+      letter-spacing:-.04em;
+      color:#111827;
+      margin-bottom:0;
+    }
+    #view-strategy .strategy-top-card-badges .badge{
+      background:rgba(248,250,252,.95);
+      border-color:rgba(15,23,42,.08);
+      color:#475467;
+    }
+    #view-strategy .strategy-top-card-summary{
+      font-size:14px;
+      line-height:1.55;
+      color:#667085;
+      max-width:40ch;
+    }
+    #view-strategy .strategy-top-card-note{
+      padding:10px 12px;
+      border-radius:14px;
+      background:rgba(37,99,235,.06);
+      color:#516176;
+      border:1px solid rgba(37,99,235,.10);
+      line-height:1.5;
+    }
+    #view-strategy .strategy-top-card-kpis{
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:10px;
+    }
+    #view-strategy .strategy-kpi-item{
+      padding:14px;
+      border-radius:18px;
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(15,23,42,.08);
+      box-shadow:0 1px 0 rgba(255,255,255,.8) inset;
+    }
+    #view-strategy .strategy-kpi-item .label{
+      display:block;
+      color:#6b7280;
+      font-size:12px;
+      line-height:1.4;
+    }
+    #view-strategy .strategy-kpi-item .value{
+      display:block;
+      margin-top:8px;
+      font-size:24px;
+      line-height:1.1;
+      letter-spacing:-.03em;
+      color:#111827;
+      font-weight:700;
+    }
+    #view-strategy .strategy-detail-grid{
+      gap:16px;
+    }
+    #view-strategy .strategy-table-shell{
+      border-radius:20px;
+      border:1px solid rgba(15,23,42,.08);
+      background:rgba(255,255,255,.82);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+    }
+    #view-strategy .strategy-table-shell table{
+      color:#1f2937;
+      background:transparent;
+    }
+    #view-strategy .strategy-table-shell th,
+    #view-strategy .strategy-table-shell td{
+      padding:14px 12px;
+      border-bottom:1px solid rgba(15,23,42,.08);
+      vertical-align:top;
+    }
+    #view-strategy .strategy-table-shell th{
+      color:#667085;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      background:rgba(248,250,252,.88);
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    #view-strategy .strategy-table-shell tr:hover td{
+      background:rgba(255,255,255,.55);
+    }
+    #view-strategy .strategy-timeline-list{
+      display:grid;
+      gap:12px;
+    }
+    #view-strategy .strategy-timeline-card{
+      background:linear-gradient(180deg, rgba(255,255,255,.94), rgba(247,249,252,.9));
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:20px;
+      box-shadow:0 10px 24px rgba(15,23,42,.06);
+      padding:16px;
+      margin-top:0 !important;
+      align-items:flex-start;
+    }
+    #view-strategy .strategy-timeline-dot{
+      background:#3b82f6 !important;
+      box-shadow:0 0 0 6px rgba(59,130,246,.10);
+      margin-top:8px;
+    }
+    #view-strategy .strategy-timeline-age{
+      font-size:15px;
+      color:#111827;
+      letter-spacing:-.01em;
+    }
+    #view-strategy .strategy-timeline-block{
+      padding-top:10px;
+      border-top:1px solid rgba(15,23,42,.06);
+    }
+    #view-strategy .strategy-timeline-block:first-of-type{
+      border-top:0;
+      padding-top:8px;
+    }
+    #view-strategy .strategy-timeline-block strong{
+      color:#111827;
+    }
+    @media (max-width: 980px){
+      #view-strategy .strategy-top-card{
+        grid-column:span 12 !important;
+      }
+    }
+    @media (max-width: 640px){
+      #view-strategy .strategy-top-card-title{
+        font-size:24px;
+      }
+      #view-strategy .strategy-top-card-kpis{
+        grid-template-columns:1fr;
+      }
+      #view-strategy .strategy-kpi-item .value{
+        font-size:22px;
+      }
+      #view-strategy .strategy-table-shell th,
+      #view-strategy .strategy-table-shell td{
+        padding:12px 10px;
+      }
+    }
+
