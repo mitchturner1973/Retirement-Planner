@@ -1,0 +1,174 @@
+import { deriveAgeInputs, syncDerivedAgeInputs } from '../core/dates.js';
+
+export function createInputStateManager({ getEl, defaults, renderRepeaters, editorReaders }) {
+  const { readDcPensionsEditor, readDbPensionsEditor, readContribEventsEditor, readLumpSumEventsEditor } = editorReaders;
+
+  function setInputsFromState(state) {
+    getEl('in_dob').value = state.dob || defaults.dob || '';
+    getEl('in_currentAge').value = state.currentAge;
+    getEl('in_valuationDate').value = state.valuationDate || defaults.valuationDate;
+    getEl('in_firstYearMonths').value = state.firstYearMonths ?? defaults.firstYearMonths;
+    getEl('in_retireAge').value = state.retireAge;
+    getEl('in_earlyAge').value = state.earlyAge;
+    getEl('in_stateAge').value = state.stateAge;
+    getEl('in_pot').value = state.pot;
+    getEl('in_otherIncome').value = state.otherIncome;
+    getEl('in_householdMode').value = state.householdMode || 'single';
+    getEl('in_spouseDob').value = state.spouseDob || defaults.spouseDob || '';
+    getEl('in_spouseValuationDate').value = state.spouseValuationDate || defaults.spouseValuationDate || defaults.valuationDate;
+    getEl('in_spouseCurrentAge').value = state.spouseCurrentAge ?? defaults.spouseCurrentAge;
+    getEl('in_spouseFirstYearMonths').value = state.spouseFirstYearMonths ?? defaults.spouseFirstYearMonths;
+    getEl('in_spouseRetireAge').value = state.spouseRetireAge ?? defaults.spouseRetireAge;
+    getEl('in_spouseStateAge').value = state.spouseStateAge ?? defaults.spouseStateAge;
+    getEl('in_spousePot').value = state.spousePot ?? 0;
+    getEl('in_spouseOtherIncome').value = state.spouseOtherIncome ?? 0;
+    getEl('in_spouseSalary').value = state.spouseSalary ?? 0;
+    getEl('in_spouseEmpPct').value = state.spouseEmpPct ?? 0;
+    getEl('in_spouseErPct').value = state.spouseErPct ?? 0;
+    getEl('in_spouseStatePension').value = state.spouseStatePension ?? defaults.spouseStatePension;
+    getEl('in_salary').value = state.salary;
+    getEl('in_salaryGrowth').value = state.salaryGrowth;
+    getEl('in_empPct').value = state.empPct;
+    getEl('in_erPct').value = state.erPct;
+    getEl('in_return').value = state.returnNom;
+    getEl('in_inflation').value = state.inflation;
+    getEl('in_vol').value = state.vol;
+    getEl('in_endAge').value = state.endAge;
+    getEl('in_feePct').value = state.feePct ?? defaults.feePct;
+    getEl('in_notes').value = state.notes;
+    getEl('in_statePension').value = state.statePension;
+    getEl('in_draw').value = state.drawdown;
+    getEl('in_allow').value = state.allowance;
+    getEl('in_basicTax').value = state.basicTax;
+    getEl('in_higherTax').value = state.higherTax;
+    getEl('in_higherThreshold').value = state.higherThreshold;
+    getEl('in_tflsPct').value = state.tflsPct;
+    getEl('in_tflsCap').value = state.tflsCap;
+    renderRepeaters(state);
+    getEl('in_crashPct').value = state.crashPct;
+    getEl('in_badYears').value = state.badYears;
+    getEl('in_badPenalty').value = state.badPenalty;
+    getEl('in_successAge').value = state.successAge;
+    getEl('in_floor70').value = state.floor70;
+    getEl('in_sims').value = String(state.sims);
+    getEl('in_seed').value = state.seed;
+    getEl('in_ruinDef').value = String(state.ruinDef);
+    getEl('in_bands').value = String(state.bands);
+    getEl('br_earlyAge').value = (state.earlyAge !== '' ? state.earlyAge : '');
+    getEl('br_mode').value = state.bridgeMode;
+    getEl('br_amount').value = state.bridgeAmount;
+    getEl('br_endAge').value = state.bridgeEndAge;
+    getEl('br_postDraw').value = state.bridgePostDraw;
+    getEl('br_keepLifestyle').value = String(state.bridgeKeepLifestyle);
+    getEl('br_crashEarly').checked = state.bridgeCrashEarly === 1;
+    getEl('br_crashState').checked = state.bridgeCrashState === 1;
+    getEl('br_badSeq').checked = state.bridgeBadSeq === 1;
+    syncDerivedAgeInputs(getEl, 'main');
+    syncDerivedAgeInputs(getEl, 'spouse');
+    toggleSpouseFields(state.householdMode || 'single');
+  }
+
+  function deriveCurrentAge(prefix) {
+    const dob = getEl(prefix === 'main' ? 'in_dob' : 'in_spouseDob').value;
+    const valuation = getEl(prefix === 'main' ? 'in_valuationDate' : 'in_spouseValuationDate').value;
+    return deriveAgeInputs(dob, valuation);
+  }
+
+  function readState() {
+    const intOrBlank = (value) => (value === '' || value == null ? '' : Number(value));
+    const earlyVal = (getEl('br_earlyAge').value !== '' ? getEl('br_earlyAge').value : getEl('in_earlyAge').value);
+    const mainAge = deriveCurrentAge('main');
+    const spouseAge = deriveCurrentAge('spouse');
+    return {
+      dob: String(getEl('in_dob').value || ''),
+      currentAge: mainAge?.currentAge ?? Number(getEl('in_currentAge').value || defaults.currentAge),
+      valuationDate: String(getEl('in_valuationDate').value || defaults.valuationDate),
+      firstYearMonths: mainAge?.firstYearMonths ?? Number(getEl('in_firstYearMonths').value || defaults.firstYearMonths),
+      retireAge: Number(getEl('in_retireAge').value || defaults.retireAge),
+      earlyAge: intOrBlank(earlyVal),
+      stateAge: Number(getEl('in_stateAge').value || defaults.stateAge),
+      pot: Number(getEl('in_pot').value || 0),
+      otherIncome: Number(getEl('in_otherIncome').value || 0),
+      householdMode: String(getEl('in_householdMode').value || 'single'),
+      spouseDob: String(getEl('in_spouseDob').value || ''),
+      spouseValuationDate: String(getEl('in_spouseValuationDate').value || defaults.spouseValuationDate || defaults.valuationDate),
+      spouseCurrentAge: spouseAge?.currentAge ?? Number(getEl('in_spouseCurrentAge').value || defaults.spouseCurrentAge),
+      spouseFirstYearMonths: spouseAge?.firstYearMonths ?? Number(getEl('in_spouseFirstYearMonths').value || defaults.spouseFirstYearMonths),
+      spouseRetireAge: Number(getEl('in_spouseRetireAge').value || defaults.spouseRetireAge),
+      spouseStateAge: Number(getEl('in_spouseStateAge').value || defaults.spouseStateAge),
+      spousePot: Number(getEl('in_spousePot').value || 0),
+      spouseOtherIncome: Number(getEl('in_spouseOtherIncome').value || 0),
+      spouseSalary: Number(getEl('in_spouseSalary').value || 0),
+      spouseEmpPct: Number(getEl('in_spouseEmpPct').value || 0),
+      spouseErPct: Number(getEl('in_spouseErPct').value || 0),
+      spouseStatePension: Number(getEl('in_spouseStatePension').value || defaults.spouseStatePension),
+      salary: Number(getEl('in_salary').value || 0),
+      salaryGrowth: Number(getEl('in_salaryGrowth').value || 0),
+      empPct: Number(getEl('in_empPct').value || 0),
+      erPct: Number(getEl('in_erPct').value || 0),
+      returnNom: Number(getEl('in_return').value || 0),
+      inflation: Number(getEl('in_inflation').value || 0),
+      vol: Number(getEl('in_vol').value || 0),
+      endAge: Number(getEl('in_endAge').value || 95),
+      feePct: Number(getEl('in_feePct').value || defaults.feePct),
+      notes: String(getEl('in_notes').value || ''),
+      dcPensions: readDcPensionsEditor(),
+      dbPensions: readDbPensionsEditor(),
+      contribEvents: readContribEventsEditor(),
+      lumpSumEvents: readLumpSumEventsEditor(),
+      partnerDob: String(getEl('in_spouseDob').value || ''),
+      partnerValuationDate: String(getEl('in_spouseValuationDate').value || defaults.spouseValuationDate || defaults.valuationDate),
+      partnerCurrentAge: spouseAge?.currentAge ?? Number(getEl('in_spouseCurrentAge').value || defaults.spouseCurrentAge),
+      partnerFirstYearMonths: spouseAge?.firstYearMonths ?? Number(getEl('in_spouseFirstYearMonths').value || defaults.spouseFirstYearMonths),
+      partnerRetireAge: Number(getEl('in_spouseRetireAge').value || defaults.spouseRetireAge),
+      partnerStateAge: Number(getEl('in_spouseStateAge').value || defaults.spouseStateAge),
+      partnerPot: Number(getEl('in_spousePot').value || 0),
+      partnerOtherIncome: Number(getEl('in_spouseOtherIncome').value || 0),
+      partnerSalary: Number(getEl('in_spouseSalary').value || 0),
+      partnerEmpPct: Number(getEl('in_spouseEmpPct').value || 0),
+      partnerErPct: Number(getEl('in_spouseErPct').value || 0),
+      partnerStatePension: Number(getEl('in_spouseStatePension').value || defaults.spouseStatePension),
+      partnerDcPensions: defaults.partnerDcPensions || [],
+      partnerDbPensions: defaults.partnerDbPensions || [],
+      partnerContribEvents: defaults.partnerContribEvents || [],
+      partnerLumpSumEvents: defaults.partnerLumpSumEvents || [],
+      statePension: Number(getEl('in_statePension').value || 0),
+      drawdown: Number(getEl('in_draw').value || 0),
+      allowance: Number(getEl('in_allow').value || 0),
+      basicTax: Number(getEl('in_basicTax').value || 0),
+      higherTax: Number(getEl('in_higherTax').value || 0),
+      higherThreshold: Number(getEl('in_higherThreshold').value || 0),
+      tflsPct: Number(getEl('in_tflsPct').value || 0),
+      tflsCap: Number(getEl('in_tflsCap').value || 0),
+      crashPct: Number(getEl('in_crashPct').value || 30),
+      badYears: Number(getEl('in_badYears').value || 5),
+      badPenalty: Number(getEl('in_badPenalty').value || 5),
+      successAge: Number(getEl('in_successAge').value || 90),
+      floor70: Number(getEl('in_floor70').value || 0),
+      sims: Number(getEl('in_sims').value || 1000),
+      seed: (getEl('in_seed').value || ''),
+      ruinDef: Number(getEl('in_ruinDef').value || 0),
+      bands: Number(getEl('in_bands').value || 1),
+      extraSpend: defaults.extraSpend,
+      extraStart: defaults.extraStart,
+      extraEnd: defaults.extraEnd,
+      floorAfter70: defaults.floorAfter70,
+      bridgeMode: String(getEl('br_mode').value || 'net'),
+      bridgeAmount: Number(getEl('br_amount').value || 0),
+      bridgeEndAge: Number(getEl('br_endAge').value || Number(getEl('in_stateAge').value || defaults.stateAge)),
+      bridgePostDraw: Number(getEl('br_postDraw').value || Number(getEl('in_draw').value || defaults.drawdown)),
+      bridgeKeepLifestyle: Number(getEl('br_keepLifestyle').value || 1),
+      bridgeCrashEarly: getEl('br_crashEarly').checked ? 1 : 0,
+      bridgeCrashState: getEl('br_crashState').checked ? 1 : 0,
+      bridgeBadSeq: getEl('br_badSeq').checked ? 1 : 0,
+    };
+  }
+
+  function toggleSpouseFields(mode) {
+    const wrap = getEl('spouseFields');
+    if (!wrap) return;
+    wrap.style.display = mode === 'joint' ? '' : 'none';
+  }
+
+  return { setInputsFromState, readState, toggleSpouseFields, syncDerivedAgeInputs };
+}
