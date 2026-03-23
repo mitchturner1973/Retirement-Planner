@@ -25,6 +25,8 @@ export function bindAppEvents({
   exportInputs,
   importInputs,
   exportReport,
+  saveAutoInputs = () => true,
+  resetInputsToDefaults = () => {},
 }) {
   bindNavigation({
     save: () => getEl('btnSave')?.click(),
@@ -32,6 +34,7 @@ export function bindAppEvents({
     saveScenario: () => getEl('btnSaveScenario')?.click(),
     report: () => getEl('btnExportReport')?.click(),
     recalc: () => getEl('btnRecalc')?.click(),
+    reset: () => getEl('btnResetInputs')?.click(),
     print: () => window.print(),
   });
 
@@ -57,11 +60,18 @@ export function bindAppEvents({
   });
 
   let debounce=null;
+  let persistDebounce=null;
   document.querySelectorAll('input,select,textarea').forEach(el=>{
-    el.addEventListener('input', ()=>{
+    const onChange = ()=>{
       clearTimeout(debounce);
       debounce=setTimeout(()=>renderAll(false), 250);
-    });
+      clearTimeout(persistDebounce);
+      persistDebounce=setTimeout(()=>{
+        if (typeof saveAutoInputs === 'function') saveAutoInputs(readState());
+      }, 400);
+    };
+    el.addEventListener('input', onChange);
+    el.addEventListener('change', onChange);
   });
 
   getEl('strategySelect')?.addEventListener('change', (e)=>{
@@ -79,17 +89,22 @@ export function bindAppEvents({
   getEl('btnSave')?.addEventListener('click', exportInputs);
   getEl('btnLoad')?.addEventListener('click', ()=> getEl('fileLoad').click());
   getEl('fileLoad')?.addEventListener('change', importInputs);
+  getEl('btnResetInputs')?.addEventListener('click', () => {
+    if (typeof resetInputsToDefaults === 'function') resetInputsToDefaults();
+  });
 
   getEl('btnAddDc')?.addEventListener('click', ()=>{
     const arr=readDcPensionsEditor();
     arr.push({id:newId('dc'), name:'', provider:'', currentValue:0, feePct:0.5, returnOverride:null, priority:50});
     renderDcPensionsEditor(arr);
     renderContribEventsEditor(readContribEventsEditor(), readState());
+    if (typeof saveAutoInputs === 'function') saveAutoInputs(readState());
   });
   getEl('btnAddDb')?.addEventListener('click', ()=>{
     const arr=readDbPensionsEditor();
     arr.push({id:newId('db'), name:'', provider:'', annualIncome:0, startAge:67, npaAge:67, increaseType:'fixed', escalationPct:0, cpiCapPct:null});
     renderDbPensionsEditor(arr);
+    if (typeof saveAutoInputs === 'function') saveAutoInputs(readState());
   });
   getEl('btnAddContrib')?.addEventListener('click', ()=>{
     const arr=readContribEventsEditor();
@@ -97,11 +112,13 @@ export function bindAppEvents({
     const st=readState();
     renderContribEventsEditor(arr, st);
     renderLumpSumEventsEditor(readLumpSumEventsEditor(), st);
+    if (typeof saveAutoInputs === 'function') saveAutoInputs(readState());
   });
   getEl('btnAddLumpSum')?.addEventListener('click', ()=>{
     const arr=readLumpSumEventsEditor();
     arr.push({id:newId('ls'), name:'', type:'pcls', amountType:'fixed', amount:0, targetId:'any-dc', age:readState().retireAge});
     renderLumpSumEventsEditor(arr, readState());
+    if (typeof saveAutoInputs === 'function') saveAutoInputs(readState());
   });
 
   getEl('btnSaveScenario')?.addEventListener('click', ()=>saveCurrentScenario(true));

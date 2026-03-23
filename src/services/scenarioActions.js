@@ -1,6 +1,51 @@
 import { loadScenarios, saveScenarios, scenarioId } from './scenarioStore.js';
 
+const AUTO_INPUTS_KEY = 'rp_inputs_autosave_v1';
+
 export function createScenarioActions({ readState, setInputsFromState, renderAll, defaults, toast, document, window, renderReport }) {
+  function saveAutoInputs(state = readState()) {
+    try {
+      window.localStorage.setItem(AUTO_INPUTS_KEY, JSON.stringify(state));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function clearAutoSavedInputs() {
+    try {
+      window.localStorage.removeItem(AUTO_INPUTS_KEY);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function restoreAutoSavedInputs() {
+    let raw = null;
+    try {
+      raw = window.localStorage.getItem(AUTO_INPUTS_KEY);
+      if (!raw) return { restored: false, reason: 'none' };
+      const parsed = JSON.parse(raw);
+      setInputsFromState({ ...defaults, ...parsed });
+      return { restored: true, reason: 'ok' };
+    } catch {
+      if (raw) {
+        clearAutoSavedInputs();
+        return { restored: false, reason: 'corrupt' };
+      }
+      return { restored: false, reason: 'error' };
+    }
+  }
+
+  function resetInputsToDefaults() {
+    if (!window.confirm('Reset all current inputs to defaults?')) return;
+    setInputsFromState(defaults);
+    saveAutoInputs(defaults);
+    renderAll(true);
+    toast('warn', 'Inputs reset', 'Defaults restored');
+  }
+
   function saveCurrentScenario(asNew = true) {
     const state = readState();
     const list = loadScenarios();
@@ -33,9 +78,12 @@ export function createScenarioActions({ readState, setInputsFromState, renderAll
     const file = event.target.files?.[0];
     if (!file) return;
     try {
-      setInputsFromState({ ...defaults, ...JSON.parse(await file.text()) });
+      const imported = { ...defaults, ...JSON.parse(await file.text()) };
+      setInputsFromState(imported);
+      saveAutoInputs(imported);
       renderAll(true);
       toast('good', 'Imported inputs', '');
+      event.target.value = '';
     } catch {
       toast('bad', 'Could not load JSON', '');
     }
@@ -48,5 +96,15 @@ export function createScenarioActions({ readState, setInputsFromState, renderAll
     window.setTimeout(() => window.print(), 250);
   }
 
-  return { saveCurrentScenario, clearScenarios, exportInputs, importInputs, exportReport };
+  return {
+    saveCurrentScenario,
+    clearScenarios,
+    exportInputs,
+    importInputs,
+    exportReport,
+    saveAutoInputs,
+    clearAutoSavedInputs,
+    restoreAutoSavedInputs,
+    resetInputsToDefaults,
+  };
 }

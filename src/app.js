@@ -159,6 +159,8 @@ import { createScenarioActions } from './services/scenarioActions.js';
     renderReport,
   });
 
+  const autoRestore = scenarioActions.restoreAutoSavedInputs();
+
   bindAppEvents({
     getEl: $,
     document,
@@ -186,11 +188,19 @@ import { createScenarioActions } from './services/scenarioActions.js';
     exportInputs: scenarioActions.exportInputs,
     importInputs: scenarioActions.importInputs,
     exportReport: scenarioActions.exportReport,
+    saveAutoInputs: scenarioActions.saveAutoInputs,
+    resetInputsToDefaults: scenarioActions.resetInputsToDefaults,
   });
 
-  inputState.setInputsFromState(defaults);
+  if (!autoRestore.restored) {
+    inputState.setInputsFromState(defaults);
+  }
   inputState.syncDerivedAgeInputs($, 'main');
   inputState.syncDerivedAgeInputs($, 'spouse');
   renderAll(false);
-  toast('good', 'Ready', 'Update inputs, then Recalculate');
+  if (autoRestore.reason === 'corrupt') {
+    toast('warn', 'Ready', 'Saved inputs were corrupted and were reset safely');
+  } else {
+    toast('good', 'Ready', autoRestore.restored ? 'Restored your last inputs automatically' : 'Update inputs, then Recalculate');
+  }
 }());
