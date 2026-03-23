@@ -290,14 +290,39 @@
 
     <!-- PROJECTION -->
     <section class="view" id="view-projection" style="display:none">
-      <div class="card">
+      <div class="card projection-shell">
         <h3>Annual projection (today’s £)</h3>
         <div class="tipGrid" data-tips="view-projection"><div class="tipCard"><div class="ticon">📈</div><div><div class="ttitle">Average path only</div><div class="ttext">Projection is one smooth path. Real markets vary — that’s why Stress + Monte Carlo matter.</div></div></div><div class="tipCard"><div class="ticon">🧾</div><div><div class="ttitle">Know the phases</div><div class="ttext">Working years = salary+contrib. Retirement = withdrawals. State Pension starts at SP age.</div></div></div><div class="tipCard"><div class="ticon">🧊</div><div><div class="ttitle">Today’s money</div><div class="ttext">All values are inflation-adjusted. It’s buying power today, not future cash.</div></div></div></div>
-        <div class="row">
-          <span class="badge"><span class="ico">👔</span>Salary & contributions stop at retirement age</span>
-          <span class="badge"><span class="ico">🏦</span>Net income starts when drawing begins</span>
+        <div class="projection-summary-grid" id="projectionSummaryCards"></div>
+        <div class="projection-toolbar">
+          <div>
+            <div class="projection-help-text" id="projectionHelpText"></div>
+            <div class="projection-legend-row" id="projectionLegend"></div>
+            <div class="projection-row-count muted" id="projectionRowCount"></div>
+          </div>
+          <div class="projection-controls-cluster">
+            <div class="projection-mode-toggle" role="group" aria-label="Projection person" id="projectionPersonToggle" hidden>
+              <button class="btn active" id="btnProjectionPerson_primary" type="button">You</button>
+              <button class="btn" id="btnProjectionPerson_partner" type="button">Partner</button>
+            </div>
+            <div class="projection-mode-toggle" role="group" aria-label="Projection year range">
+              <button class="btn active" id="btnProjectionRange_all" type="button">All years</button>
+              <button class="btn" id="btnProjectionRange_retirement" type="button">Retirement onward</button>
+              <button class="btn" id="btnProjectionRange_milestones" type="button">Milestones</button>
+            </div>
+            <div class="projection-mode-toggle" role="group" aria-label="Projection view mode">
+              <button class="btn active" id="btnProjectionDetailed" type="button">Detailed</button>
+              <button class="btn" id="btnProjectionCompact" type="button">Compact</button>
+            </div>
+            <button class="btn btn-outline" id="btnProjectionJumpToRetirement" type="button" title="Scroll to retirement year">⬇ Retirement</button>
+          </div>
         </div>
-        <div style="margin-top:10px; overflow:auto">
+        <div class="row projection-header-badges">
+          <span class="badge"><span class="ico">👔</span>Salary & contributions stop at retirement age</span>
+          <span class="badge"><span class="ico">🏦</span>Recurring total net excludes one-off lump sums</span>
+          <span class="badge"><span class="ico">💸</span>Total cash received includes one-off lump sums</span>
+        </div>
+        <div class="projection-table-shell" style="margin-top:10px; overflow:auto">
           <table id="tblProjection">
             <thead><tr>
               <th>Age</th>

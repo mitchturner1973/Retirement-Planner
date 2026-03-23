@@ -14,6 +14,7 @@ export function createRenderOrchestrator(deps){
     drawLineChart,
     drawBarBreakdown,
     renderRetirementLumpSumCard,
+    buildProjectionViewModel,
     renderProjectionTable,
     evaluateStrategies,
     scoreStrategies,
@@ -65,8 +66,17 @@ export function createRenderOrchestrator(deps){
       ].filter(x=>x.value>0)
     });
     renderRetirementLumpSumCard(base);
-
-    renderProjectionTable(base);
+    const projectionPersonView = app.projectionPersonView || 'primary';
+    const projectionData = (projectionPersonView === 'partner' && hh) ? hh.partner : base;
+    const projectionState = (projectionPersonView === 'partner' && hh) ? hh.partnerState : s;
+    const projectionView = buildProjectionViewModel(projectionData, projectionState, {
+      mode: app.projectionViewMode,
+      range: app.projectionRange,
+      personView: projectionPersonView,
+      householdMode: s.householdMode,
+      partnerLabel: hh?.partnerLabel || 'Partner',
+    });
+    renderProjectionTable(projectionView);
 
     const strategyEval = evaluateStrategies(s);
     const strategyScores = scoreStrategies(strategyEval, {
@@ -131,6 +141,6 @@ export function createRenderOrchestrator(deps){
     renderMonte(s, false);
 
     window.__RP_STATE = {s, base};
-    return {s, base, stress: stressRes.status, bridge: bridgeStatus, monte: monteStatus, overall: computeOverall(stressRes.status, bridgeStatus.base, bridgeStatus.life, monteStatus)};
+    return {s, base, projectionView, stress: stressRes.status, bridge: bridgeStatus, monte: monteStatus, overall: computeOverall(stressRes.status, bridgeStatus.base, bridgeStatus.life, monteStatus)};
   };
 }

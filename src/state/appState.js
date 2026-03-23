@@ -6,6 +6,10 @@ export function createInitialAppState() {
     comparePicked: [],
     validation: {errors:[], warnings:[], infos:[]},
     strategySelectedId: null,
-    strategyPriorityMode: 'balanced'
+    strategyPriorityMode: 'balanced',
+    projectionViewMode: 'detailed',
+    projectionRange: 'all',
+    projectionExpandedAge: null,
+    projectionPersonView: 'primary',
   };
 }

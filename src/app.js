@@ -31,6 +31,7 @@ import { statusFromScore, computeStressStatus, computeBridgeStatus, computeOvera
 import { createInputStateManager } from './services/inputState.js';
 import { createActionRecommendationService } from './services/actionRecommendations.js';
 import { createScenarioActions } from './services/scenarioActions.js';
+import { buildProjectionViewModel } from './services/projectionViewModel.js';
 
 (function bootstrap() {
   const app = createInitialAppState();
@@ -107,7 +108,8 @@ import { createScenarioActions } from './services/scenarioActions.js';
     drawLineChart,
     drawBarBreakdown,
     renderRetirementLumpSumCard: (base) => renderRetirementLumpSumCard({ getEl: $, fmtGBP }, base),
-    renderProjectionTable: (base) => renderProjectionTable({ getEl: $, fmtGBP }, base),
+    buildProjectionViewModel,
+    renderProjectionTable: (base) => renderProjectionTable({ getEl: $, fmtGBP, app, rerender: () => renderAll(false) }, base),
     evaluateStrategies,
     scoreStrategies,
     buildDecisionTimeline,

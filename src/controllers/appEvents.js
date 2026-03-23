@@ -79,6 +79,35 @@ export function bindAppEvents({
     renderAll(false);
   });
 
+  getEl('btnProjectionCompact')?.addEventListener('click', () => {
+    if (window.__RP_APP) window.__RP_APP.projectionViewMode = 'compact';
+    renderAll(false);
+  });
+
+  getEl('btnProjectionDetailed')?.addEventListener('click', () => {
+    if (window.__RP_APP) window.__RP_APP.projectionViewMode = 'detailed';
+    renderAll(false);
+  });
+
+  ['all', 'retirement', 'milestones'].forEach((range) => {
+    getEl(`btnProjectionRange_${range}`)?.addEventListener('click', () => {
+      if (window.__RP_APP) window.__RP_APP.projectionRange = range;
+      renderAll(false);
+    });
+  });
+
+  ['primary', 'partner'].forEach((person) => {
+    getEl(`btnProjectionPerson_${person}`)?.addEventListener('click', () => {
+      if (window.__RP_APP) window.__RP_APP.projectionPersonView = person;
+      renderAll(false);
+    });
+  });
+
+  getEl('btnProjectionJumpToRetirement')?.addEventListener('click', () => {
+    const retirementRow = document.querySelector('.is-retirement-start');
+    retirementRow?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
   ['in_strategyPriorityMode', 'in_minimumDesiredNetIncome', 'in_targetRetirementNetIncome', 'in_minimumFlexibilityBufferAt75', 'in_dbEarlyReductionPct', 'in_dbDeferralIncreasePct'].forEach((id) => {
     getEl(id)?.addEventListener('change', () => {
       if (window.__RP_APP) window.__RP_APP.strategySelectedId = null;
