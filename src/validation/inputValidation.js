@@ -38,6 +38,22 @@ export function validateState(s){
     if(!s.spouseDob) push(infos,'in_spouseDob','Add partner date of birth to auto-align partner age rows to birthdays.');
     if(s.spouseStateAge < s.spouseCurrentAge) push(errors,'in_spouseStateAge','Partner State Pension age cannot be before partner current age.');
     if(s.spouseCurrentAge < 18) push(errors,'in_spouseCurrentAge','Partner current age must be realistic.');
+    (s.partnerDcPensions||[]).forEach((p,i)=>{
+      if(Number(p.feePct||0)<0) push(errors,'btnAddDc',`Partner DC pension ${i+1} has a negative fee.`);
+      if(Number(p.currentValue||0)<0) push(errors,'btnAddDc',`Partner DC pension ${i+1} has a negative value.`);
+    });
+    (s.partnerDbPensions||[]).forEach((p,i)=>{
+      if(Number(p.annualIncome||0)<0) push(errors,'btnAddDb',`Partner DB pension ${i+1} has a negative annual income.`);
+      if(Number(p.npaAge||p.startAge||67) < 40 || Number(p.npaAge||p.startAge||67) > 100) push(errors,'btnAddDb',`Partner DB pension ${i+1} has an invalid Normal Pension Age.`);
+    });
+    (s.partnerContribEvents||[]).forEach((c,i)=>{
+      if(Number(c.amount||0)<0) push(errors,'btnAddContrib',`Partner contribution ${i+1} has a negative amount.`);
+      if(c.endAge!=null && Number(c.endAge)<Number(c.startAge||0)) push(errors,'btnAddContrib',`Partner contribution ${i+1} ends before it starts.`);
+    });
+    (s.partnerLumpSumEvents||[]).forEach((e,i)=>{
+      if(Number(e.amount||0)<0) push(errors,'btnAddLumpSum',`Partner lump sum event ${i+1} has a negative amount.`);
+      if(Number(e.age||0) < Number(s.spouseCurrentAge||0)) push(warnings,'btnAddLumpSum',`Partner lump sum event ${i+1} is before partner current age and will never be used.`);
+    });
     infos.push({field:'in_householdMode', msg:'Household mode projects each person separately, then combines net income and remaining pots.'});
   }
   return {errors,warnings,infos};

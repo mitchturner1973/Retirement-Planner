@@ -1,7 +1,7 @@
 import { deriveAgeInputs, syncDerivedAgeInputs } from '../core/dates.js';
 
 export function createInputStateManager({ getEl, defaults, renderRepeaters, editorReaders }) {
-  const { readDcPensionsEditor, readDbPensionsEditor, readContribEventsEditor, readLumpSumEventsEditor } = editorReaders;
+  const { readDcPensionsEditor, readDbPensionsEditor, readContribEventsEditor, readLumpSumEventsEditor, getEditorCollections } = editorReaders;
 
   function setInputsFromState(state) {
     getEl('in_dob').value = state.dob || defaults.dob || '';
@@ -115,6 +115,22 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
     const earlyVal = (getEl('br_earlyAge').value !== '' ? getEl('br_earlyAge').value : getEl('in_earlyAge').value);
     const mainAge = deriveCurrentAge('main');
     const spouseAge = deriveCurrentAge('spouse');
+    const editorCollections = typeof getEditorCollections === 'function'
+      ? getEditorCollections()
+      : {
+          primary: {
+            dcPensions: readDcPensionsEditor(),
+            dbPensions: readDbPensionsEditor(),
+            contribEvents: readContribEventsEditor(),
+            lumpSumEvents: readLumpSumEventsEditor(),
+          },
+          partner: {
+            dcPensions: defaults.partnerDcPensions || [],
+            dbPensions: defaults.partnerDbPensions || [],
+            contribEvents: defaults.partnerContribEvents || [],
+            lumpSumEvents: defaults.partnerLumpSumEvents || [],
+          },
+        };
     return {
       dob: String(getEl('in_dob').value || ''),
       currentAge: mainAge?.currentAge ?? Number(getEl('in_currentAge').value || defaults.currentAge),
@@ -148,10 +164,10 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
       endAge: Number(getEl('in_endAge').value || 95),
       feePct: Number(getEl('in_feePct').value || defaults.feePct),
       notes: String(getEl('in_notes').value || ''),
-      dcPensions: readDcPensionsEditor(),
-      dbPensions: readDbPensionsEditor(),
-      contribEvents: readContribEventsEditor(),
-      lumpSumEvents: readLumpSumEventsEditor(),
+      dcPensions: editorCollections.primary.dcPensions || [],
+      dbPensions: editorCollections.primary.dbPensions || [],
+      contribEvents: editorCollections.primary.contribEvents || [],
+      lumpSumEvents: editorCollections.primary.lumpSumEvents || [],
       partnerDob: String(getEl('in_spouseDob').value || ''),
       partnerValuationDate: String(getEl('in_spouseValuationDate').value || defaults.spouseValuationDate || defaults.valuationDate),
       partnerCurrentAge: spouseAge?.currentAge ?? Number(getEl('in_spouseCurrentAge').value || defaults.spouseCurrentAge),
@@ -164,10 +180,10 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
       partnerEmpPct: Number(getEl('in_spouseEmpPct').value || 0),
       partnerErPct: Number(getEl('in_spouseErPct').value || 0),
       partnerStatePension: Number(getEl('in_spouseStatePension').value || defaults.spouseStatePension),
-      partnerDcPensions: defaults.partnerDcPensions || [],
-      partnerDbPensions: defaults.partnerDbPensions || [],
-      partnerContribEvents: defaults.partnerContribEvents || [],
-      partnerLumpSumEvents: defaults.partnerLumpSumEvents || [],
+      partnerDcPensions: editorCollections.partner.dcPensions || defaults.partnerDcPensions || [],
+      partnerDbPensions: editorCollections.partner.dbPensions || defaults.partnerDbPensions || [],
+      partnerContribEvents: editorCollections.partner.contribEvents || defaults.partnerContribEvents || [],
+      partnerLumpSumEvents: editorCollections.partner.lumpSumEvents || defaults.partnerLumpSumEvents || [],
       statePension: Number(getEl('in_statePension').value || 0),
       drawdown: Number(getEl('in_draw').value || 0),
       allowance: Number(getEl('in_allow').value || 0),

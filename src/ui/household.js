@@ -6,7 +6,7 @@ export function renderHouseholdTab({ getEl, fmtGBP, drawLineChart }, state, hous
 
   if (!household) {
     intro.style.display = 'flex';
-    intro.innerHTML = `<div>ℹ️</div><div><div style="font-weight:700">Household view is off</div><div class="muted small">Switch Planner mode to <strong>Joint household</strong> on the Inputs → Household tab to see combined retirement results.</div></div>`;
+    intro.innerHTML = `<div>ℹ️</div><div><div style="font-weight:700">Household view is off</div><div class="muted small">Switch Planner mode to <strong>Joint household</strong> on the Inputs → <strong>Partner</strong> tab to see combined retirement results.</div></div>`;
     kpiWrap.innerHTML = '';
     tbody.innerHTML = '';
     const incomeChart = getEl('chartHouseholdIncome');

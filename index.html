@@ -148,157 +148,258 @@
 
     <!-- INPUTS -->
     <section class="view" id="view-inputs" style="display:none">
-      <div class="card">
-        <h3>Inputs (edit these)</h3>
+      <div class="card inputs-shell">
+        <h3>Inputs workspace</h3>
         <div class="tipGrid" data-tips="view-inputs"><div class="tipCard"><div class="ticon">✍️</div><div><div class="ttitle">Keep it realistic</div><div class="ttext">If unsure, use slightly conservative assumptions and compare scenarios rather than guessing perfectly.</div></div></div><div class="tipCard"><div class="ticon">🔁</div><div><div class="ttitle">Change one thing</div><div class="ttext">Adjust one input at a time so you can see what actually caused the change.</div></div></div><div class="tipCard"><div class="ticon">💾</div><div><div class="ttitle">Save a baseline</div><div class="ttext">Once inputs look sensible, save “Baseline”. Then duplicate for “Early”, “Lower spend”, “More contrib”.</div></div></div></div>
+        <div class="inputs-confidence-row">
+          <span class="badge"><span class="ico">✅</span>Autosave is active while you type</span>
+          <span class="badge"><span class="ico">🧪</span>Validation highlights errors before recalc</span>
+          <span class="badge"><span class="ico">🛟</span>Reset restores safe defaults</span>
+        </div>
         <p class="muted" style="margin-top:0">All inputs are assumed to be in today’s money. The model converts nominal return/growth into real (inflation-adjusted) rates. Use date of birth plus values as at date so the app can derive your current age and the first short age-period automatically.</p>
         <div id="validationSummary" class="callout" style="display:none; margin-bottom:12px"></div>
 
         <div class="tabs" role="tablist">
-          <button class="active" data-tab="personal">Personal</button>
-          <button data-tab="income">Earnings & Contributions</button>
-          <button data-tab="assumptions">Assumptions</button>
-          <button data-tab="retirement">Retirement & Tax</button>
-          <button data-tab="householdInputs">Household</button>
-          <button data-tab="dcPensions">DC pensions</button>
-          <button data-tab="dbPensions">DB pensions</button>
-          <button data-tab="extraContribs">Extra contributions</button>
-          <button data-tab="lumpSums">DC lump sums</button>
+          <button class="active" data-tab="you">You</button>
+          <button data-tab="partner">Partner</button>
+          <button class="tab-global" data-tab="assumptions">Assumptions</button>
         </div>
 
-        <div id="tab-personal" class="tab">
-          <div class="form">
-            <div class="field"><label>Date of birth</label><input type="date" id="in_dob" /><div class="hint">Used with the values as at date to work out your current age row and months until the next birthday automatically.</div></div>
-            <div class="field"><label>Values as at date</label><input type="date" id="in_valuationDate" /><div class="hint">Reference date for the balances and income inputs you enter.</div></div>
-            <div class="field"><label>Current age (derived)</label><input type="number" id="in_currentAge" min="18" max="90" /><div class="hint">Auto-filled from date of birth when provided. Leave date of birth blank to enter age manually.</div></div>
-            <div class="field"><label>First projection period (months to next birthday)</label><input type="number" id="in_firstYearMonths" min="0.1" max="12" step="0.1" /><div class="hint">Auto-filled from date of birth and values as at date. This first short age-period is applied across all pension sources before the model switches to full 12-month age years.</div></div>
-            <div class="field"><label>Retirement age (start drawing)</label><input type="number" id="in_retireAge" min="40" max="90" /></div>
-            <div class="field"><label>Early retirement age (optional)</label><input type="number" id="in_earlyAge" min="40" max="90" placeholder="Used by Bridge" /></div>
-            <div class="field"><label>State Pension age</label><input type="number" id="in_stateAge" min="55" max="90" /></div>
-            <div class="field w6"><label>Current workplace DC pension pot (£)</label><input type="number" id="in_pot" min="0" step="100" /></div>
-            <div class="field w6"><label>Other taxable income (£/yr)</label><input type="number" id="in_otherIncome" min="0" step="100" /></div>
+        <!-- YOU TAB -->
+        <div id="tab-you" class="tab">
+          <div class="subtabs" id="subtabs-you" role="tablist">
+            <button class="active" data-subtab="you-personal">Personal</button>
+            <button data-subtab="you-earnings">Earnings</button>
+            <button data-subtab="you-retirement">Retirement</button>
+            <button data-subtab="you-dc">DC pensions</button>
+            <button data-subtab="you-db">DB pensions</button>
+            <button data-subtab="you-contrib">Contributions</button>
+            <button data-subtab="you-lump">Lump sums</button>
+          </div>
+
+          <div id="subtab-you-personal" class="subtab-panel">
+            <div class="person-section">
+              <div class="person-section-title">Personal details</div>
+              <div class="form">
+                <div class="field"><label>Date of birth</label><input type="date" id="in_dob" /><div class="hint">Used with values as at date to derive your current age row and months until the next birthday automatically.</div></div>
+                <div class="field"><label>Values as at date</label><input type="date" id="in_valuationDate" /><div class="hint">Reference date for the balances and income you enter.</div></div>
+                <div class="field"><label>Current age (derived)</label><input type="number" id="in_currentAge" min="18" max="90" /><div class="hint">Auto-filled from date of birth. Leave blank to enter manually.</div></div>
+                <div class="field"><label>First projection period (months to next birthday)</label><input type="number" id="in_firstYearMonths" min="0.1" max="12" step="0.1" /><div class="hint">Auto-filled from DOB and valuation date. Applied to all pension sources in the first short age-period.</div></div>
+                <div class="field"><label>Retirement age</label><input type="number" id="in_retireAge" min="40" max="90" /></div>
+                <div class="field"><label>Early retirement age (optional)</label><input type="number" id="in_earlyAge" min="40" max="90" placeholder="Used by Bridge" /></div>
+                <div class="field"><label>State Pension age</label><input type="number" id="in_stateAge" min="55" max="90" /></div>
+                <div class="field w6"><label>Current workplace DC pension pot (&#163;)</label><input type="number" id="in_pot" min="0" step="100" /></div>
+                <div class="field w6"><label>Other taxable income (&#163;/yr)</label><input type="number" id="in_otherIncome" min="0" step="100" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="subtab-you-earnings" class="subtab-panel" style="display:none">
+            <div class="person-section">
+              <div class="person-section-title">Earnings &amp; contributions</div>
+              <div class="form">
+                <div class="field w6"><label>Salary (&#163;/yr)</label><input type="number" id="in_salary" min="0" step="100" /></div>
+                <div class="field"><label>Salary growth (%/yr, nominal)</label><input type="number" id="in_salaryGrowth" step="0.1" /><div class="hint">Uses nominal pay growth for salary and contribution projections.</div></div>
+                <div class="field"><label>Employee pension (% of salary)</label><input type="number" id="in_empPct" step="0.1" /></div>
+                <div class="field"><label>Employer pension (% of salary)</label><input type="number" id="in_erPct" step="0.1" /></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="subtab-you-retirement" class="subtab-panel" style="display:none">
+            <div class="person-section">
+              <div class="person-section-title">Retirement &amp; tax</div>
+              <div class="form">
+                <div class="field"><label>State Pension (today's &#163;/yr)</label><input type="number" id="in_statePension" step="100" /></div>
+                <div class="field"><label>Drawdown rate (% of pot/yr)</label><input type="number" id="in_draw" step="0.1" /></div>
+                <div class="field w12"><div class="hint">Recurring drawdown is regular annual withdrawals. PCLS / UFPLS / taxable one-off withdrawals should be added in <strong>DC lump sums</strong> below.</div></div>
+                <div class="field"><label>Tax&#8209;free cash per withdrawal (TFLS %)</label><input type="number" id="in_tflsPct" step="0.1" /></div>
+                <div class="field"><label>TFLS cap / Lump Sum Allowance (&#163;)</label><input type="number" id="in_tflsCap" step="100" /></div>
+              </div>
+              <details class="helpAcc" style="margin-top:12px">
+                <summary><span class="q">Advanced tax controls</span><span class="chev">&#9660;</span></summary>
+                <div class="a">
+                  <div class="form" style="margin-top:8px">
+                    <div class="field"><label>Personal Allowance (&#163;)</label><input type="number" id="in_allow" step="10" /></div>
+                    <div class="field"><label>Basic rate tax (%)</label><input type="number" id="in_basicTax" step="0.1" /></div>
+                    <div class="field"><label>Higher-rate tax (%)</label><input type="number" id="in_higherTax" step="0.1" /></div>
+                    <div class="field"><label>Higher-rate threshold (&#163; taxable)</label><input type="number" id="in_higherThreshold" step="100" /></div>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div id="subtab-you-dc" class="subtab-panel" style="display:none">
+            <div class="person-section">
+              <div class="person-section-title">DC pensions <span class="person-section-subtitle">Extra pots, SIPPs and old workplace pensions beyond the main balance above</span></div>
+              <p class="muted small" style="margin:0 0 10px">Each pot can have its own fee and withdrawal priority. The main workplace pot above is already included automatically.</p>
+              <div class="row" style="margin-bottom:10px">
+                <button class="btn" id="btnAddDc" type="button">+ Add DC pension</button>
+              </div>
+              <div id="dcPensionsSummary" class="inputs-repeater-summary muted small"></div>
+              <div id="dcPensionsWrap"></div>
+            </div>
+          </div>
+
+          <div id="subtab-you-db" class="subtab-panel" style="display:none">
+            <div class="person-section">
+              <div class="person-section-title">DB pensions <span class="person-section-subtitle">Defined benefit / final salary pensions</span></div>
+              <p class="muted small" style="margin:0 0 10px">Add final salary or career average pensions as future income streams. They start at a chosen age and lift retirement income automatically.</p>
+              <div class="row" style="margin-bottom:10px">
+                <button class="btn" id="btnAddDb" type="button">+ Add DB pension</button>
+              </div>
+              <div id="dbPensionsSummary" class="inputs-repeater-summary muted small"></div>
+              <div id="dbPensionsWrap"></div>
+            </div>
+          </div>
+
+          <div id="subtab-you-contrib" class="subtab-panel" style="display:none">
+            <div class="person-section">
+              <div class="person-section-title">Extra contributions <span class="person-section-subtitle">One-off top-ups, monthly boosts and bonus payments</span></div>
+              <p class="muted small" style="margin:0 0 10px">Model one-off top-ups, regular extra monthly/annual payments, and bonus-funded contributions. Earlier contributions have longer to grow.</p>
+              <div class="row" style="margin-bottom:10px">
+                <button class="btn" id="btnAddContrib" type="button">+ Add contribution</button>
+              </div>
+              <div id="contribEventsSummary" class="inputs-repeater-summary muted small"></div>
+              <div id="contribEventsWrap"></div>
+            </div>
+          </div>
+
+          <div id="subtab-you-lump" class="subtab-panel" style="display:none">
+            <div class="person-section">
+              <div class="person-section-title">DC lump sums <span class="person-section-subtitle">PCLS, UFPLS and one-off withdrawals at specific ages</span></div>
+              <p class="muted small" style="margin:0 0 10px">Add one-off lump sums from any DC pension. These sit separately from regular drawdown so you can model PCLS, UFPLS or taxable lump sums without mixing them into annual income.</p>
+              <div class="row" style="margin-bottom:10px">
+                <button class="btn" id="btnAddLumpSum" type="button">+ Add DC lump sum</button>
+              </div>
+              <div id="lumpSumEventsSummary" class="inputs-repeater-summary muted small"></div>
+              <div id="lumpSumEventsWrap"></div>
+            </div>
           </div>
         </div>
+        <!-- PARTNER TAB -->
+        <div id="tab-partner" class="tab" style="display:none">
+          <div class="person-section">
+            <div class="form">
+              <div class="field w6">
+                <label>Planner mode</label>
+                <select id="in_householdMode">
+                  <option value="single" selected>Single person</option>
+                  <option value="joint">Joint household</option>
+                </select>
+              </div>
+            </div>
+            <div class="callout" style="margin-top:10px">
+              <div>&#128101;</div>
+              <div>
+                <div style="font-weight:700">Partner profile</div>
+                <div class="muted small">Select <strong>Joint household</strong> above to add your partner's details. Both of you are projected separately, then combined in Household view.</div>
+              </div>
+            </div>
+          </div>
 
-        <div id="tab-income" class="tab" style="display:none">
-          <div class="form">
-            <div class="field w6"><label>Salary (£/yr)</label><input type="number" id="in_salary" min="0" step="100" /></div>
-            <div class="field"><label>Salary growth (%/yr, nominal)</label><input type="number" id="in_salaryGrowth" step="0.1" /><div class="hint">Uses nominal pay growth for salary and contribution projections.</div></div>
-            <div class="field"><label>Employee pension (% of salary)</label><input type="number" id="in_empPct" step="0.1" /></div>
-            <div class="field"><label>Employer pension (% of salary)</label><input type="number" id="in_erPct" step="0.1" /></div>
+          <div id="spouseFields" style="display:none">
+            <div class="subtabs" id="subtabs-partner" role="tablist">
+              <button class="active" data-subtab="partner-personal">Personal</button>
+              <button data-subtab="partner-earnings">Earnings</button>
+              <button data-subtab="partner-dc">DC pensions</button>
+              <button data-subtab="partner-db">DB pensions</button>
+              <button data-subtab="partner-contrib">Contributions</button>
+              <button data-subtab="partner-lump">Lump sums</button>
+            </div>
+
+            <div id="subtab-partner-personal" class="subtab-panel">
+              <div class="person-section">
+                <div class="person-section-title">Partner personal details</div>
+                <div class="form household-grid">
+                  <div class="field"><label>Partner date of birth</label><input type="date" id="in_spouseDob" /><div class="hint">Used with partner values-as-at date to derive current age and months to next birthday.</div></div>
+                  <div class="field"><label>Partner values as at date</label><input type="date" id="in_spouseValuationDate" /><div class="hint">Reference date for partner balances and income inputs.</div></div>
+                  <div class="field"><label>Partner current age (derived)</label><input type="number" id="in_spouseCurrentAge" min="18" max="90" /></div>
+                  <div class="field"><label>Partner first projection period (months)</label><input type="number" id="in_spouseFirstYearMonths" min="0.1" max="12" step="0.1" /></div>
+                  <div class="field"><label>Partner retirement age</label><input type="number" id="in_spouseRetireAge" min="40" max="90" /></div>
+                  <div class="field"><label>Partner State Pension age</label><input type="number" id="in_spouseStateAge" min="55" max="90" /></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="subtab-partner-earnings" class="subtab-panel" style="display:none">
+              <div class="person-section">
+                <div class="person-section-title">Partner earnings &amp; contributions</div>
+                <div class="form household-grid">
+                  <div class="field"><label>Partner pension pot (&#163;)</label><input type="number" id="in_spousePot" min="0" step="100" /></div>
+                  <div class="field"><label>Partner salary (&#163;/yr)</label><input type="number" id="in_spouseSalary" min="0" step="100" /></div>
+                  <div class="field"><label>Partner other taxable income (&#163;/yr)</label><input type="number" id="in_spouseOtherIncome" min="0" step="100" /></div>
+                  <div class="field"><label>Partner State Pension (&#163;/yr)</label><input type="number" id="in_spouseStatePension" step="100" /></div>
+                  <div class="field"><label>Partner employee pension (% of salary)</label><input type="number" id="in_spouseEmpPct" step="0.1" /></div>
+                  <div class="field"><label>Partner employer pension (% of salary)</label><input type="number" id="in_spouseErPct" step="0.1" /></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="subtab-partner-dc" class="subtab-panel" style="display:none">
+              <div class="person-section">
+                <div class="person-section-title">Partner DC pensions <span class="person-section-subtitle">Extra pots, SIPPs and old workplace pensions</span></div>
+                <p class="muted small" style="margin:0 0 10px">Partner's extra DC pots. The main partner pension pot above is already included automatically.</p>
+                <div class="row" style="margin-bottom:10px">
+                  <button class="btn" id="btnAddPartnerDc" type="button">+ Add DC pension</button>
+                </div>
+                <div id="partnerDcPensionsSummary" class="inputs-repeater-summary muted small"></div>
+                <div id="partnerDcPensionsWrap"></div>
+              </div>
+            </div>
+
+            <div id="subtab-partner-db" class="subtab-panel" style="display:none">
+              <div class="person-section">
+                <div class="person-section-title">Partner DB pensions <span class="person-section-subtitle">Defined benefit / final salary pensions</span></div>
+                <p class="muted small" style="margin:0 0 10px">Partner's defined benefit or final salary pensions as future income streams.</p>
+                <div class="row" style="margin-bottom:10px">
+                  <button class="btn" id="btnAddPartnerDb" type="button">+ Add DB pension</button>
+                </div>
+                <div id="partnerDbPensionsSummary" class="inputs-repeater-summary muted small"></div>
+                <div id="partnerDbPensionsWrap"></div>
+              </div>
+            </div>
+
+            <div id="subtab-partner-contrib" class="subtab-panel" style="display:none">
+              <div class="person-section">
+                <div class="person-section-title">Partner extra contributions <span class="person-section-subtitle">One-off top-ups and regular boosts</span></div>
+                <p class="muted small" style="margin:0 0 10px">Partner's one-off top-ups, regular extra monthly or annual payments, and bonus-funded contributions.</p>
+                <div class="row" style="margin-bottom:10px">
+                  <button class="btn" id="btnAddPartnerContrib" type="button">+ Add contribution</button>
+                </div>
+                <div id="partnerContribEventsSummary" class="inputs-repeater-summary muted small"></div>
+                <div id="partnerContribEventsWrap"></div>
+              </div>
+            </div>
+
+            <div id="subtab-partner-lump" class="subtab-panel" style="display:none">
+              <div class="person-section">
+                <div class="person-section-title">Partner DC lump sums <span class="person-section-subtitle">PCLS, UFPLS and one-off withdrawals</span></div>
+                <p class="muted small" style="margin:0 0 10px">Partner's one-off lump sums from DC pensions — PCLS, UFPLS or taxable withdrawals at specific ages.</p>
+                <div class="row" style="margin-bottom:10px">
+                  <button class="btn" id="btnAddPartnerLumpSum" type="button">+ Add DC lump sum</button>
+                </div>
+                <div id="partnerLumpSumEventsSummary" class="inputs-repeater-summary muted small"></div>
+                <div id="partnerLumpSumEventsWrap"></div>
+              </div>
+            </div>
           </div>
         </div>
-
+        <!-- ASSUMPTIONS TAB -->
         <div id="tab-assumptions" class="tab" style="display:none">
+          <div class="inputs-tab-intro">
+            <strong>Assumptions</strong>
+            <span class="muted small">Global inputs shared across both profiles. Leave defaults if unsure.</span>
+          </div>
           <div class="form">
             <div class="field"><label>Investment return (nominal %/yr)</label><input type="number" id="in_return" step="0.1" /></div>
             <div class="field"><label>Inflation (%/yr)</label><input type="number" id="in_inflation" step="0.1" /></div>
             <div class="field"><label>Return volatility (%/yr) for Monte Carlo</label><input type="number" id="in_vol" step="0.1" /></div>
             <div class="field"><label>Projection end age</label><input type="number" id="in_endAge" min="70" max="110" /></div>
-            <div class="field"><label>Fees & charges (%/yr)</label><input type="number" id="in_feePct" step="0.01" min="0" /></div>
+            <div class="field"><label>Fees &amp; charges (%/yr)</label><input type="number" id="in_feePct" step="0.01" min="0" /></div>
             <div class="field w12"><label>Notes</label><input type="text" id="in_notes" placeholder="Optional: scenario notes" /></div>
           </div>
-        </div>
-
-        <div id="tab-retirement" class="tab" style="display:none">
-          <div class="form">
-            <div class="field"><label>State Pension (today’s £/yr)</label><input type="number" id="in_statePension" step="100" /></div>
-            <div class="field"><label>Drawdown rate (% of pot/yr)</label><input type="number" id="in_draw" step="0.1" /></div>
-            <div class="field"><label>Personal Allowance (£)</label><input type="number" id="in_allow" step="10" /></div>
-            <div class="field"><label>Basic rate tax (%)</label><input type="number" id="in_basicTax" step="0.1" /></div>
-            <div class="field"><label>Higher-rate tax (%)</label><input type="number" id="in_higherTax" step="0.1" /></div>
-            <div class="field"><label>Higher-rate threshold (£ taxable)</label><input type="number" id="in_higherThreshold" step="100" /></div>
-            <div class="field"><label>Tax‑free cash per withdrawal (TFLS %)</label><input type="number" id="in_tflsPct" step="0.1" /></div>
-            <div class="field"><label>TFLS cap / Lump Sum Allowance (£)</label><input type="number" id="in_tflsCap" step="100" /></div>
-          </div>
-        </div>
-
-        <div id="tab-householdInputs" class="tab" style="display:none">
-          <div class="callout" style="margin-bottom:12px">
-            <div>🏠</div>
-            <div>
-              <div style="font-weight:700">Household mode</div>
-              <div class="muted small">Use this when you want to see combined retirement affordability for you and your partner. Tax is still simplified, but each person is projected separately and then combined.</div>
-            </div>
-          </div>
-          <div class="form">
-            <div class="field"><label>Planner mode</label>
-              <select id="in_householdMode">
-                <option value="single" selected>Single person</option>
-                <option value="joint">Joint household</option>
-              </select>
-            </div>
-            <div id="spouseFields">
-            <div class="field"><label>Partner date of birth</label><input type="date" id="in_spouseDob" /><div class="hint">Used with the partner values as at date to derive their current age and months until next birthday.</div></div>
-            <div class="field"><label>Partner values as at date</label><input type="date" id="in_spouseValuationDate" /><div class="hint">Reference date for the partner balances and income inputs.</div></div>
-            <div class="field"><label>Partner current age (derived)</label><input type="number" id="in_spouseCurrentAge" min="18" max="90" /><div class="hint">Auto-filled from partner date of birth when provided. Leave blank to enter manually.</div></div>
-            <div class="field"><label>Partner first projection period (months to next birthday)</label><input type="number" id="in_spouseFirstYearMonths" min="0.1" max="12" step="0.1" /><div class="hint">Auto-filled from partner date of birth and values as at date.</div></div>
-            <div class="field"><label>Partner retirement age</label><input type="number" id="in_spouseRetireAge" min="40" max="90" /></div>
-            <div class="field"><label>Partner State Pension age</label><input type="number" id="in_spouseStateAge" min="55" max="90" /></div>
-            <div class="field w6"><label>Partner pension pot (£)</label><input type="number" id="in_spousePot" min="0" step="100" /></div>
-            <div class="field w6"><label>Partner other taxable income (£/yr)</label><input type="number" id="in_spouseOtherIncome" min="0" step="100" /></div>
-            <div class="field w6"><label>Partner salary (£/yr)</label><input type="number" id="in_spouseSalary" min="0" step="100" /></div>
-            <div class="field"><label>Partner employee pension (% of salary)</label><input type="number" id="in_spouseEmpPct" step="0.1" /></div>
-            <div class="field"><label>Partner employer pension (% of salary)</label><input type="number" id="in_spouseErPct" step="0.1" /></div>
-            <div class="field"><label>Partner State Pension (£/yr)</label><input type="number" id="in_spouseStatePension" step="100" /></div>
-          </div>
-          </div>
-        </div>
-
-        <div id="tab-dcPensions" class="tab" style="display:none">
-          <div class="callout" style="margin-bottom:12px">
-            <div>🏦</div>
-            <div>
-              <div style="font-weight:700">Defined contribution pension pots</div>
-              <div class="muted small">Add old workplace pensions, SIPPs and any other DC pots. Each pot can have its own provider, fee and withdrawal priority. The “Current workplace DC pension pot” above is still included automatically.</div>
-            </div>
-          </div>
-          <div class="row" style="margin-bottom:10px">
-            <button class="btn" id="btnAddDc" type="button">+ Add DC pension</button>
-          </div>
-          <div id="dcPensionsWrap"></div>
-        </div>
-
-        <div id="tab-dbPensions" class="tab" style="display:none">
-          <div class="callout" style="margin-bottom:12px">
-            <div>🧾</div>
-            <div>
-              <div style="font-weight:700">Defined benefit pensions</div>
-              <div class="muted small">Add final salary / career average pensions as future income streams. They start at a chosen age and then lift retirement income like a second income source.</div>
-            </div>
-          </div>
-          <div class="row" style="margin-bottom:10px">
-            <button class="btn" id="btnAddDb" type="button">+ Add DB pension</button>
-          </div>
-          <div id="dbPensionsWrap"></div>
-        </div>
-
-        <div id="tab-extraContribs" class="tab" style="display:none">
-          <div class="callout" style="margin-bottom:12px">
-            <div>💷</div>
-            <div>
-              <div style="font-weight:700">Extra contributions</div>
-              <div class="muted small">Model one-off top-ups, regular extra monthly/annual payments, and bonus-funded contributions. Earlier contributions have longer to grow.</div>
-            </div>
-          </div>
-          <div class="row" style="margin-bottom:10px">
-            <button class="btn" id="btnAddContrib" type="button">+ Add contribution</button>
-          </div>
-          <div id="contribEventsWrap"></div>
-        </div>
-
-        <div id="tab-lumpSums" class="tab" style="display:none">
-          <div class="callout" style="margin-bottom:12px">
-            <div>💸</div>
-            <div>
-              <div style="font-weight:700">DC lump sums</div>
-              <div class="muted small">Add one-off lump sums from any DC pension or a specific DC pension. These sit separately from regular drawdown so you can model PCLS, UFPLS or taxable lump sums without mixing them into annual retirement income.</div>
-            </div>
-          </div>
-          <div class="row" style="margin-bottom:10px">
-            <button class="btn" id="btnAddLumpSum" type="button">+ Add DC lump sum</button>
-          </div>
-          <div id="lumpSumEventsWrap"></div>
         </div>
 
       </div>

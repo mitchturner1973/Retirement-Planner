@@ -91,6 +91,20 @@
 
     .callout{display:flex; gap:12px; padding:12px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.04)}
 
+    .validation-shell{width:100%}
+    .validation-head{display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap}
+    .validation-badges{display:flex; gap:6px; flex-wrap:wrap}
+    .validation-list{margin:8px 0 0; padding:0; list-style:none; display:grid; gap:6px}
+    .validation-item{border:1px solid var(--line); border-radius:12px; padding:8px 10px; background:rgba(255,255,255,.08); display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:center}
+    .validation-item--error{border-color:rgba(251,113,133,.28); background:rgba(251,113,133,.10)}
+    .validation-item--warning{border-color:rgba(251,191,36,.28); background:rgba(251,191,36,.10)}
+    .validation-item-type{font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:700}
+    .validation-item-msg{font-size:13px}
+    .validation-focus-btn{padding:5px 9px; border-radius:10px; font-size:12px}
+    .validation-info{margin-top:8px; border:1px solid var(--line); border-radius:12px; background:rgba(255,255,255,.06); padding:8px 10px}
+    .validation-info summary{cursor:pointer; color:var(--muted); font-size:12px; font-weight:600}
+    .validation-info ul{margin:8px 0 0 16px; font-size:12px; display:grid; gap:4px}
+
     /* Teacher tips */
     .tipGrid{display:grid; grid-template-columns: repeat(12, 1fr); gap:12px; margin-top:12px}
     .tipCard{grid-column: span 4; border:1px dashed rgba(110,231,255,.30); background:rgba(110,231,255,.06);
@@ -211,7 +225,13 @@ body.navOpen #sideOverlay{display:block}
     .repeatCard{border:1px solid var(--line); background:rgba(255,255,255,.03); border-radius:14px; padding:12px}
     .repeatHead{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px}
     .repeatTitle{font-weight:700; font-size:13px}
+    .repeatActions{display:flex; gap:6px; align-items:center}
+    .repeatMeta{display:flex; flex-wrap:wrap; gap:6px; margin:-4px 0 10px}
+    .repeatMeta .badge{font-size:11px; padding:3px 8px}
+    .repeatEmpty{border:1px dashed var(--line); border-radius:14px; padding:12px; background:rgba(255,255,255,.02)}
+    .repeatEmptyTitle{font-size:13px; font-weight:700; margin-bottom:4px}
     .miniBtn{all:unset; cursor:pointer; color:var(--bad); font-size:12px; padding:6px 8px; border:1px solid rgba(251,113,133,.35); border-radius:10px; background:rgba(251,113,133,.08)}
+    .miniBtn.clone{color:var(--brand); border-color:rgba(110,231,255,.35); background:rgba(110,231,255,.08)}
     .hint{font-size:11px; color:var(--muted)}
 
     /* Strategy visual refinement */
@@ -237,6 +257,358 @@ body.navOpen #sideOverlay{display:block}
     #view-overview .tipCard .ttext,
     #view-overview .overview-next-step-text{
       color:#667085;
+    }
+    #view-inputs{
+      color:#111827;
+    }
+    #view-inputs .inputs-shell{
+      background:linear-gradient(180deg, rgba(249,250,251,.96), rgba(242,245,248,.92));
+      border:1px solid rgba(15,23,42,.08);
+      box-shadow:0 18px 48px rgba(15,23,42,.12);
+      color:#111827;
+    }
+    #view-inputs h3,
+    #view-inputs h4,
+    #view-inputs .repeatTitle,
+    #view-inputs details.helpAcc summary .q{
+      color:#111827;
+      letter-spacing:-.01em;
+    }
+    #view-inputs .muted,
+    #view-inputs .footer,
+    #view-inputs .tipCard .ttext,
+    #view-inputs .hint,
+    #view-inputs label{
+      color:#667085;
+    }
+    #view-inputs .tipCard{
+      border-color:rgba(37,99,235,.20);
+      background:rgba(59,130,246,.06);
+    }
+    #view-inputs .tipCard .ticon{
+      background:rgba(59,130,246,.14);
+    }
+    #view-inputs .inputs-confidence-row{
+      margin:12px 0 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    #view-inputs .badge{
+      border-color:rgba(15,23,42,.10);
+      background:rgba(255,255,255,.7);
+      color:#374151;
+    }
+    #view-inputs .badge .ico{
+      background:rgba(15,23,42,.06);
+    }
+    #view-inputs #validationSummary{
+      border-color:rgba(245,158,11,.22);
+      background:rgba(255,251,235,.84);
+    }
+    #view-inputs .tabs{
+      margin:10px 0 14px;
+      padding:10px;
+      border-radius:16px;
+      border:1px solid rgba(15,23,42,.08);
+      background:rgba(255,255,255,.68);
+    }
+    #view-inputs .tabs button{
+      background:rgba(255,255,255,.85);
+      border-color:rgba(15,23,42,.12);
+      color:#334155;
+      font-weight:600;
+      padding:8px 12px;
+    }
+    #view-inputs .tabs button.active{
+      background:rgba(59,130,246,.12);
+      border-color:rgba(59,130,246,.35);
+      color:#1e3a8a;
+    }
+    #view-inputs .tabs button.tab-global{
+      border-style:dashed;
+      border-color:rgba(100,116,139,.3);
+      color:#475569;
+    }
+    /* Make add/action buttons visible in light-mode inputs panel */
+    #view-inputs .btn{
+      background:rgba(248,250,252,.95);
+      border-color:rgba(15,23,42,.15);
+      color:#1e293b;
+    }
+    #view-inputs .btn:hover{
+      background:rgba(241,245,249,1);
+      border-color:rgba(59,130,246,.35);
+      color:#1e3a8a;
+    }
+    /* Sub-tabs (second level within You / Partner) */
+    #view-inputs .subtabs{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin:0 0 18px;
+      padding:8px;
+      background:rgba(255,255,255,.50);
+      border:1px solid rgba(15,23,42,.06);
+      border-radius:12px;
+    }
+    #view-inputs .subtabs button{
+      background:rgba(255,255,255,.80);
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:9px;
+      color:#475569;
+      font-size:12px;
+      font-weight:500;
+      padding:6px 12px;
+      cursor:pointer;
+    }
+    #view-inputs .subtabs button.active{
+      background:rgba(59,130,246,.10);
+      border-color:rgba(59,130,246,.30);
+      color:#1e3a8a;
+      font-weight:600;
+    }
+    #view-inputs .person-section{
+      margin-bottom:20px;
+    }
+    #view-inputs .person-section-title{
+      font-size:15px;
+      font-weight:700;
+      color:#1e293b;
+      margin:0 0 12px;
+      display:flex;
+      align-items:baseline;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    #view-inputs .person-section-subtitle{
+      font-size:12px;
+      font-weight:400;
+      color:#64748b;
+    }
+    #view-inputs .person-section-divider{
+      border:none;
+      border-top:1.5px solid rgba(15,23,42,.07);
+      margin:16px 0 22px;
+    }
+    #view-inputs .inputs-tab-intro{
+      margin:2px 0 10px;
+      padding:10px 12px;
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:14px;
+      background:rgba(255,255,255,.74);
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    #view-inputs .person-badge-you{
+      border-color:rgba(37,99,235,.24);
+      background:rgba(239,246,255,.9);
+      color:#1d4ed8;
+      font-weight:600;
+    }
+    #view-inputs .person-badge-partner{
+      border-color:rgba(124,58,237,.24);
+      background:rgba(245,243,255,.9);
+      color:#6d28d9;
+      font-weight:600;
+    }
+    #view-inputs input,
+    #view-inputs select,
+    #view-inputs textarea{
+      background:rgba(255,255,255,.9);
+      border-color:rgba(15,23,42,.16);
+      color:#111827;
+    }
+    #view-inputs input:focus,
+    #view-inputs select:focus,
+    #view-inputs textarea:focus{
+      border-color:rgba(37,99,235,.45);
+      box-shadow:0 0 0 3px rgba(59,130,246,.14);
+    }
+    #view-inputs .callout,
+    #view-inputs details.helpAcc,
+    #view-inputs .repeatCard{
+      border-color:rgba(15,23,42,.10);
+      background:rgba(255,255,255,.75);
+    }
+    #view-inputs details.helpAcc[open]{
+      border-color:rgba(59,130,246,.28);
+      background:rgba(239,246,255,.85);
+    }
+    #view-inputs .inputs-repeater-summary{
+      margin:-2px 0 10px;
+      font-weight:600;
+      color:#475467;
+    }
+    #view-inputs .household-shell{
+      grid-column:1 / -1;
+      display:grid;
+      gap:10px;
+    }
+    #view-inputs .household-section{
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.76);
+      border-radius:16px;
+      padding:12px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+    }
+    #view-inputs .household-section-title{
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:#4b5563;
+      margin-bottom:8px;
+    }
+    #view-inputs .household-grid{
+      gap:10px;
+    }
+    #view-inputs .household-grid .field{
+      grid-column:span 6;
+    }
+    #view-inputs .household-grid .field .hint{
+      margin-top:1px;
+    }
+    #view-inputs .inputs-repeater-summary .badge{
+      margin-right:6px;
+      border-color:rgba(15,23,42,.12);
+      background:rgba(255,255,255,.8);
+      color:#334155;
+      font-weight:600;
+    }
+    #view-inputs .editor-person-toggle{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.75);
+    }
+    #view-inputs .editor-person-toggle .btn{
+      padding:6px 10px;
+      font-size:12px;
+      border-radius:10px;
+      background:rgba(255,255,255,.9);
+      color:#475467;
+      border-color:rgba(15,23,42,.14);
+    }
+    #view-inputs .editor-person-toggle .btn.active,
+    #view-inputs .editor-person-toggle .btn[aria-pressed="true"]{
+      background:rgba(37,99,235,.12);
+      border-color:rgba(37,99,235,.26);
+      color:#1d4ed8;
+    }
+    #view-inputs .validation-shell{
+      width:100%;
+    }
+    #view-inputs .validation-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    #view-inputs .validation-badges{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    #view-inputs .validation-list{
+      margin:8px 0 0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:6px;
+    }
+    #view-inputs .validation-item{
+      border:1px solid rgba(15,23,42,.1);
+      border-radius:12px;
+      padding:8px 10px;
+      background:rgba(255,255,255,.75);
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:8px;
+      align-items:center;
+    }
+    #view-inputs .validation-item--error{
+      border-color:rgba(190,24,93,.24);
+      background:rgba(255,241,242,.9);
+    }
+    #view-inputs .validation-item--warning{
+      border-color:rgba(217,119,6,.28);
+      background:rgba(255,251,235,.9);
+    }
+    #view-inputs .validation-item-type{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.07em;
+      color:#475467;
+      font-weight:700;
+    }
+    #view-inputs .validation-item-msg{
+      font-size:13px;
+      color:#334155;
+    }
+    #view-inputs .validation-focus-btn{
+      padding:5px 9px;
+      border-radius:10px;
+      font-size:12px;
+      background:rgba(59,130,246,.12);
+      border-color:rgba(59,130,246,.25);
+      color:#1e3a8a;
+    }
+    #view-inputs .validation-info{
+      margin-top:8px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:12px;
+      background:rgba(255,255,255,.7);
+      padding:8px 10px;
+    }
+    #view-inputs .validation-info summary{
+      cursor:pointer;
+      color:#475467;
+      font-size:12px;
+      font-weight:600;
+    }
+    #view-inputs .validation-info ul{
+      margin:8px 0 0 16px;
+      color:#64748b;
+      font-size:12px;
+      display:grid;
+      gap:4px;
+    }
+    #view-inputs .miniBtn{
+      color:#9f1239;
+      border-color:rgba(225,29,72,.32);
+      background:rgba(255,241,242,.9);
+    }
+    #view-inputs .miniBtn.clone{
+      color:#1d4ed8;
+      border-color:rgba(59,130,246,.28);
+      background:rgba(239,246,255,.9);
+    }
+    @media (max-width: 700px){
+      #view-inputs .tabs{
+        padding:8px;
+        gap:6px;
+      }
+      #view-inputs .tabs button{
+        font-size:12px;
+      }
+      #view-inputs .inputs-confidence-row .badge{
+        width:100%;
+      }
+      #view-inputs .validation-item{
+        grid-template-columns:1fr;
+      }
+      #view-inputs .validation-focus-btn{
+        width:fit-content;
+      }
+      #view-inputs .household-grid .field{
+        grid-column:span 12;
+      }
     }
     #view-overview .overview-summary-grid{
       display:grid;

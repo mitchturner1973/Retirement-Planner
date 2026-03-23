@@ -50,6 +50,7 @@ import { buildOverviewViewModel } from './services/overviewViewModel.js';
       readDbPensionsEditor: editors.readDbPensionsEditor,
       readContribEventsEditor: editors.readContribEventsEditor,
       readLumpSumEventsEditor: editors.readLumpSumEventsEditor,
+      getEditorCollections: editors.getEditorCollections,
     },
   });
 
