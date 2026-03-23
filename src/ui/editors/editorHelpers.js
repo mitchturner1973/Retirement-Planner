@@ -55,6 +55,7 @@ export function createEditorHelpers(deps){
           <div class="field"><label>Provider</label><input type="text" data-db="provider" value="${escapeHtmlAttr(p.provider||'')}" /></div>
           <div class="field"><label>Annual income (£/yr, today’s money)</label><input type="number" step="100" min="0" data-db="annualIncome" value="${numVal(p.annualIncome)}" /></div>
           <div class="field"><label>Start age</label><input type="number" step="1" min="40" max="100" data-db="startAge" value="${numVal(p.startAge)}" /></div>
+          <div class="field"><label>Normal Pension Age (NPA)</label><input type="number" step="1" min="40" max="100" data-db="npaAge" value="${numVal(p.npaAge == null ? p.startAge : p.npaAge)}" /></div>
           <div class="field"><label>Increase type</label>
             <select data-db="increaseType">
               <option value="fixed" ${(p.increaseType||'fixed')==='fixed'?'selected':''}>Fixed annual increase %</option>
@@ -122,6 +123,7 @@ export function createEditorHelpers(deps){
       provider: card.querySelector('[data-db="provider"]').value.trim(),
       annualIncome: Number(card.querySelector('[data-db="annualIncome"]').value||0),
       startAge: Number(card.querySelector('[data-db="startAge"]').value||67),
+      npaAge: Number(card.querySelector('[data-db="npaAge"]')?.value || card.querySelector('[data-db="startAge"]').value || 67),
       increaseType: String(card.querySelector('[data-db="increaseType"]').value||'fixed'),
       escalationPct: Number(card.querySelector('[data-db="escalationPct"]').value||0),
       cpiCapPct: card.querySelector('[data-db="cpiCapPct"]').value===''? null : Number(card.querySelector('[data-db="cpiCapPct"]').value)

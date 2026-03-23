@@ -69,7 +69,14 @@ export function createRenderOrchestrator(deps){
     renderProjectionTable(base);
 
     const strategyEval = evaluateStrategies(s);
-    const strategyScores = scoreStrategies(strategyEval);
+    const strategyScores = scoreStrategies(strategyEval, {
+      priorityMode: s.strategyPriorityMode,
+      targets: {
+        minimumDesiredNetIncome: s.minimumDesiredNetIncome,
+        targetRetirementNetIncome: s.targetRetirementNetIncome,
+        minimumFlexibilityBufferAt75: s.minimumFlexibilityBufferAt75,
+      },
+    });
     if (!app.strategySelectedId && strategyScores.bestBalanced) app.strategySelectedId = strategyScores.bestBalanced.strategy.id;
     const selected = strategyScores.ranked.find((r) => r.strategy.id === app.strategySelectedId) || strategyScores.bestBalanced || strategyScores.ranked[0] || null;
     const strategyTimeline = buildDecisionTimeline(selected);
@@ -84,6 +91,12 @@ export function createRenderOrchestrator(deps){
   selectedTimeline: strategyTimeline,
   selectedStrategyId: selected?.strategy?.id || null,
   selectedResult: selected,
+  priorityMode: s.strategyPriorityMode,
+  targets: {
+    minimumDesiredNetIncome: s.minimumDesiredNetIncome,
+    targetRetirementNetIncome: s.targetRetirementNetIncome,
+    minimumFlexibilityBufferAt75: s.minimumFlexibilityBufferAt75,
+  },
 });
 
     const stressRes = renderStress(s, base);

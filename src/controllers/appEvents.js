@@ -69,6 +69,13 @@ export function bindAppEvents({
     renderAll(false);
   });
 
+  ['in_strategyPriorityMode', 'in_minimumDesiredNetIncome', 'in_targetRetirementNetIncome', 'in_minimumFlexibilityBufferAt75', 'in_dbEarlyReductionPct', 'in_dbDeferralIncreasePct'].forEach((id) => {
+    getEl(id)?.addEventListener('change', () => {
+      if (window.__RP_APP) window.__RP_APP.strategySelectedId = null;
+      renderAll(false);
+    });
+  });
+
   getEl('btnSave')?.addEventListener('click', exportInputs);
   getEl('btnLoad')?.addEventListener('click', ()=> getEl('fileLoad').click());
   getEl('fileLoad')?.addEventListener('change', importInputs);
@@ -81,7 +88,7 @@ export function bindAppEvents({
   });
   getEl('btnAddDb')?.addEventListener('click', ()=>{
     const arr=readDbPensionsEditor();
-    arr.push({id:newId('db'), name:'', provider:'', annualIncome:0, startAge:67, increaseType:'fixed', escalationPct:0, cpiCapPct:null});
+    arr.push({id:newId('db'), name:'', provider:'', annualIncome:0, startAge:67, npaAge:67, increaseType:'fixed', escalationPct:0, cpiCapPct:null});
     renderDbPensionsEditor(arr);
   });
   getEl('btnAddContrib')?.addEventListener('click', ()=>{

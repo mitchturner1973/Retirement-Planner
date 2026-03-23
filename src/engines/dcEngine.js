@@ -40,8 +40,13 @@ export function applyGrowthAndFeesToPots(state, pots, baseRealReturn, adjustedRe
 }
 
 export function withdrawFromPotsByPriority(pots, grossAmount) {
+  return withdrawFromPotsByPriorityDetailed(pots, grossAmount).withdrawn;
+}
+
+export function withdrawFromPotsByPriorityDetailed(pots, grossAmount) {
   let remaining = Math.max(0, grossAmount);
   let withdrawn = 0;
+  const byPot = {};
   const order = [...pots].sort((a, b) => (a.priority || 50) - (b.priority || 50));
   for (const pot of order) {
     if (remaining <= 0) break;
@@ -49,20 +54,25 @@ export function withdrawFromPotsByPriority(pots, grossAmount) {
     pot.value -= take;
     remaining -= take;
     withdrawn += take;
+    if (take > 0) byPot[pot.id] = (byPot[pot.id] || 0) + take;
   }
-  return withdrawn;
+  return { withdrawn, byPot };
 }
 
 export function withdrawFromSpecificOrPriority(pots, grossAmount, targetId = 'any-dc') {
+  return withdrawFromSpecificOrPriorityDetailed(pots, grossAmount, targetId).withdrawn;
+}
+
+export function withdrawFromSpecificOrPriorityDetailed(pots, grossAmount, targetId = 'any-dc') {
   const need = Math.max(0, grossAmount);
   if (targetId && targetId !== 'any-dc') {
     const pot = pots.find((item) => item.id === targetId);
-    if (!pot) return 0;
+    if (!pot) return { withdrawn: 0, byPot: {} };
     const take = Math.min(pot.value, need);
     pot.value -= take;
-    return take;
+    return { withdrawn: take, byPot: take > 0 ? { [pot.id]: take } : {} };
   }
-  return withdrawFromPotsByPriority(pots, need);
+  return withdrawFromPotsByPriorityDetailed(pots, need);
 }
 
 export function targetPotValue(pots, targetId = 'any-dc') {
@@ -85,6 +95,7 @@ export function resolveLumpSumRequestedAmount(event, pots, remainingLsa) {
 export function processLumpSumEventsForAge(state, lumpEvents, pots, age, tflsUsed) {
   const due = (lumpEvents || []).filter((event) => Number(event.age || 0) === Number(age || 0));
   const flows = { pclsGross: 0, ufplsGross: 0, taxableLumpGross: 0 };
+  const byPot = {};
   const notes = [];
   let used = Number(tflsUsed || 0);
 
@@ -92,8 +103,12 @@ export function processLumpSumEventsForAge(state, lumpEvents, pots, age, tflsUse
     const remainingLsa = Math.max(0, Number(state.tflsCap || 0) - used);
     let requested = resolveLumpSumRequestedAmount(event, pots, remainingLsa);
     if (String(event.type || 'pcls') === 'pcls') requested = Math.min(requested, remainingLsa);
-    const taken = withdrawFromSpecificOrPriority(pots, requested, event.targetId);
+    const takenRes = withdrawFromSpecificOrPriorityDetailed(pots, requested, event.targetId);
+    const taken = Number(takenRes.withdrawn || 0);
     if (taken <= 0) continue;
+    Object.entries(takenRes.byPot || {}).forEach(([potId, value]) => {
+      byPot[potId] = (byPot[potId] || 0) + Number(value || 0);
+    });
 
     const kind = String(event.type || 'pcls');
     if (kind === 'pcls') {
@@ -107,8 +122,9 @@ export function processLumpSumEventsForAge(state, lumpEvents, pots, age, tflsUse
     }
 
     const label = kind === 'pcls' ? 'PCLS' : (kind === 'ufpls' ? 'UFPLS' : 'Taxable lump sum');
-    notes.push(`${label} ${fmtGBP(taken)}`);
+    const sourceText = event.targetId && event.targetId !== 'any-dc' ? ` from ${event.targetId}` : '';
+    notes.push(`${label} ${fmtGBP(taken)}${sourceText}`);
   }
 
-  return { flows, notes, tflsUsedAfterLumps: used };
+  return { flows, byPot, notes, tflsUsedAfterLumps: used };
 }

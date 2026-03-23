@@ -389,13 +389,45 @@
       <div class="card strategy-intro-card">
         <h3>Retirement decision timeline</h3>
         <p class="muted" style="margin-top:0">This view compares coded withdrawal strategies, scores them for tax, sustainability and balance, then turns the selected plan into a year-by-year action timeline.</p>
-        <div class="row" style="margin:12px 0 16px; gap:12px; align-items:center; flex-wrap:wrap">
+        <div class="row strategy-head-row" style="margin:12px 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
           <div class="field" style="min-width:320px; margin:0">
             <label>Select strategy timeline</label>
             <select id="strategySelect"></select>
           </div>
+          <div class="field" style="min-width:280px; margin:0">
+            <label>Strategy priority</label>
+            <select id="in_strategyPriorityMode">
+              <option value="balanced">Balanced</option>
+              <option value="minimise-tax">Minimise tax</option>
+              <option value="maximise-stable-income">Maximise stable income</option>
+              <option value="preserve-flexibility">Preserve flexibility</option>
+              <option value="prioritise-guaranteed-income">Prioritise guaranteed income</option>
+            </select>
+          </div>
           <span class="badge"><span class="ico">🧭</span>Deterministic engine only</span>
           <span class="badge"><span class="ico">£</span>Strategies scored on tax, stability and remaining pot</span>
+        </div>
+        <div class="row strategy-targets-grid" style="margin:0 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
+          <div class="field" style="min-width:260px; margin:0">
+            <label>Minimum desired net income (£/yr)</label>
+            <input type="number" id="in_minimumDesiredNetIncome" min="0" step="100" />
+          </div>
+          <div class="field" style="min-width:260px; margin:0">
+            <label>Target net income at retirement (£/yr)</label>
+            <input type="number" id="in_targetRetirementNetIncome" min="0" step="100" />
+          </div>
+          <div class="field" style="min-width:260px; margin:0">
+            <label>Minimum flexibility buffer at age 75 (£)</label>
+            <input type="number" id="in_minimumFlexibilityBufferAt75" min="0" step="1000" />
+          </div>
+          <div class="field" style="min-width:260px; margin:0">
+            <label>DB early reduction (% per year before NPA)</label>
+            <input type="number" id="in_dbEarlyReductionPct" min="0" max="15" step="0.1" />
+          </div>
+          <div class="field" style="min-width:260px; margin:0">
+            <label>DB deferral increase (% per year after NPA)</label>
+            <input type="number" id="in_dbDeferralIncreasePct" min="0" max="15" step="0.1" />
+          </div>
         </div>
         <div id="strategyTopCards"></div>
       </div>

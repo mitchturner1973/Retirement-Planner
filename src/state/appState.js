@@ -5,6 +5,7 @@ export function createInitialAppState() {
     mc: {running:false, progress:0, total:0, done:0, lastKey:null, result:null, cancel:false},
     comparePicked: [],
     validation: {errors:[], warnings:[], infos:[]},
-    strategySelectedId: null
+    strategySelectedId: null,
+    strategyPriorityMode: 'balanced'
   };
 }

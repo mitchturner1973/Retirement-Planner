@@ -63,6 +63,24 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
     getEl('br_crashEarly').checked = state.bridgeCrashEarly === 1;
     getEl('br_crashState').checked = state.bridgeCrashState === 1;
     getEl('br_badSeq').checked = state.bridgeBadSeq === 1;
+    if (getEl('in_strategyPriorityMode')) {
+      getEl('in_strategyPriorityMode').value = state.strategyPriorityMode || defaults.strategyPriorityMode;
+    }
+    if (getEl('in_minimumDesiredNetIncome')) {
+      getEl('in_minimumDesiredNetIncome').value = state.minimumDesiredNetIncome ?? defaults.minimumDesiredNetIncome;
+    }
+    if (getEl('in_targetRetirementNetIncome')) {
+      getEl('in_targetRetirementNetIncome').value = state.targetRetirementNetIncome ?? defaults.targetRetirementNetIncome;
+    }
+    if (getEl('in_minimumFlexibilityBufferAt75')) {
+      getEl('in_minimumFlexibilityBufferAt75').value = state.minimumFlexibilityBufferAt75 ?? defaults.minimumFlexibilityBufferAt75;
+    }
+    if (getEl('in_dbEarlyReductionPct')) {
+      getEl('in_dbEarlyReductionPct').value = state.dbEarlyReductionPct ?? defaults.dbEarlyReductionPct;
+    }
+    if (getEl('in_dbDeferralIncreasePct')) {
+      getEl('in_dbDeferralIncreasePct').value = state.dbDeferralIncreasePct ?? defaults.dbDeferralIncreasePct;
+    }
     syncDerivedAgeInputs(getEl, 'main');
     syncDerivedAgeInputs(getEl, 'spouse');
     toggleSpouseFields(state.householdMode || 'single');
@@ -161,6 +179,12 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
       bridgeCrashEarly: getEl('br_crashEarly').checked ? 1 : 0,
       bridgeCrashState: getEl('br_crashState').checked ? 1 : 0,
       bridgeBadSeq: getEl('br_badSeq').checked ? 1 : 0,
+      strategyPriorityMode: String(getEl('in_strategyPriorityMode')?.value || defaults.strategyPriorityMode || 'balanced'),
+      minimumDesiredNetIncome: Number(getEl('in_minimumDesiredNetIncome')?.value || defaults.minimumDesiredNetIncome || 18000),
+      targetRetirementNetIncome: Number(getEl('in_targetRetirementNetIncome')?.value || defaults.targetRetirementNetIncome || 25000),
+      minimumFlexibilityBufferAt75: Number(getEl('in_minimumFlexibilityBufferAt75')?.value || defaults.minimumFlexibilityBufferAt75 || 150000),
+      dbEarlyReductionPct: Number(getEl('in_dbEarlyReductionPct')?.value || defaults.dbEarlyReductionPct || 4),
+      dbDeferralIncreasePct: Number(getEl('in_dbDeferralIncreasePct')?.value || defaults.dbDeferralIncreasePct || 5),
     };
   }
 

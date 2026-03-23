@@ -9,7 +9,7 @@ It is designed as a deterministic planning tool with supporting stress tests and
 - deterministic retirement projection engine for DC, DB, State Pension and other taxable income
 - support for multiple DC pensions, DB pensions, extra contributions and one-off DC lump sums
 - tax-aware handling of PCLS, UFPLS and remaining TFLS / Lump Sum Allowance
-- strategy comparison with tax, sustainability and balanced scoring
+- strategy comparison with priority modes, target-aware scoring and risk watchouts
 - retirement decision timeline for the selected strategy
 - household mode for combined retirement income and pot views
 - early-retirement bridge modelling
@@ -21,7 +21,9 @@ It is designed as a deterministic planning tool with supporting stress tests and
 
 - deterministic logic is now split into dedicated engines instead of being concentrated in one large UI file
 - strategy comparison now includes clearer retirement metrics, baseline deltas and better candidate gating
-- strategy scoring is more robust against outliers and now respects strategy objective type
+- strategy scoring now uses six dimensions (tax efficiency, sustainability, smoothness, flexibility, guaranteed-income strength, pot efficiency)
+- strategy ranking supports user-selected priority modes and target thresholds from the Strategy tab
+- selected strategy cards now include a compact "why this ranked" explainer with top weighted drivers and any penalty deductions
 - DC ordering logic now applies across all DC pots, including the current workplace pension
 - strategy decision timelines avoid duplicate drawdown actions and better reflect actual plan behaviour
 - app wiring is now more modular, with controllers, services, UI modules and rules separated cleanly
@@ -72,6 +74,7 @@ Manual regression notes live in [test-cases.md](test-cases.md).
 - all values are modelled in today's money unless noted otherwise
 - tax and pension rules should be updated in the versioned UK rules packs, not hard-coded into UI logic
 - strategy scores are relative to the current candidate set, not absolute measures of plan quality
+- watchout penalties reduce balanced score when income cliffs, low flexibility buffers, concentrated drawdown or similar risks are detected
 - if you want a chronological release history, add a separate `CHANGELOG.md`; the README should stay focused on what the app is and how to use it
 
 ## Important note

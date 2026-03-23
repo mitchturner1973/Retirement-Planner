@@ -15,12 +15,15 @@ export function validateState(s){
   if(s.drawdown > 6) push(warnings,'in_draw','Drawdown above 6% is often fragile over long retirements.');
   if(s.feePct > 1.5) push(warnings,'in_feePct','Fees above 1.5% can materially weaken outcomes.');
   if(s.vol < 3 && s.returnNom > 5) push(warnings,'in_vol','Low volatility combined with strong return may understate risk.');
+  if(Number(s.dbEarlyReductionPct||0) < 0 || Number(s.dbEarlyReductionPct||0) > 15) push(warnings,'in_dbEarlyReductionPct','DB early reduction is usually between 0% and 15% per year.');
+  if(Number(s.dbDeferralIncreasePct||0) < 0 || Number(s.dbDeferralIncreasePct||0) > 15) push(warnings,'in_dbDeferralIncreasePct','DB deferral increase is usually between 0% and 15% per year.');
   (s.dcPensions||[]).forEach((p,i)=>{
     if(Number(p.feePct||0)<0) push(errors,'btnAddDc',`DC pension ${i+1} has a negative fee.`);
     if(Number(p.currentValue||0)<0) push(errors,'btnAddDc',`DC pension ${i+1} has a negative value.`);
   });
   (s.dbPensions||[]).forEach((p,i)=>{
     if(Number(p.annualIncome||0)<0) push(errors,'btnAddDb',`DB pension ${i+1} has a negative annual income.`);
+    if(Number(p.npaAge||p.startAge||67) < 40 || Number(p.npaAge||p.startAge||67) > 100) push(errors,'btnAddDb',`DB pension ${i+1} has an invalid Normal Pension Age.`);
   });
   (s.contribEvents||[]).forEach((c,i)=>{
     if(Number(c.amount||0)<0) push(errors,'btnAddContrib',`Contribution ${i+1} has a negative amount.`);
