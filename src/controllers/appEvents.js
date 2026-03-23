@@ -38,6 +38,16 @@ export function bindAppEvents({
     print: () => window.print(),
   });
 
+  document.addEventListener('click', (event) => {
+    const rawTarget = event?.target;
+    const target = rawTarget && typeof rawTarget.closest === 'function' ? rawTarget.closest('[data-overview-nav]') : null;
+    if (!target) return;
+    const view = target.getAttribute('data-overview-nav');
+    if (!view) return;
+    setView(view);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
   getEl('btnRecalc')?.addEventListener('click', ()=>{
     const t0=performance.now();
     getEl('btnRecalc').disabled=true;
@@ -106,6 +116,16 @@ export function bindAppEvents({
   getEl('btnProjectionJumpToRetirement')?.addEventListener('click', () => {
     const retirementRow = document.querySelector('.is-retirement-start');
     retirementRow?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  getEl('overviewCompareSource')?.addEventListener('change', (e) => {
+    if (window.__RP_APP) window.__RP_APP.overviewCompareSource = String(e.target.value || 'previous');
+    renderAll(false);
+  });
+
+  getEl('overviewCompareScenario')?.addEventListener('change', (e) => {
+    if (window.__RP_APP) window.__RP_APP.overviewCompareScenarioId = String(e.target.value || '');
+    renderAll(false);
   });
 
   ['in_strategyPriorityMode', 'in_minimumDesiredNetIncome', 'in_targetRetirementNetIncome', 'in_minimumFlexibilityBufferAt75', 'in_dbEarlyReductionPct', 'in_dbDeferralIncreasePct'].forEach((id) => {

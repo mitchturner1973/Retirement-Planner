@@ -75,6 +75,24 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
     if (getEl('in_minimumFlexibilityBufferAt75')) {
       getEl('in_minimumFlexibilityBufferAt75').value = state.minimumFlexibilityBufferAt75 ?? defaults.minimumFlexibilityBufferAt75;
     }
+    if (getEl('in_watchoutIncomeDropPct')) {
+      getEl('in_watchoutIncomeDropPct').value = state.watchoutIncomeDropPct ?? defaults.watchoutIncomeDropPct;
+    }
+    if (getEl('in_watchoutIncomeDropAbs')) {
+      getEl('in_watchoutIncomeDropAbs').value = state.watchoutIncomeDropAbs ?? defaults.watchoutIncomeDropAbs;
+    }
+    if (getEl('in_watchoutLateLifePotYears')) {
+      getEl('in_watchoutLateLifePotYears').value = state.watchoutLateLifePotYears ?? defaults.watchoutLateLifePotYears;
+    }
+    if (getEl('in_watchoutDcReliancePct')) {
+      getEl('in_watchoutDcReliancePct').value = state.watchoutDcReliancePct ?? defaults.watchoutDcReliancePct;
+    }
+    if (getEl('in_watchoutLumpSumPctNet')) {
+      getEl('in_watchoutLumpSumPctNet').value = state.watchoutLumpSumPctNet ?? defaults.watchoutLumpSumPctNet;
+    }
+    if (getEl('in_watchoutLowLsa')) {
+      getEl('in_watchoutLowLsa').value = state.watchoutLowLsa ?? defaults.watchoutLowLsa;
+    }
     if (getEl('in_dbEarlyReductionPct')) {
       getEl('in_dbEarlyReductionPct').value = state.dbEarlyReductionPct ?? defaults.dbEarlyReductionPct;
     }
@@ -183,6 +201,12 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
       minimumDesiredNetIncome: Number(getEl('in_minimumDesiredNetIncome')?.value || defaults.minimumDesiredNetIncome || 18000),
       targetRetirementNetIncome: Number(getEl('in_targetRetirementNetIncome')?.value || defaults.targetRetirementNetIncome || 25000),
       minimumFlexibilityBufferAt75: Number(getEl('in_minimumFlexibilityBufferAt75')?.value || defaults.minimumFlexibilityBufferAt75 || 150000),
+      watchoutIncomeDropPct: Number(getEl('in_watchoutIncomeDropPct')?.value || defaults.watchoutIncomeDropPct || 10),
+      watchoutIncomeDropAbs: Number(getEl('in_watchoutIncomeDropAbs')?.value || defaults.watchoutIncomeDropAbs || 2500),
+      watchoutLateLifePotYears: Number(getEl('in_watchoutLateLifePotYears')?.value || defaults.watchoutLateLifePotYears || 4),
+      watchoutDcReliancePct: Number(getEl('in_watchoutDcReliancePct')?.value || defaults.watchoutDcReliancePct || 65),
+      watchoutLumpSumPctNet: Number(getEl('in_watchoutLumpSumPctNet')?.value || defaults.watchoutLumpSumPctNet || 25),
+      watchoutLowLsa: Number(getEl('in_watchoutLowLsa')?.value || defaults.watchoutLowLsa || 20000),
       dbEarlyReductionPct: Number(getEl('in_dbEarlyReductionPct')?.value || defaults.dbEarlyReductionPct || 4),
       dbDeferralIncreasePct: Number(getEl('in_dbDeferralIncreasePct')?.value || defaults.dbDeferralIncreasePct || 5),
     };

@@ -1,6 +1,8 @@
 export function createRenderOrchestrator(deps){
   const {
     getState,
+    defaults,
+    loadScenarios,
     toggleSpouseFields,
     validateState,
     app,
@@ -8,12 +10,11 @@ export function createRenderOrchestrator(deps){
     getEl,
     calcProjection,
     buildHouseholdProjection,
-    renderOverviewKpis,
+    buildOverviewViewModel,
+    renderOverviewDashboard,
     renderHouseholdSummary,
     renderHouseholdTab,
     drawLineChart,
-    drawBarBreakdown,
-    renderRetirementLumpSumCard,
     buildProjectionViewModel,
     renderProjectionTable,
     evaluateStrategies,
@@ -45,7 +46,6 @@ export function createRenderOrchestrator(deps){
 
     const base = calcProjection(s);
     const hh = buildHouseholdProjection(s);
-    renderOverviewKpis(base, s);
     renderHouseholdSummary(s, hh);
     renderHouseholdTab(s, hh);
 
@@ -55,17 +55,6 @@ export function createRenderOrchestrator(deps){
 
     drawLineChart(getEl('chartPot'), [{name:'Baseline', color:'rgba(110,231,255,.95)', data: base.years.map(y=>({x:y.age,y:y.potEnd}))}], potMarkers);
 
-    drawBarBreakdown(getEl('chartIncome'), {
-      netTotal: base.netAtRet,
-      tax: base.taxAtRet || 0,
-      grossItems: [
-        {label:'Gross DC withdrawal', value: base.grossDcAtRet || 0, color:'rgba(110,231,255,.90)'},
-        {label:'State pension', value: base.stateAtRet || 0, color:'rgba(52,211,153,.85)'},
-        {label:'Other income', value: base.otherAtRet || 0, color:'rgba(167,139,250,.80)'},
-        {label:'DB pensions', value: base.dbAtRet || 0, color:'rgba(251,191,36,.80)'}
-      ].filter(x=>x.value>0)
-    });
-    renderRetirementLumpSumCard(base);
     const projectionPersonView = app.projectionPersonView || 'primary';
     const projectionData = (projectionPersonView === 'partner' && hh) ? hh.partner : base;
     const projectionState = (projectionPersonView === 'partner' && hh) ? hh.partnerState : s;
@@ -130,6 +119,49 @@ export function createRenderOrchestrator(deps){
       if(getEl('chartMC')) getEl('chartMC').innerHTML = '';
     }
 
+    let overview = null;
+    try {
+      const compareSource = app.overviewCompareSource || 'previous';
+      const compareScenarioId = app.overviewCompareScenarioId || '';
+      const scenarios = loadScenarios?.() || [];
+      const scenarioOptions = scenarios.map((scenario) => ({ id: scenario.id, name: scenario.name }));
+      let compareSnapshot = app.overviewLastSnapshot;
+      let compareLabel = 'previous recalculation';
+      if (compareSource === 'scenario' && compareScenarioId) {
+        const picked = scenarios.find((scenario) => scenario.id === compareScenarioId);
+        if (picked?.inputs) {
+          const baseline = calcProjection({ ...defaults, ...picked.inputs });
+          compareSnapshot = {
+            potAtRet: baseline.potAtRet,
+            netAtRet: baseline.netAtRet,
+            taxAtRet: baseline.taxAtRet,
+            selectedStrategyId: picked.inputs?.strategySelectedId || null,
+          };
+          compareLabel = `saved scenario "${picked.name}"`;
+        }
+      }
+
+      overview = buildOverviewViewModel({
+        state: s,
+        base,
+        household: hh,
+        bridgeResult: br,
+        stressStatus: stressRes.status,
+        bridgeStatus,
+        monteStatus,
+        selectedStrategyId: selected?.strategy?.id || null,
+        compareSnapshot,
+        compareLabel,
+        compareSource,
+        compareScenarioId,
+        compareScenarioOptions: scenarioOptions,
+      });
+      renderOverviewDashboard(overview);
+      app.overviewLastSnapshot = overview.snapshot;
+    } catch (error) {
+      console.error('Overview render failed', error);
+    }
+
     renderOverallAndActions(s, stressRes.status, bridgeStatus, monteStatus);
 
     updateFreshness(showToast?'Recalculated':'' );
@@ -141,6 +173,6 @@ export function createRenderOrchestrator(deps){
     renderMonte(s, false);
 
     window.__RP_STATE = {s, base};
-    return {s, base, projectionView, stress: stressRes.status, bridge: bridgeStatus, monte: monteStatus, overall: computeOverall(stressRes.status, bridgeStatus.base, bridgeStatus.life, monteStatus)};
+    return {s, base, projectionView, overview, stress: stressRes.status, bridge: bridgeStatus, monte: monteStatus, overall: computeOverall(stressRes.status, bridgeStatus.base, bridgeStatus.life, monteStatus)};
   };
 }

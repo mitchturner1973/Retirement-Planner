@@ -11,5 +11,8 @@ export function createInitialAppState() {
     projectionRange: 'all',
     projectionExpandedAge: null,
     projectionPersonView: 'primary',
+    overviewLastSnapshot: null,
+    overviewCompareSource: 'previous',
+    overviewCompareScenarioId: '',
   };
 }

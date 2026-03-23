@@ -5,10 +5,10 @@ import { createInitialAppState } from './state/appState.js';
 import { validateState } from './validation/inputValidation.js';
 import { renderValidationSummary } from './ui/validation.js';
 import { $, fmtGBP, fmtNum, fmtPct, numVal, escapeHtml, escapeHtmlAttr, newId, nowTime } from './ui/dom.js';
-import { drawLineChart, drawBarBreakdown, drawBands } from './ui/charts.js';
+import { drawLineChart, drawBands } from './ui/charts.js';
 import { createEditorHelpers } from './ui/editors/index.js';
 import { calcHouseholdProjection } from './engines/householdEngine.js';
-import { renderOverviewKpis, renderRetirementLumpSumCard } from './ui/overview.js';
+import { renderOverviewDashboard } from './ui/overview.js';
 import { renderProjectionTable } from './ui/projectionTable.js';
 import { evaluateStrategies } from './engines/strategyEngine.js';
 import { scoreStrategies } from './engines/strategyScorer.js';
@@ -32,6 +32,7 @@ import { createInputStateManager } from './services/inputState.js';
 import { createActionRecommendationService } from './services/actionRecommendations.js';
 import { createScenarioActions } from './services/scenarioActions.js';
 import { buildProjectionViewModel } from './services/projectionViewModel.js';
+import { buildOverviewViewModel } from './services/overviewViewModel.js';
 
 (function bootstrap() {
   const app = createInitialAppState();
@@ -95,6 +96,8 @@ import { buildProjectionViewModel } from './services/projectionViewModel.js';
 
   const renderAll = createRenderOrchestrator({
     getState: inputState.readState,
+    defaults,
+    loadScenarios,
     toggleSpouseFields: inputState.toggleSpouseFields,
     validateState,
     app,
@@ -102,12 +105,11 @@ import { buildProjectionViewModel } from './services/projectionViewModel.js';
     getEl: $,
     calcProjection,
     buildHouseholdProjection: calcHouseholdProjection,
-    renderOverviewKpis: (base, state) => renderOverviewKpis({ getEl: $, fmtGBP }, base, state),
+    buildOverviewViewModel,
+    renderOverviewDashboard: (model) => renderOverviewDashboard({ getEl: $, fmtGBP }, model),
     renderHouseholdSummary: (state, household) => renderHouseholdSummary({ getEl: $, fmtGBP }, state, household),
     renderHouseholdTab: (state, household) => renderHouseholdTab({ getEl: $, fmtGBP, drawLineChart }, state, household),
     drawLineChart,
-    drawBarBreakdown,
-    renderRetirementLumpSumCard: (base) => renderRetirementLumpSumCard({ getEl: $, fmtGBP }, base),
     buildProjectionViewModel,
     renderProjectionTable: (base) => renderProjectionTable({ getEl: $, fmtGBP, app, rerender: () => renderAll(false) }, base),
     evaluateStrategies,

@@ -90,42 +90,58 @@
 
     <!-- OVERVIEW -->
     <section class="view" id="view-overview">
-      <div class="card">
-        <h3>Quick snapshot (today’s money)</h3>
-        <div class="tipGrid" data-tips="view-overview"><div class="tipCard"><div class="ticon">🎯</div><div><div class="ttitle">Start with the status</div><div class="ttext">Overall readiness is your headline. Green = robust enough, Amber = watch, Red = fix first.</div></div></div><div class="tipCard"><div class="ticon">🧰</div><div><div class="ttitle">Use Top 3 levers</div><div class="ttext">Try one change at a time (spend, retirement age, contributions) and save scenarios as you go.</div></div></div><div class="tipCard"><div class="ticon">🧠</div><div><div class="ttitle">Direction over precision</div><div class="ttext">Exact £ values are estimates. Focus on resilience: does it still work if markets misbehave?</div></div></div></div>
-        <div class="kpi" id="kpis"></div>
-        <div style="margin-top:12px" class="row">
+      <div class="card overview-shell">
+        <h3>Retirement decision dashboard (today’s £)</h3>
+        <div class="tipGrid" data-tips="view-overview"><div class="tipCard"><div class="ticon">🎯</div><div><div class="ttitle">Where you stand now</div><div class="ttext">Use the headline cards and status badges first, then drill into watchouts and actions.</div></div></div><div class="tipCard"><div class="ticon">🧭</div><div><div class="ttitle">What to review next</div><div class="ttext">Use recommended next steps to jump straight to Strategy, Projection, Stress, Bridge or Monte.</div></div></div><div class="tipCard"><div class="ticon">🧠</div><div><div class="ttitle">Direction over precision</div><div class="ttext">Exact £ values are estimates. Focus on resilience if markets or sequencing turns unfavourable.</div></div></div></div>
+
+        <div class="overview-summary-grid" id="overviewHeadlineCards"></div>
+
+        <div class="overview-status-row">
           <span id="overallBadge"></span>
           <span id="robustBadge"></span>
           <span id="bridgeOverallBadge"></span>
           <span class="badge"><span class="ico">⏱</span>Projection horizon: <span id="horizonLbl"></span></span>
-          <span class="badge"><span class="ico">£</span>Net figures are after tax (simple model)</span>
+          <span class="badge"><span class="ico">£</span>Recurring figures are annual and after tax</span>
         </div>
-        <div class="hr"></div>
-        <div class="grid">
-          <div class="card" style="grid-column: span 12; background:rgba(255,255,255,.04)">
-            <h3>Top 3 levers (recommended next actions)</h3>
+
+        <div class="overview-grid">
+          <article class="overview-panel">
+            <h4>Retirement income composition</h4>
+            <div class="overview-breakdown-grid" id="overviewIncomeBreakdown"></div>
+          </article>
+          <article class="overview-panel">
+            <h4>Key watchouts</h4>
+            <div class="overview-watchouts" id="overviewWatchouts"></div>
+          </article>
+          <article class="overview-panel">
+            <h4>Early retirement bridge feasibility</h4>
+            <div id="overviewBridgeFeasibility"></div>
+          </article>
+          <article class="overview-panel">
+            <h4>What changed</h4>
+            <div class="overview-compare-controls">
+              <select id="overviewCompareSource">
+                <option value="previous">Compare vs previous recalculation</option>
+                <option value="scenario">Compare vs saved scenario</option>
+              </select>
+              <select id="overviewCompareScenario"></select>
+            </div>
+            <div id="overviewChanges"></div>
+          </article>
+          <article class="overview-panel">
+            <h4>Recommended next steps</h4>
+            <div class="overview-next-steps" id="overviewNextSteps"></div>
+          </article>
+          <article class="overview-panel overview-panel--wide">
+            <h4>Top 3 levers (recommended input changes)</h4>
             <div id="actionPanel" class="muted"></div>
             <div class="footer">These are small, targeted changes that are most likely to improve your weakest status (Stress / Bridge / Monte Carlo).</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="card" style="grid-column: span 7;">
-          <h3>Pension pot over time (today’s £)</h3>
-          <div class="svgwrap"><svg id="chartPot" width="900" height="260" role="img" aria-label="Pension pot chart"></svg></div>
-          <div class="footer">All values are in today’s money (real terms). Stress tests explore bad timing (sequence risk).</div>
-        </div>
-        <div class="card" style="grid-column: span 5;">
-          <h3>Net income at retirement (today’s £/yr)</h3>
-          <div class="svgwrap"><svg id="chartIncome" width="520" height="260" role="img" aria-label="Income breakdown"></svg></div>
-          <div class="footer">Shows recurring retirement income sources, less tax, to reconcile to total annual net income. One-off lump sums are shown separately.</div>
-        </div>
-        <div class="card" id="retirementLumpSumCard" style="grid-column: span 12; display:none;">
-          <h3>One-off DC lump sums at retirement</h3>
-          <div id="retirementLumpSumSummary" class="kpi"></div>
-          <div class="footer">These are separate from annual retirement income. Tax-free cash usage still affects remaining TFLS / LSA.</div>
+          </article>
+          <article class="overview-panel overview-panel--wide overview-visual-panel">
+            <h4>Pot trajectory (today's £)</h4>
+            <div class="svgwrap"><svg id="chartPot" width="900" height="260" role="img" aria-label="Pension pot chart"></svg></div>
+            <div class="footer">Single deterministic path to anchor planning. Use Stress and Monte Carlo tabs for robustness and probability.</div>
+          </article>
         </div>
       </div>
     </section>
@@ -453,6 +469,32 @@
           <div class="field" style="min-width:260px; margin:0">
             <label>DB deferral increase (% per year after NPA)</label>
             <input type="number" id="in_dbDeferralIncreasePct" min="0" max="15" step="0.1" />
+          </div>
+        </div>
+        <div class="row strategy-targets-grid" style="margin:0 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
+          <div class="field" style="min-width:260px; margin:0">
+            <label>Overview income drop threshold (%)</label>
+            <input type="number" id="in_watchoutIncomeDropPct" min="1" max="100" step="1" />
+          </div>
+          <div class="field" style="min-width:260px; margin:0">
+            <label>Overview income drop threshold (£/yr)</label>
+            <input type="number" id="in_watchoutIncomeDropAbs" min="0" step="100" />
+          </div>
+          <div class="field" style="min-width:260px; margin:0">
+            <label>Overview low pot threshold (years of net)</label>
+            <input type="number" id="in_watchoutLateLifePotYears" min="1" max="20" step="0.5" />
+          </div>
+          <div class="field" style="min-width:260px; margin:0">
+            <label>Overview high DC reliance threshold (%)</label>
+            <input type="number" id="in_watchoutDcReliancePct" min="1" max="100" step="1" />
+          </div>
+          <div class="field" style="min-width:260px; margin:0">
+            <label>Overview lump-sum watchout threshold (% of net)</label>
+            <input type="number" id="in_watchoutLumpSumPctNet" min="1" max="300" step="1" />
+          </div>
+          <div class="field" style="min-width:260px; margin:0">
+            <label>Overview low remaining TFLS / LSA threshold (£)</label>
+            <input type="number" id="in_watchoutLowLsa" min="0" step="1000" />
           </div>
         </div>
         <div id="strategyTopCards"></div>
