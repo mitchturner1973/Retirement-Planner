@@ -1,5 +1,5 @@
 export function badge(state, text, reason = '') {
-  const cls = state === 'good' ? 'ok' : state === 'bad' ? 'bad' : 'warn';
+  const cls = state === 'good' ? 'good' : state === 'bad' ? 'bad' : 'warn';
   const title = reason ? ` title="${String(reason).replace(/"/g, '&quot;')}"` : '';
   return `<span class="badge ${cls}"${title}>${text}</span>`;
 }

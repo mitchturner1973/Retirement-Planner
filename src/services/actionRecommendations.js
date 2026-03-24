@@ -9,8 +9,35 @@ export function createActionRecommendationService({ readState, setInputsFromStat
       && result.years.filter((row) => row.age >= 70 && row.netIncome > 0).every((row) => row.netIncome >= state.floor70);
   }
 
-  return function suggestLevers(state, status) {
+  return function suggestLevers(state, status, riskSummary = null) {
     const recs = [];
+
+    const worstStress = riskSummary?.stress?.worstScenario;
+    if (worstStress && !worstStress.metrics?.pass) {
+      if (worstStress.key === 'earlier-retirement' || worstStress.key === 'drawdown-pressure') {
+        recs.push({
+          title: 'Review retirement timing or drawdown level',
+          detail: `"${worstStress.label}" is the largest downside. A later retirement age or lower drawdown can materially improve resilience.`,
+          apply: () => applyPatch({ retireAge: state.retireAge + 1 }),
+        });
+      }
+      if (worstStress.key === 'reduced-contributions' || worstStress.key === 'lower-returns') {
+        recs.push({
+          title: 'Increase pension contribution buffer',
+          detail: `"${worstStress.label}" shows contribution sensitivity. Increasing employee contribution by 1% adds resilience.`,
+          apply: () => applyPatch({ empPct: Number((state.empPct + 1).toFixed(1)) }),
+        });
+      }
+    }
+
+    const monteBand = riskSummary?.monte?.confidence?.band;
+    if (monteBand === 'weak') {
+      recs.push({
+        title: 'Improve Monte confidence by reducing withdrawals',
+        detail: 'Lower annual drawdown by 0.5% and rerun Monte Carlo to test a more resilient path.',
+        apply: () => applyPatch({ drawdown: Math.max(1, Number((state.drawdown - 0.5).toFixed(1)) ) }),
+      });
+    }
 
     if (status.bridgeLife && status.bridgeLife.s === 'bad') {
       let lo = 0;

@@ -275,6 +275,33 @@ function buildNextSteps(statuses, watchouts) {
   return unique.slice(0, 5);
 }
 
+function buildTopRiskDrivers(riskSummary) {
+  const drivers = [];
+  const ranked = riskSummary?.stress?.ranked || [];
+  ranked.slice(0, 2).forEach((item, index) => {
+    drivers.push({
+      key: `stress-${item.key}`,
+      tone: item.metrics?.pass ? 'info' : 'warn',
+      title: `${index + 1}. ${item.label}`,
+      text: item.assumptions,
+      view: 'stress',
+    });
+  });
+
+  const monteConfidence = riskSummary?.monte?.confidence;
+  if (monteConfidence) {
+    drivers.push({
+      key: 'monte-confidence',
+      tone: monteConfidence.severity === 'bad' ? 'bad' : monteConfidence.severity === 'warn' ? 'warn' : 'info',
+      title: `Monte confidence: ${monteConfidence.label}`,
+      text: monteConfidence.detail,
+      view: 'monte',
+    });
+  }
+
+  return drivers.slice(0, 3);
+}
+
 function buildEarlyBridgeSummary(state, base, bridgeResult, bridgeStatus) {
   if (state.earlyAge === '' || state.earlyAge == null) return null;
 
@@ -325,6 +352,7 @@ export function buildOverviewViewModel({
   base,
   household,
   bridgeResult,
+  riskSummary,
   stressStatus,
   bridgeStatus,
   monteStatus,
@@ -356,6 +384,7 @@ export function buildOverviewViewModel({
     headlineCards: buildHeadlineCards(state, base, household),
     incomeComposition: buildIncomeComposition(base),
     watchouts,
+    topRiskDrivers: buildTopRiskDrivers(riskSummary),
     earlyBridge: buildEarlyBridgeSummary(state, base, bridgeResult, bridgeStatus),
     changes: buildChanges(currentSnapshot, compareSnapshot, compareLabel),
     nextSteps: buildNextSteps(statuses, watchouts),

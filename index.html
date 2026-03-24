@@ -50,17 +50,68 @@
       </div>
     </div>
 
+    <div class="rail-quick" role="group" aria-label="Quick actions">
+      <button class="btn" id="navQuickRecalc" type="button">Recalculate</button>
+      <button class="btn" id="navQuickScenario" type="button">Save scenario</button>
+      <button class="btn" id="navQuickCompare" type="button">Compare</button>
+    </div>
+
     <nav class="nav" aria-label="Sections">
-      <button class="active" data-view="overview">🏁 Overview <span class="pill">Summary</span></button>
-      <button data-view="inputs">🧾 Inputs <span class="pill">Step 1</span></button>
-      <button data-view="projection">📈 Projection <span class="pill">Step 2</span></button>
-      <button data-view="strategy">🧠 Strategy <span class="pill">Plan</span></button>
-      <button data-view="bridge">🧱 Bridge <span class="pill">Early</span></button>
-      <button data-view="household">🏠 Household <span class="pill">Joint</span></button>
-      <button data-view="stress">🧯 Stress tests <span class="pill">Gatekeeper</span></button>
-      <button data-view="monte">🎲 Monte Carlo <span class="pill">Context</span></button>
-      <button data-view="scenarios">🧩 Scenarios <span class="pill">Compare</span></button>
-      <button data-view="help">❓ Help <span class="pill">Guide</span></button>
+      <div class="nav-group">
+        <div class="nav-group-title">Start</div>
+        <button class="active" data-view="overview" data-default-hint="Summary">
+          <span class="nav-main"><span class="nav-ico">DS</span><span class="nav-label">Dashboard</span></span>
+          <span class="nav-meta"><span class="pill" data-pill>Summary</span><span class="nav-dot"></span></span>
+        </button>
+        <button data-view="inputs" data-default-hint="Setup">
+          <span class="nav-main"><span class="nav-ico">IN</span><span class="nav-label">Inputs</span></span>
+          <span class="nav-meta"><span class="pill" data-pill>Setup</span><span class="nav-dot"></span></span>
+        </button>
+        <button data-view="household" data-default-hint="Joint">
+          <span class="nav-main"><span class="nav-ico">HH</span><span class="nav-label">Household</span></span>
+          <span class="nav-meta"><span class="pill" data-pill>Joint</span><span class="nav-dot"></span></span>
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Plan</div>
+        <button data-view="projection" data-default-hint="Timeline">
+          <span class="nav-main"><span class="nav-ico">PJ</span><span class="nav-label">Projection</span></span>
+          <span class="nav-meta"><span class="pill" data-pill>Timeline</span><span class="nav-dot"></span></span>
+        </button>
+        <button data-view="strategy" data-default-hint="Levers">
+          <span class="nav-main"><span class="nav-ico">ST</span><span class="nav-label">Strategy</span></span>
+          <span class="nav-meta"><span class="pill" data-pill>Levers</span><span class="nav-dot"></span></span>
+        </button>
+        <button data-view="bridge" data-default-hint="Early retire">
+          <span class="nav-main"><span class="nav-ico">BR</span><span class="nav-label">Bridge</span></span>
+          <span class="nav-meta"><span class="pill" data-pill>Early retire</span><span class="nav-dot"></span></span>
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Validate</div>
+        <button data-view="stress" data-default-hint="Downside checks">
+          <span class="nav-main"><span class="nav-ico">RS</span><span class="nav-label">Downside checks</span></span>
+          <span class="nav-meta"><span class="pill" data-pill>Downside checks</span><span class="nav-dot"></span></span>
+        </button>
+        <button data-view="monte" data-default-hint="Probability">
+          <span class="nav-main"><span class="nav-ico">MC</span><span class="nav-label">Probability check</span></span>
+          <span class="nav-meta"><span class="pill" data-pill>Probability</span><span class="nav-dot"></span></span>
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Manage</div>
+        <button data-view="scenarios" data-default-hint="Compare">
+          <span class="nav-main"><span class="nav-ico">SC</span><span class="nav-label">Scenarios</span></span>
+          <span class="nav-meta"><span class="pill" data-pill>Compare</span><span class="nav-dot"></span></span>
+        </button>
+        <button data-view="help" data-default-hint="Guide">
+          <span class="nav-main"><span class="nav-ico">HP</span><span class="nav-label">Help</span></span>
+          <span class="nav-meta"><span class="pill" data-pill>Guide</span><span class="nav-dot"></span></span>
+        </button>
+      </div>
     </nav>
 
     <div class="hr"></div>
@@ -112,6 +163,10 @@
           <article class="overview-panel">
             <h4>Key watchouts</h4>
             <div class="overview-watchouts" id="overviewWatchouts"></div>
+          </article>
+          <article class="overview-panel">
+            <h4>Top risk drivers</h4>
+            <div class="overview-watchouts" id="overviewRiskDrivers"></div>
           </article>
           <article class="overview-panel">
             <h4>Early retirement bridge feasibility</h4>
@@ -466,7 +521,7 @@
 
     <!-- BRIDGE -->
     <section class="view" id="view-bridge" style="display:none">
-      <div class="card">
+      <div class="card bridge-shell">
         <h3>Early retirement bridge (e.g., 60 → State Pension age)</h3>
         <div class="tipGrid" data-tips="view-bridge"><div class="tipCard"><div class="ticon">🧱</div><div><div class="ttitle">Bridge is the gap</div><div class="ttext">If you retire before SP age, Bridge checks whether the pot can fund the gap safely.</div></div></div><div class="tipCard"><div class="ticon">🏁</div><div><div class="ttitle">Watch run‑out age</div><div class="ttext">If the bridge runs out early, it’s fragile. Check both baseline and lifestyle path if enabled.</div></div></div><div class="tipCard"><div class="ticon">🟣</div><div><div class="ttitle">Read the chart</div><div class="ttext">Markers show Early age, SP age, and any run‑out age. Purple line = maintain lifestyle.</div></div></div></div>
         <p class="muted" style="margin-top:0">This models an early retirement bridge period (early age → State Pension age). Net income figures are <strong>after tax</strong> and <strong>include State Pension once it starts</strong>.</p>
@@ -504,14 +559,14 @@
         <div class="kpi" id="bridgeKpis"></div>
 
         <div class="grid" style="margin-top:12px">
-          <div class="card" style="grid-column: span 12; background:rgba(255,255,255,.04)">
+          <div class="card card-subtle" style="grid-column: span 12">
             <h3>Pot trajectory with bridge (today’s £)</h3>
             <div class="svgwrap"><svg id="chartBridge" width="980" height="270" role="img" aria-label="Bridge chart"></svg></div>
             <div class="footer">Markers: Early retirement, State Pension, and run‑out age (if any).</div>
           </div>
         </div>
 
-        <div class="card" style="margin-top:12px; background:rgba(255,255,255,.04)">
+        <div class="card card-subtle" style="margin-top:12px">
           <h3>Bridge years breakdown (today’s £)</h3>
           <div style="overflow:auto">
             <table id="tblBridge">
@@ -614,20 +669,20 @@
 
     <!-- HOUSEHOLD -->
     <section class="view" id="view-household" style="display:none">
-      <div class="card">
+      <div class="card household-view-shell">
         <h3>Household retirement view</h3>
         <div class="tipGrid" data-tips="view-household"><div class="tipCard"><div class="ticon">🏠</div><div><div class="ttitle">Combined affordability</div><div class="ttext">This view answers the practical question: what does total household retirement income look like each month?</div></div></div><div class="tipCard"><div class="ticon">👤</div><div><div class="ttitle">See both shares</div><div class="ttext">You can compare your income versus your partner’s income at retirement and after each State Pension starts.</div></div></div><div class="tipCard"><div class="ticon">📅</div><div><div class="ttitle">Watch key ages</div><div class="ttext">The timeline highlights your retirement age, partner retirement age, and both State Pension start ages.</div></div></div></div>
         <div id="householdIntro" class="callout" style="margin-top:12px; display:none"></div>
         <div class="kpi" id="householdKpis" style="margin-top:12px"></div>
         <div class="grid" style="margin-top:12px">
-          <div class="card" style="grid-column: span 12; background:rgba(255,255,255,.04)">
+          <div class="card card-subtle" style="grid-column: span 12">
             <h3>Combined monthly net retirement income</h3>
             <div class="svgwrap"><svg id="chartHouseholdIncome" width="980" height="270" role="img" aria-label="Household monthly income chart"></svg></div>
             <div class="footer">Shows monthly net income after tax for the household and each person, using the planner assumptions.</div>
           </div>
         </div>
         <div class="grid" style="margin-top:12px">
-          <div class="card" style="grid-column: span 12; background:rgba(255,255,255,.04)">
+          <div class="card card-subtle" style="grid-column: span 12">
             <h3>Combined household pot</h3>
             <div class="svgwrap"><svg id="chartHouseholdPot" width="980" height="270" role="img" aria-label="Household pot chart"></svg></div>
             <div class="footer">This combines both pension pots. It helps show whether one pot is depleting much earlier than the other.</div>
@@ -651,99 +706,179 @@
 
     <!-- STRESS -->
     <section class="view" id="view-stress" style="display:none">
-      <div class="card">
+      <div class="card stress-shell">
         <h3>Stress tests (gatekeeper)</h3>
-        <div class="tipGrid" data-tips="view-stress"><div class="tipCard"><div class="ticon">🧯</div><div><div class="ttitle">Gatekeeper test</div><div class="ttext">Stress tests ask: “Would I still be OK if the worst timing happens?”</div></div></div><div class="tipCard"><div class="ticon">⚠️</div><div><div class="ttitle">Baseline can mislead</div><div class="ttext">A plan can look fine in baseline but fail under a crash. Treat failures seriously.</div></div></div><div class="tipCard"><div class="ticon">✅</div><div><div class="ttitle">Green means resilient</div><div class="ttext">Passing stress suggests margin for error — the main goal of planning.</div></div></div></div>
-        <p class="muted" style="margin-top:0">Deterministic “what-if” scenarios to test sequence risk (bad timing). These are not probabilities.</p>
+        <div class="tipGrid" data-tips="view-stress"><div class="tipCard"><div class="ticon">🧯</div><div><div class="ttitle">Gatekeeper test</div><div class="ttext">Stress tests ask: "Would I still be OK if the worst timing happens?"</div></div></div><div class="tipCard"><div class="ticon">⚠️</div><div><div class="ttitle">Baseline can mislead</div><div class="ttext">A plan can look fine in baseline but fail under a crash. Treat failures seriously.</div></div></div><div class="tipCard"><div class="ticon">✅</div><div><div class="ttitle">Green means resilient</div><div class="ttext">Passing stress suggests margin for error — the main goal of planning.</div></div></div></div>
 
-        <div class="form">
-          <div class="field"><label>Crash size at retirement (%)</label><input type="number" id="in_crashPct" step="1" /></div>
-          <div class="field"><label>Bad-returns years (after retirement)</label><input type="number" id="in_badYears" step="1" /></div>
-          <div class="field"><label>Bad-returns penalty (%/yr)</label><input type="number" id="in_badPenalty" step="0.5" /></div>
-          <div class="field"><label>Success test age</label><input type="number" id="in_successAge" step="1" /></div>
-          <div class="field w12"><label>“Enough” income floor after age 70 (today’s £/yr)</label><input type="number" id="in_floor70" step="100" /></div>
+        <div class="stress-status-row">
+          <span id="stressBadge"></span>
+          <span id="stressBaseline"></span>
+          <span id="stressCrash"></span>
+          <span id="stressBadSeq"></span>
+          <span id="stressCombinedBadge"></span>
+          <span id="stressScenarioMeta"></span>
         </div>
 
-        <div class="hr"></div>
-        <div class="row" style="justify-content:space-between">
-          <div class="row" style="gap:8px">
-            <span id="stressBadge"></span>
-            <span id="stressBaseline"></span>
-            <span id="stressCrash"></span>
-            <span id="stressBadSeq"></span>
-          </div>
-          <span class="muted small">Tip: A plan can “look fine” in baseline but fail under a crash or bad sequence.</span>
-        </div>
+        <div class="stress-grid">
 
-        <div class="grid" style="margin-top:12px">
-          <div class="card" style="grid-column: span 12; background:rgba(255,255,255,.04)">
-            <h3>Pot trajectory under stress (today’s £)</h3>
+          <!-- Parameters panel -->
+          <article class="stress-panel">
+            <h4>Parameters</h4>
+            <p class="muted small" style="margin:0 0 10px">Inputs for the Core crash and bad-sequence scenarios.</p>
+            <div class="form">
+              <div class="field"><label>Crash size at retirement (%)</label><input type="number" id="in_crashPct" step="1" /></div>
+              <div class="field"><label>Bad-returns years (after retirement)</label><input type="number" id="in_badYears" step="1" /></div>
+              <div class="field"><label>Bad-returns penalty (%/yr)</label><input type="number" id="in_badPenalty" step="0.5" /></div>
+              <div class="field"><label>Success test age</label><input type="number" id="in_successAge" step="1" /></div>
+              <div class="field w12"><label>"Enough" income floor after age 70 (today's £/yr)</label><input type="number" id="in_floor70" step="100" /></div>
+            </div>
+          </article>
+
+          <!-- Scenarios panel -->
+          <article class="stress-panel">
+            <h4>Scenarios</h4>
+            <div class="stress-presets">
+              <button class="stress-preset-btn" data-preset="core">Core only</button>
+              <button class="stress-preset-btn" data-preset="balanced">Balanced</button>
+              <button class="stress-preset-btn" data-preset="all">All on</button>
+              <button class="stress-preset-btn" data-preset="none">Clear all</button>
+            </div>
+            <div class="stress-chip-groups">
+              <div class="stress-chip-group">
+                <span class="stress-chip-group-label">Core</span>
+                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioCrash" checked />Crash at retirement</label>
+                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioBadSeq" checked />Bad sequence</label>
+              </div>
+              <div class="stress-chip-group">
+                <span class="stress-chip-group-label">Macro</span>
+                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioLowerReturns" checked />Lower returns</label>
+                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioHigherInflation" checked />Higher inflation</label>
+              </div>
+              <div class="stress-chip-group">
+                <span class="stress-chip-group-label">Behaviour</span>
+                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioEarlierRetire" checked />Earlier retirement</label>
+                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioReducedContrib" checked />Reduced contributions</label>
+                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioDrawdownPressure" checked />Drawdown pressure</label>
+              </div>
+              <div class="stress-chip-group">
+                <span class="stress-chip-group-label">Tail risk</span>
+                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioLaterLifeFloor" checked />Later-life shortfall</label>
+                <label class="stress-chip" id="stress-chip-household"><input type="checkbox" id="in_stressScenarioHouseholdStrain" checked />Household strain</label>
+              </div>
+            </div>
+          </article>
+
+          <!-- Chart panel (full width) -->
+          <article class="stress-panel stress-panel--wide">
+            <div class="stress-chart-header">
+              <h4 style="margin:0">Pot trajectory under stress (today's £)</h4>
+              <div class="stress-chart-mode">
+                <button class="stress-chart-mode-btn active" data-mode="core">Simple view</button>
+                <button class="stress-chart-mode-btn" data-mode="isolated">Show isolated</button>
+              </div>
+            </div>
             <div class="svgwrap"><svg id="chartStress" width="980" height="270" role="img" aria-label="Stress chart"></svg></div>
-          </div>
+            <div id="stressChartLegend" class="stress-chart-legend"></div>
+          </article>
+
+          <!-- Ranking panel -->
+          <article class="stress-panel">
+            <h4>If one thing goes wrong (isolated)</h4>
+            <div id="stressRankingExplain" class="stress-context-note"></div>
+            <div id="stressScenarioSummary"><p class="muted small">Run a calculation to see scenario ranking.</p></div>
+          </article>
+
+          <!-- Watchouts panel -->
+          <article class="stress-panel">
+            <h4>Will your plan last under stacked stress?</h4>
+            <div id="stressDecisionSentence" class="stress-context-note"></div>
+            <div id="stressCompoundSummary"><p class="muted small">Enable at least two scenarios to view compound knock-on effects.</p></div>
+            <div id="stressWatchouts"><p class="muted small">Run a calculation to see stress watchouts.</p></div>
+          </article>
+
         </div>
       </div>
     </section>
 
     <!-- MONTE -->
     <section class="view" id="view-monte" style="display:none">
-      <div class="card">
+      <div class="card monte-shell">
         <h3>Monte Carlo (probability context)</h3>
         <div class="tipGrid" data-tips="view-monte"><div class="tipCard"><div class="ticon">🎲</div><div><div class="ttitle">Many futures</div><div class="ttext">Monte Carlo runs your plan many times with random return paths to show uncertainty.</div></div></div><div class="tipCard"><div class="ticon">📊</div><div><div class="ttitle">Focus on 3 numbers</div><div class="ttext">Success %, Worst‑case depletion age, and P10 pot (downside buffer).</div></div></div><div class="tipCard"><div class="ticon">🟦</div><div><div class="ttitle">Read the bands</div><div class="ttext">White line is “typical”. Shaded ranges are realistic outcomes. Lower band above zero is strong.</div></div></div></div>
         <p class="muted" style="margin-top:0">Simulates many possible return paths using your average return and volatility. Use it for uncertainty context, not certainty.</p>
 
-        <div class="form">
-          <div class="field"><label>Simulations</label>
-            <select id="in_sims">
-              <option value="500">500</option>
-              <option value="1000" selected>1,000</option>
-              <option value="2000">2,000</option>
-              <option value="5000">5,000</option>
-            </select>
-          </div>
-          <div class="field"><label>Seed (optional)</label><input type="number" id="in_seed" placeholder="Random" /></div>
-          <div class="field"><label>Ruin definition</label>
-            <select id="in_ruinDef">
-              <option value="0" selected>Pot hits £0 any time</option>
-              <option value="1">Pot < £10k (today’s £)</option>
-            </select>
-          </div>
-          <div class="field"><label>Show percentile bands</label>
-            <select id="in_bands">
-              <option value="1" selected>Yes</option>
-              <option value="0">No</option>
-            </select>
-          </div>
+        <div class="monte-status-row">
+          <span id="monteBadge"></span>
+          <span id="mcDelta"></span>
+          <span class="badge" id="mcProgressWrap" style="display:none"><span class="ico">⏳</span><span id="mcProgressText">Running…</span><span class="progress" style="margin-left:8px"><div id="mcProgressBar"></div></span></span>
         </div>
 
-        <div class="hr"></div>
-        <div class="row" style="justify-content:space-between; gap:10px">
-          <div class="row" style="gap:8px">
-            <span id="monteBadge"></span>
-            <span class="badge" id="mcProgressWrap" style="display:none"><span class="ico">⏳</span><span id="mcProgressText">Running…</span><span class="progress" style="margin-left:8px"><div id="mcProgressBar"></div></span></span>
-          </div>
-          <span class="muted small">Tip: Check both probability and downside severity (worst-case depletion age, P10 outcomes).</span>
-        </div>
+        <div class="monte-grid">
+          <article class="monte-panel">
+            <h4>Simulation controls</h4>
+            <div class="form">
+              <div class="field"><label>Simulations</label>
+                <select id="in_sims">
+                  <option value="500">500</option>
+                  <option value="1000" selected>1,000</option>
+                  <option value="2000">2,000</option>
+                  <option value="5000">5,000</option>
+                </select>
+              </div>
+              <div class="field"><label>Seed (optional)</label><input type="number" id="in_seed" placeholder="Random" /></div>
+              <div class="field"><label>Ruin definition</label>
+                <select id="in_ruinDef">
+                  <option value="0" selected>Pot hits £0 any time</option>
+                  <option value="1">Pot < £10k (today’s £)</option>
+                </select>
+              </div>
+              <div class="field"><label>Show percentile bands</label>
+                <select id="in_bands">
+                  <option value="1" selected>Yes</option>
+                  <option value="0">No</option>
+                </select>
+              </div>
+            </div>
+          </article>
 
-        <div class="kpi" id="mcKpis" style="margin-top:12px"></div>
+          <article class="monte-panel">
+            <h4>What this means</h4>
+            <div id="monteBottomLine" class="monte-context-note"></div>
+            <div id="monteDecisionCards" class="monte-outcome-grid"></div>
+            <details class="monte-advanced-details" open>
+              <summary>Advanced diagnostics</summary>
+              <div id="mcKpis" class="kpi" style="margin-top:8px"></div>
+            </details>
+          </article>
 
-        <div class="grid" style="margin-top:12px">
-          <div class="card" style="grid-column: span 12; background:rgba(255,255,255,.04)">
-            <h3>Monte Carlo distribution (pot in today’s £)</h3>
+          <article class="monte-panel monte-panel--wide">
+            <h4>Monte Carlo distribution (pot in today’s £)</h4>
+            <div class="small muted" style="margin-bottom:8px">White line shows the typical path. Shaded range shows uncertainty.</div>
             <div class="svgwrap"><svg id="chartMC" width="980" height="280" role="img" aria-label="Monte Carlo chart"></svg></div>
-          </div>
+          </article>
+
+          <article class="monte-panel">
+            <h4>Interpretation</h4>
+            <div id="monteInterpretation"></div>
+          </article>
+
+          <article class="monte-panel">
+            <h4>Actionable next steps</h4>
+            <div id="monteActions"></div>
+          </article>
         </div>
       </div>
     </section>
 
     <!-- SCENARIOS -->
     <section class="view" id="view-scenarios" style="display:none">
-      <div class="card">
+      <div class="card scenarios-shell">
         <h3>Scenario manager</h3>
         <div class="tipGrid" data-tips="view-scenarios"><div class="tipCard"><div class="ticon">🧩</div><div><div class="ttitle">Scenarios are snapshots</div><div class="ttext">A scenario is a saved set of inputs. Compare shows trade‑offs side‑by‑side.</div></div></div><div class="tipCard"><div class="ticon">🔎</div><div><div class="ttitle">Compare the right KPIs</div><div class="ttext">Look at run‑out age, pot left at end age, and MC success % (when run).</div></div></div><div class="tipCard"><div class="ticon">🏷️</div><div><div class="ttitle">Name clearly</div><div class="ttext">Use names like “Retire 60”, “+2% contrib”, “Lower spend” so comparisons are obvious.</div></div></div></div>
         <p class="muted" style="margin-top:0">Save named scenarios, then compare side-by-side (up to 3).</p>
 
         <div class="grid">
-          <div class="card" style="grid-column: span 5; background:rgba(255,255,255,.04)">
+          <div class="card card-subtle" style="grid-column: span 5">
             <h3>Saved scenarios</h3>
             <div id="scenarioList" class="muted"></div>
             <div class="row" style="margin-top:10px">
@@ -753,7 +888,7 @@
             <div class="footer">Scenarios are stored locally in your browser (offline).</div>
           </div>
 
-          <div class="card" style="grid-column: span 7; background:rgba(255,255,255,.04)">
+          <div class="card card-subtle" style="grid-column: span 7">
             <h3>Compare</h3>
             <div class="muted small">Select up to 3 scenarios to compare.</div>
             <div id="scenarioCompare"></div>
@@ -765,7 +900,7 @@
 
     <!-- HELP -->
     <section class="view" id="view-help" style="display:none">
-  <div class="card">
+  <div class="card help-shell">
     <h3>Help (a gentle guide)</h3>
 
     <div class="helpHero" style="margin-top:10px">
@@ -791,7 +926,7 @@
     <div class="hr"></div>
 
     <div class="grid">
-      <div class="card" style="grid-column: span 6; background:rgba(255,255,255,.04)">
+      <div class="card card-subtle" style="grid-column: span 6">
         <h3>What this tool is (and isn’t)</h3>
         <ul class="muted" style="margin:0">
           <li><strong>It is</strong> a planning tool that tests resilience (margin for error).</li>
@@ -800,7 +935,7 @@
           <li>Focus on <strong>robust plans</strong>, not perfect precision.</li>
         </ul>
       </div>
-      <div class="card" style="grid-column: span 6; background:rgba(255,255,255,.04)">
+      <div class="card card-subtle" style="grid-column: span 6">
         <h3>The retirement problem (plain words)</h3>
         <ul class="muted" style="margin:0">
           <li><strong>Time</strong>: you may live longer than expected.</li>
@@ -815,14 +950,14 @@
 
     <h3>Plain‑English explanations (tap to expand)</h3>
     <div class="grid">
-      <div class="card" style="grid-column: span 12; background:rgba(255,255,255,.03)">
+      <div class="card card-soft" style="grid-column: span 12">
         <div class="grid" style="margin:0">
-          <div class="card" style="grid-column: span 6; background:transparent; border:none; box-shadow:none; padding:0">
+          <div class="card card-ghost" style="grid-column: span 6">
             <details class="helpAcc"><summary><span class="q">What is Monte Carlo?</span><span class="chev">▾</span></summary><div class="a">It runs your plan many times using random market return paths. It doesn’t predict the future — it shows how often your plan still works under uncertainty.</div></details>
             <details class="helpAcc" style="margin-top:10px"><summary><span class="q">What does “Success probability” mean?</span><span class="chev">▾</span></summary><div class="a">The % of simulated futures where your pot does not hit the “ruin” rule (usually £0) before the end age.</div></details>
             <details class="helpAcc" style="margin-top:10px"><summary><span class="q">What is P10 terminal pot?</span><span class="chev">▾</span></summary><div class="a">A pessimistic outcome. 9 out of 10 futures end with more pot than this. It’s a helpful downside buffer.</div></details>
           </div>
-          <div class="card" style="grid-column: span 6; background:transparent; border:none; box-shadow:none; padding:0">
+          <div class="card card-ghost" style="grid-column: span 6">
             <details class="helpAcc"><summary><span class="q">What are Stress tests?</span><span class="chev">▾</span></summary><div class="a">Specific “bad timing” checks like a crash at retirement or a run of poor early returns. Passing stress tests means resilience.</div></details>
             <details class="helpAcc" style="margin-top:10px"><summary><span class="q">What is the Bridge?</span><span class="chev">▾</span></summary><div class="a">If you retire before State Pension age, the Bridge is the gap you must fund yourself. The Bridge tab checks whether the pot can support that period.</div></details>
             <details class="helpAcc" style="margin-top:10px"><summary><span class="q">What does “today’s money” mean?</span><span class="chev">▾</span></summary><div class="a">Values are inflation‑adjusted. £30k means £30k of buying power today, not future cash. This makes scenarios easier to compare.</div></details>
@@ -835,15 +970,15 @@
 
     <h3>How to make decisions (simple rules)</h3>
     <div class="grid">
-      <div class="card" style="grid-column: span 4; background:rgba(255,255,255,.04)">
+      <div class="card card-subtle" style="grid-column: span 4">
         <h3>Can I retire earlier?</h3>
         <p class="muted" style="margin:0">Check Bridge (gap holds), Stress (gatekeeper), and Monte Carlo (uncertainty).</p>
       </div>
-      <div class="card" style="grid-column: span 4; background:rgba(255,255,255,.04)">
+      <div class="card card-subtle" style="grid-column: span 4">
         <h3>Can I spend more?</h3>
         <p class="muted" style="margin:0">Watch minimum pot after drawing starts and P10 pot. Avoid “knife‑edge” plans.</p>
       </div>
-      <div class="card" style="grid-column: span 4; background:rgba(255,255,255,.04)">
+      <div class="card card-subtle" style="grid-column: span 4">
         <h3>Which scenario is better?</h3>
         <p class="muted" style="margin:0">Prefer margin for error: higher robustness even if income is slightly lower.</p>
       </div>
@@ -862,14 +997,14 @@
 
   
   <nav class="bottomNav" id="bottomNav" aria-label="Bottom navigation">
-    <button data-view="overview" class="active">🏁<span>Overview</span></button>
-    <button data-view="inputs">🧾<span>Inputs</span></button>
-    <button data-view="bridge">🧱<span>Bridge</span></button>
-    <button data-view="household">🏠<span>Household</span></button>
-    <button data-view="stress">🧯<span>Stress</span></button>
-    <button data-view="monte">🎲<span>Monte</span></button>
-    <button data-view="scenarios">🧩<span>Compare</span></button>
-    <button data-view="help">❓<span>Help</span></button>
+    <button data-view="overview" class="active"><span class="bnav-ico">DS</span><span>Overview</span></button>
+    <button data-view="inputs"><span class="bnav-ico">IN</span><span>Inputs</span></button>
+    <button data-view="bridge"><span class="bnav-ico">BR</span><span>Bridge</span></button>
+    <button data-view="household"><span class="bnav-ico">HH</span><span>Household</span></button>
+    <button data-view="stress"><span class="bnav-ico">RS</span><span>Stress</span></button>
+    <button data-view="monte"><span class="bnav-ico">MC</span><span>Monte</span></button>
+    <button data-view="scenarios"><span class="bnav-ico">SC</span><span>Compare</span></button>
+    <button data-view="help"><span class="bnav-ico">HP</span><span>Help</span></button>
   </nav>
 </main>
 </div>
@@ -890,6 +1025,15 @@
       <button class="btn primary" data-act="recalc">Recalculate</button>
       <button class="btn" data-act="print">Print</button>
     </div>
+  </div>
+</div>
+
+<div class="sheet" id="cmdPalette" aria-hidden="true" role="dialog" aria-label="Command palette">
+  <div class="sheetPanel cmdPanel" role="document">
+    <div class="sheetHeader"><div class="sheetTitle">Quick command</div>
+      <button class="btn" id="btnCmdClose" type="button">Close ✕</button></div>
+    <input id="cmdInput" class="cmdInput" type="text" placeholder="Jump to a section or run an action (Cmd/Ctrl+K)" />
+    <div id="cmdList" class="cmdList"></div>
   </div>
 </div>
 </body>

@@ -22,6 +22,8 @@ export function createRenderOrchestrator(deps){
     buildDecisionTimeline,
     renderStrategyTab,
     renderStress,
+    buildStressScenarioResults,
+    buildMonteInterpretation,
     renderBridge,
     computeBridgeStatus,
     statusFromScore,
@@ -98,7 +100,10 @@ export function createRenderOrchestrator(deps){
   },
 });
 
-    const stressRes = renderStress(s, base);
+    const stressSummary = typeof buildStressScenarioResults === 'function'
+      ? buildStressScenarioResults({ state: s, base, calcProjection })
+      : null;
+    const stressRes = renderStress(s, base, stressSummary);
     const br = renderBridge(s);
 
     const bridgeStatus = (s.earlyAge==='')
@@ -117,7 +122,15 @@ export function createRenderOrchestrator(deps){
       if(getEl('monteBadge')) getEl('monteBadge').innerHTML = deps.badge('warn',`Monte Carlo: ${monteStatus.label}`,monteStatus.reason);
       if(getEl('mcKpis')) getEl('mcKpis').innerHTML = '';
       if(getEl('chartMC')) getEl('chartMC').innerHTML = '';
+      if(getEl('mcDelta')) getEl('mcDelta').innerHTML = '';
     }
+
+    app.riskSummary = {
+      stress: stressSummary,
+      monte: monteCurrent && app.mc.result && typeof buildMonteInterpretation === 'function'
+        ? buildMonteInterpretation(app.mc.result, s)
+        : null,
+    };
 
     let overview = null;
     try {
@@ -146,6 +159,7 @@ export function createRenderOrchestrator(deps){
         base,
         household: hh,
         bridgeResult: br,
+        riskSummary: app.riskSummary,
         stressStatus: stressRes.status,
         bridgeStatus,
         monteStatus,

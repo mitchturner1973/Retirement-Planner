@@ -155,29 +155,29 @@ export function renderStrategyTab(deps, strategyBundle) {
       ? '<div class="muted">No strategies were generated for the current inputs.</div>'
       : `<div class="grid strategy-card-grid">
           ${uniqueTopWinnerCount === 1
-            ? `<div class="strategy-context-callout" style="grid-column: span 12; margin:0 0 8px"><strong>One strategy leads in all categories</strong> under <em>${priorityModeLabel}</em> mode. Try a different priority mode above to compare alternative focus areas.</div>`
+            ? `<div class="strategy-context-callout strategy-full-span strategy-tight-bottom"><strong>One strategy leads in all categories</strong> under <em>${priorityModeLabel}</em> mode. Try a different priority mode above to compare alternative focus areas.</div>`
             : ''}
           ${topCards.map(({ label, result, scoreKey }) => {
             if (!result) return '';
-            return `<div class="card strategy-top-card" style="grid-column: span 4; background:rgba(255,255,255,.04)">
+            return `<div class="card strategy-top-card strategy-col-4">
               <div class="muted small strategy-top-card-label">${label}</div>
-              <h3 class="strategy-top-card-title" style="margin-top:6px">${result.strategy.name}</h3>
-              <div class="row strategy-top-card-badges" style="margin-top:8px; gap:8px; flex-wrap:wrap">
+              <h3 class="strategy-top-card-title strategy-tight-top">${result.strategy.name}</h3>
+              <div class="row strategy-top-card-badges strategy-chip-row">
                 ${badge('good', `${result.scores[scoreKey]}/100`, `${label} score`)}
                 ${badge('warn', `Tax to end age ${fmtGBP(result.metrics.totalTax)}`, 'Estimated total tax across the full projection horizon')}
               </div>
               ${result.dimensionScores
-                ? `<div class="row strategy-top-card-badges" style="margin-top:8px; gap:8px; flex-wrap:wrap">
+                ? `<div class="row strategy-top-card-badges strategy-chip-row">
                   ${badge('good', `Tax eff. ${result.dimensionScores.taxEfficiency}`, 'Tax efficiency score')}
                   ${badge('good', `Sustainability ${result.dimensionScores.incomeSustainability}`, 'Income sustainability score')}
                   ${badge('good', `Smoothness ${result.dimensionScores.incomeSmoothness}`, 'Income smoothness score')}
                 </div>`
                 : ''}
-              <div class="small muted strategy-top-card-summary" style="margin-top:10px">${result.strategy.summary}</div>
+              <div class="small muted strategy-top-card-summary strategy-top-gap">${result.strategy.summary}</div>
               ${baseline && baseline.strategy.id !== result.strategy.id
-                ? `<div class="small muted strategy-top-card-note" style="margin-top:8px">Compared with baseline straight drawdown, this plan changes withdrawal timing and can materially change pot values by age.</div>`
+                ? `<div class="small muted strategy-top-card-note strategy-top-gap-sm">Compared with baseline straight drawdown, this plan changes withdrawal timing and can materially change pot values by age.</div>`
                 : ''}
-              <div class="kpi strategy-top-card-kpis" style="margin-top:12px">
+              <div class="kpi strategy-top-card-kpis strategy-top-gap-md">
                 <div class="item strategy-kpi-item"><div class="label">Net at retirement</div><div class="value">${fmtGBP(result.summary.netAtRet)}</div></div>
                 <div class="item strategy-kpi-item"><div class="label">Pot at retirement</div><div class="value">${fmtGBP(result.summary.potAtRet)}</div></div>
                 <div class="item strategy-kpi-item"><div class="label">${pot75LabelFor(result)}</div><div class="value">${fmtGBP(result.metrics.potAt75)}</div></div>
@@ -188,7 +188,7 @@ export function renderStrategyTab(deps, strategyBundle) {
         </div>`;
 
   const noPotHint = ranked.length <= 2
-    ? '<div class="strategy-context-callout" style="margin:0 0 12px"><strong>Limited strategies available.</strong> Enter your current DC pension pot value on the main form to unlock tax-free lump sum strategies and see a broader comparison.</div>'
+    ? '<div class="strategy-context-callout strategy-tight-bottom"><strong>Limited strategies available.</strong> Enter your current DC pension pot value on the main form to unlock tax-free lump sum strategies and see a broader comparison.</div>'
     : '';
 
   const dimensionShortLabel = {
@@ -209,12 +209,12 @@ export function renderStrategyTab(deps, strategyBundle) {
   compareWrap.innerHTML =
     ranked.length === 0
       ? '<div class="muted">No strategy comparison available yet.</div>'
-        : `${noPotHint}<div class="strategy-context-callout" style="margin:0 0 12px">
+        : `${noPotHint}<div class="strategy-context-callout strategy-tight-bottom">
             <div><strong>Mode: ${priorityModeLabel}</strong> — Priority score column is sorted by this mode’s weights.</div>
-            ${topWeightsStr ? `<div class="small muted" style="margin-top:4px">Top weighted dimensions: ${topWeightsStr}</div>` : ''}
-            <div class="small muted" style="margin-top:4px">Targets: min net ${fmtGBP(Number(targets.minimumDesiredNetIncome || 0))} / retirement target ${fmtGBP(Number(targets.targetRetirementNetIncome || 0))} / buffer at 75 ${fmtGBP(Number(targets.minimumFlexibilityBufferAt75 || 0))}.</div>
+            ${topWeightsStr ? `<div class="small muted strategy-gap-xs">Top weighted dimensions: ${topWeightsStr}</div>` : ''}
+            <div class="small muted strategy-gap-xs">Targets: min net ${fmtGBP(Number(targets.minimumDesiredNetIncome || 0))} / retirement target ${fmtGBP(Number(targets.targetRetirementNetIncome || 0))} / buffer at 75 ${fmtGBP(Number(targets.minimumFlexibilityBufferAt75 || 0))}.</div>
           </div>
-          <div class="strategy-table-shell" style="overflow:auto"><table><thead><tr>
+          <div class="strategy-table-shell strategy-overflow"><table><thead><tr>
           <th>Strategy</th><th>DB timing</th><th>Priority score</th><th>Tax score</th><th>Stable income score</th><th>Tax to end age</th><th>Net at retirement</th><th>Δ vs baseline net (ret)</th><th>Pot at retirement</th><th>Δ vs baseline pot (ret)</th><th>Lowest later income</th><th>Pot at 75 (or end age)</th><th>One-off lump sums</th></tr></thead><tbody>
           ${ranked
             .map(
@@ -222,8 +222,8 @@ export function renderStrategyTab(deps, strategyBundle) {
                 const netDelta = baseline ? Number(r.metrics.netAtRet || 0) - Number(baseline.metrics.netAtRet || 0) : Number.NaN;
                 const potDelta = baseline ? Number(r.summary.potAtRet || 0) - Number(baseline.summary.potAtRet || 0) : Number.NaN;
                 const isTop = idx === 0;
-                return `<tr${isTop ? ' style="background:rgba(110,231,255,.06)"' : ''}>
-                <td class="strategy-cell-main"><strong>${r.strategy.name}</strong>${isTop ? ' <span class="small" style="color:rgba(110,231,255,.8)">★ top pick</span>' : ''}<div class="small muted strategy-table-summary">${r.strategy.summary}</div></td>
+                return `<tr${isTop ? ' class="strategy-row-top"' : ''}>
+                <td class="strategy-cell-main"><strong>${r.strategy.name}</strong>${isTop ? ' <span class="small strategy-top-pick">★ top pick</span>' : ''}<div class="small muted strategy-table-summary">${r.strategy.summary}</div></td>
                 <td class="strategy-cell-db">${formatDbTimingCell(r.state?.dbPensions || [])}</td>
                 <td><strong>${r.scores.balanced}</strong></td>
                 <td>${r.scores.tax}</td>
@@ -399,21 +399,21 @@ export function renderStrategyTab(deps, strategyBundle) {
             .filter((entry) => entry.items.length > 0);
 
           return `
-          <div class="strategy-watchouts-shell" style="margin-bottom:16px">
-            <div class="small" style="font-weight:700">Selected: <span style="color:rgba(110,231,255,.9)">${selected?.strategy?.name || '—'}</span></div>
+          <div class="strategy-watchouts-shell strategy-block-gap">
+            <div class="small strategy-strong">Selected: <span class="strategy-selected-name">${selected?.strategy?.name || '—'}</span></div>
             ${explanation
-              ? `<div class="strategy-explainer-shell" style="margin-top:10px">
-                  <div class="small" style="font-weight:600">Why this ranked ${selected?.scores?.balanced ?? '—'}/100 in ${priorityModeLabel.toLowerCase()} mode</div>
-                  <div class="strategy-explainer-grid" style="margin-top:8px">
+              ? `<div class="strategy-explainer-shell strategy-top-gap-sm">
+                  <div class="small strategy-strong-lite">Why this ranked ${selected?.scores?.balanced ?? '—'}/100 in ${priorityModeLabel.toLowerCase()} mode</div>
+                  <div class="strategy-explainer-grid strategy-top-gap-sm">
                     ${(explanation.topDrivers || []).slice(0, 3).map((driver) => `<div class="strategy-explainer-item"><span class="small muted">${dimensionLabel[driver.dimension] || driver.dimension}</span><strong>${Math.round(driver.points)} pts</strong><span class="small muted">(${driver.weightPct}% weight)</span></div>`).join('')}
                   </div>
                   ${Array.isArray(explanation.penaltyBreakdown) && explanation.penaltyBreakdown.length > 0
-                    ? `<div class="small muted" style="margin-top:8px">Deductions: ${explanation.penaltyBreakdown.slice(0, 3).map((p) => `${p.title} (−${Math.round(p.penalty)} pts)`).join(', ')}${explanation.penaltyBreakdown.length > 3 ? '…' : ''}.</div>`
-                    : '<div class="small muted" style="margin-top:8px">No penalty deductions applied.</div>'}
+                    ? `<div class="small muted strategy-top-gap-sm">Deductions: ${explanation.penaltyBreakdown.slice(0, 3).map((p) => `${p.title} (−${Math.round(p.penalty)} pts)`).join(', ')}${explanation.penaltyBreakdown.length > 3 ? '…' : ''}.</div>`
+                    : '<div class="small muted strategy-top-gap-sm">No penalty deductions applied.</div>'}
                 </div>`
               : ''}
             ${dims
-              ? `<div class="row strategy-top-card-badges" style="margin-top:8px; gap:8px; flex-wrap:wrap">
+              ? `<div class="row strategy-top-card-badges strategy-chip-row">
                   ${badge('good', `Tax ${dims.taxEfficiency}`, 'Tax efficiency')}
                   ${badge('good', `Sustainability ${dims.incomeSustainability}`, 'Income sustainability')}
                   ${badge('good', `Smoothness ${dims.incomeSmoothness}`, 'Income smoothness')}
@@ -423,60 +423,60 @@ export function renderStrategyTab(deps, strategyBundle) {
                 </div>`
               : ''}
             ${selectedWatchouts.length === 0
-              ? '<div class="small muted" style="margin-top:8px">No major watchouts triggered.</div>'
-              : `<div class="strategy-watchout-list" style="margin-top:8px">${selectedWatchouts.map((w) => `<div class="strategy-watchout-item strategy-watchout-${w.severity}"><strong>${w.title}</strong><div class="small muted">${w.detail}</div></div>`).join('')}</div>`}
+              ? '<div class="small muted strategy-top-gap-sm">No major watchouts triggered.</div>'
+              : `<div class="strategy-watchout-list strategy-top-gap-sm">${selectedWatchouts.map((w) => `<div class="strategy-watchout-item strategy-watchout-${w.severity}"><strong>${w.title}</strong><div class="small muted">${w.detail}</div></div>`).join('')}</div>`}
           </div>
 
-          <div style="margin-bottom:16px" class="strategy-watchouts-shell">
-            <div class="small" style="font-weight:700;margin-bottom:8px">DC + DB pension plan</div>
-            <div class="small muted" style="margin-bottom:6px">
+          <div class="strategy-watchouts-shell strategy-block-gap">
+            <div class="small strategy-strong strategy-bottom-gap-sm">DC + DB pension plan</div>
+            <div class="small muted strategy-bottom-gap-xs">
               DC order rule: <strong>${dcOrderRule}</strong>. ${dcOrderReason(dcOrderRule)}
             </div>
-            ${dbTimingNotes ? `<div class="small muted" style="margin-bottom:8px">DB timing: ${dbTimingNotes}</div>` : ''}
+            ${dbTimingNotes ? `<div class="small muted strategy-bottom-gap-sm">DB timing: ${dbTimingNotes}</div>` : ''}
             ${lumpSourceRows
-              ? `<div style="margin-bottom:8px"><div class="small" style="font-weight:600">Retirement lump sum source</div>${lumpSourceRows}</div>`
-              : '<div class="small muted" style="margin-bottom:8px">No one-off lump sum taken under this strategy.</div>'}
-            <div style="overflow:auto"><table>
+              ? `<div class="strategy-bottom-gap-sm"><div class="small strategy-strong-lite">Retirement lump sum source</div>${lumpSourceRows}</div>`
+              : '<div class="small muted strategy-bottom-gap-sm">No one-off lump sum taken under this strategy.</div>'}
+            <div class="strategy-overflow"><table>
               <thead><tr><th>Order</th><th>DC pot</th><th>Why this order</th><th>One-off lump sum</th><th>Total drawdown taken</th></tr></thead>
               <tbody>${potUsageRows || '<tr><td colspan="5" class="small muted">No DC pot usage data available.</td></tr>'}</tbody>
             </table></div>
           </div>
 
-          <div class="kpi" style="margin-bottom:16px">
+          <div class="kpi strategy-block-gap">
             <div class="item"><div class="label">Total retirement income</div><div class="value">${fmtGBP(totalRetirementIncome)}</div></div>
             <div class="item"><div class="label">Average per year</div><div class="value">${fmtGBP(avgAnnualIncome)}</div></div>
             <div class="item"><div class="label">Years above min income</div><div class="value">${yearsOnMinimum} / ${retYears.length}</div></div>
             ${targetIncome > 0 ? `<div class="item"><div class="label">Years above retirement target</div><div class="value">${yearsOnTarget} / ${retYears.length}</div></div>` : ''}
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px">
+          <div class="strategy-mini-charts strategy-block-gap">
             <div>
-              <div class="small" style="font-weight:600; margin-bottom:4px">Net income in retirement (per year)</div>
-              <div class="small muted" style="margin-bottom:6px">Blue = pre-State Pension &nbsp;·&nbsp; Green = post-State Pension &nbsp;·&nbsp; Red = below minimum &nbsp;·&nbsp; — = min target</div>
+              <div class="small strategy-strong-lite strategy-bottom-gap-xs">Net income in retirement (per year)</div>
+              <div class="small muted strategy-bottom-gap-sm">Blue = pre-State Pension &nbsp;·&nbsp; Green = post-State Pension &nbsp;·&nbsp; Red = below minimum &nbsp;·&nbsp; — = min target</div>
               ${incomeChart}
-              <div class="small muted" style="display:flex;justify-content:space-between;margin-top:2px"><span>Age ${retireAge}</span><span>Age ${endAge}</span></div>
+              <div class="small muted strategy-axis-row"><span>Age ${retireAge}</span><span>Age ${endAge}</span></div>
             </div>
             <div>
-              <div class="small" style="font-weight:600; margin-bottom:4px">Pension pot over time</div>
-              <div class="small muted" style="margin-bottom:6px">Purple = DC pot balance each year &nbsp;·&nbsp; Dashed = retirement age</div>
+              <div class="small strategy-strong-lite strategy-bottom-gap-xs">Pension pot over time</div>
+              <div class="small muted strategy-bottom-gap-sm">Purple = DC pot balance each year &nbsp;·&nbsp; Dashed = retirement age</div>
               ${potChart}
-              <div class="small muted" style="display:flex;justify-content:space-between;margin-top:2px"><span>Age ${currentAge}</span><span>Age ${endAge}</span></div>
+              <div class="small muted strategy-axis-row"><span>Age ${currentAge}</span><span>Age ${endAge}</span></div>
             </div>
           </div>
 
-          <div style="margin-bottom:16px">
-            <div class="small" style="font-weight:700;margin-bottom:8px">Snapshot at key ages</div>
-            <div style="overflow:auto"><table>
+          <div class="strategy-block-gap">
+            <div class="small strategy-strong strategy-bottom-gap-sm">Snapshot at key ages</div>
+            <div class="strategy-overflow"><table>
               <thead><tr><th>Age</th><th>Event</th><th>Net income</th><th>Guaranteed income</th><th>Pot remaining</th></tr></thead>
               <tbody>${keyAgeRows}</tbody>
             </table></div>
           </div>
 
           <div>
-            <div class="small" style="font-weight:700;margin-bottom:8px">Key events</div>
+            <div class="small strategy-strong strategy-bottom-gap-sm">Key events</div>
             ${condensedTimeline.length === 0
               ? '<div class="small muted">No notable one-off events — this strategy uses only recurring drawdown.</div>'
-              : `<div class="strategy-timeline-list">${condensedTimeline.map((entry) => `<div class="callout strategy-timeline-card" style="margin-top:8px"><div class="dot strategy-timeline-dot" style="background:rgba(110,231,255,.9)"></div><div style="flex:1"><div class="strategy-timeline-age" style="font-weight:700">Age ${entry.age}</div>${entry.items.map((item) => `<div class="strategy-timeline-block" style="margin-top:6px"><div><strong>${item.action}</strong></div><div class="small muted" style="margin-top:3px">${item.reason}</div></div>`).join('')}</div></div>`).join('')}</div>`}
+              : `<div class="strategy-timeline-list">${condensedTimeline.map((entry) => `<div class="callout strategy-timeline-card strategy-top-gap-sm"><div class="dot strategy-timeline-dot"></div><div class="strategy-timeline-content"><div class="strategy-timeline-age strategy-strong">Age ${entry.age}</div>${entry.items.map((item) => `<div class="strategy-timeline-block strategy-top-gap-xs"><div><strong>${item.action}</strong></div><div class="small muted strategy-top-gap-xxs">${item.reason}</div></div>`).join('')}</div></div>`).join('')}</div>`}
           </div>`;
         })();
 }

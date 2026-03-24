@@ -50,6 +50,15 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
     getEl('in_badPenalty').value = state.badPenalty;
     getEl('in_successAge').value = state.successAge;
     getEl('in_floor70').value = state.floor70;
+    if (getEl('in_stressScenarioCrash')) getEl('in_stressScenarioCrash').checked = Number(state.stressScenarioCrash ?? defaults.stressScenarioCrash ?? 1) === 1;
+    if (getEl('in_stressScenarioBadSeq')) getEl('in_stressScenarioBadSeq').checked = Number(state.stressScenarioBadSeq ?? defaults.stressScenarioBadSeq ?? 1) === 1;
+    if (getEl('in_stressScenarioLowerReturns')) getEl('in_stressScenarioLowerReturns').checked = Number(state.stressScenarioLowerReturns ?? defaults.stressScenarioLowerReturns ?? 1) === 1;
+    if (getEl('in_stressScenarioHigherInflation')) getEl('in_stressScenarioHigherInflation').checked = Number(state.stressScenarioHigherInflation ?? defaults.stressScenarioHigherInflation ?? 1) === 1;
+    if (getEl('in_stressScenarioEarlierRetire')) getEl('in_stressScenarioEarlierRetire').checked = Number(state.stressScenarioEarlierRetire ?? defaults.stressScenarioEarlierRetire ?? 1) === 1;
+    if (getEl('in_stressScenarioReducedContrib')) getEl('in_stressScenarioReducedContrib').checked = Number(state.stressScenarioReducedContrib ?? defaults.stressScenarioReducedContrib ?? 1) === 1;
+    if (getEl('in_stressScenarioDrawdownPressure')) getEl('in_stressScenarioDrawdownPressure').checked = Number(state.stressScenarioDrawdownPressure ?? defaults.stressScenarioDrawdownPressure ?? 1) === 1;
+    if (getEl('in_stressScenarioLaterLifeFloor')) getEl('in_stressScenarioLaterLifeFloor').checked = Number(state.stressScenarioLaterLifeFloor ?? defaults.stressScenarioLaterLifeFloor ?? 1) === 1;
+    if (getEl('in_stressScenarioHouseholdStrain')) getEl('in_stressScenarioHouseholdStrain').checked = Number(state.stressScenarioHouseholdStrain ?? defaults.stressScenarioHouseholdStrain ?? 1) === 1;
     getEl('in_sims').value = String(state.sims);
     getEl('in_seed').value = state.seed;
     getEl('in_ruinDef').value = String(state.ruinDef);
@@ -197,6 +206,15 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
       badPenalty: Number(getEl('in_badPenalty').value || 5),
       successAge: Number(getEl('in_successAge').value || 90),
       floor70: Number(getEl('in_floor70').value || 0),
+      stressScenarioCrash: getEl('in_stressScenarioCrash')?.checked ? 1 : 0,
+      stressScenarioBadSeq: getEl('in_stressScenarioBadSeq')?.checked ? 1 : 0,
+      stressScenarioLowerReturns: getEl('in_stressScenarioLowerReturns')?.checked ? 1 : 0,
+      stressScenarioHigherInflation: getEl('in_stressScenarioHigherInflation')?.checked ? 1 : 0,
+      stressScenarioEarlierRetire: getEl('in_stressScenarioEarlierRetire')?.checked ? 1 : 0,
+      stressScenarioReducedContrib: getEl('in_stressScenarioReducedContrib')?.checked ? 1 : 0,
+      stressScenarioDrawdownPressure: getEl('in_stressScenarioDrawdownPressure')?.checked ? 1 : 0,
+      stressScenarioLaterLifeFloor: getEl('in_stressScenarioLaterLifeFloor')?.checked ? 1 : 0,
+      stressScenarioHouseholdStrain: getEl('in_stressScenarioHouseholdStrain')?.checked ? 1 : 0,
       sims: Number(getEl('in_sims').value || 1000),
       seed: (getEl('in_seed').value || ''),
       ruinDef: Number(getEl('in_ruinDef').value || 0),

@@ -24,6 +24,7 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
     const headline = getEl('overviewHeadlineCards');
     const income = getEl('overviewIncomeBreakdown');
     const watchouts = getEl('overviewWatchouts');
+    const riskDrivers = getEl('overviewRiskDrivers');
     const earlyBridge = getEl('overviewBridgeFeasibility');
     const changes = getEl('overviewChanges');
     const nextSteps = getEl('overviewNextSteps');
@@ -67,6 +68,20 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
         watchouts.innerHTML = '<div class="muted">No major watchouts detected from current assumptions.</div>';
       } else {
         watchouts.innerHTML = model.watchouts.map((item) => `
+          <div class="overview-watchout overview-watchout--${item.tone}">
+            <div class="overview-watchout-title">${item.title}</div>
+            <div class="overview-watchout-text muted">${item.text}</div>
+            <button class="btn" type="button" data-overview-nav="${item.view}">Open ${item.view}</button>
+          </div>
+        `).join('');
+      }
+    }
+
+    if (riskDrivers) {
+      if (!model.topRiskDrivers || model.topRiskDrivers.length === 0) {
+        riskDrivers.innerHTML = '<div class="muted">No major risk drivers identified yet. Run Stress and Monte to populate this panel.</div>';
+      } else {
+        riskDrivers.innerHTML = model.topRiskDrivers.map((item) => `
           <div class="overview-watchout overview-watchout--${item.tone}">
             <div class="overview-watchout-title">${item.title}</div>
             <div class="overview-watchout-text muted">${item.text}</div>

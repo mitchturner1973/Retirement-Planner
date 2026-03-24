@@ -1,5 +1,5 @@
 export function createStatusPanelRenderer(deps){
-  const {app, getEl, nowTime, computeOverall, badge, suggestLevers, document, toast} = deps;
+  const {app, getEl, nowTime, computeOverall, badge, suggestLevers, getRiskSummary, document, toast} = deps;
 
   function updateFreshness(msg){
     app.lastUpdatedAt = new Date();
@@ -15,7 +15,11 @@ export function createStatusPanelRenderer(deps){
       const b = bridgeStatus.base;
       getEl('bridgeOverallBadge').innerHTML = badge(b.s, b.text, b.reason);
     }
-    const recs = suggestLevers(s, {overall, stress: stressStatus, bridgeBase: bridgeStatus.base, bridgeLife: bridgeStatus.life});
+    const recs = suggestLevers(
+      s,
+      {overall, stress: stressStatus, bridgeBase: bridgeStatus.base, bridgeLife: bridgeStatus.life},
+      typeof getRiskSummary === 'function' ? getRiskSummary() : null,
+    );
     if(recs.length===0){
       getEl('actionPanel').innerHTML = `<div class="muted">No obvious improvements found within conservative bounds. Try adjusting multiple levers (spend + retirement age + contributions).</div>`;
       return;

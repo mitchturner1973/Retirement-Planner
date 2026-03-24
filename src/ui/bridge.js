@@ -9,7 +9,7 @@ export function createBridgeRenderer(deps){
     const br = calcBridge(s, opts);
 
     if(br.error){
-      getEl('bridgeKpis').innerHTML = `<div class="k" style="grid-column:span 12"><div class="label">Bridge status</div><div class="value">${br.error}</div></div>`;
+      getEl('bridgeKpis').innerHTML = `<div class="bridge-kpi-grid"><div class="bridge-kpi bridge-kpi--result-bad" style="grid-column:span 12"><div class="label">Bridge status</div><div class="value">${br.error}</div></div></div>`;
       getEl('tblBridge').querySelector('tbody').innerHTML = `<tr><td colspan="6" class="muted">${br.error}</td></tr>`;
       getEl('chartBridge').innerHTML = '';
       return br;
@@ -32,7 +32,13 @@ export function createBridgeRenderer(deps){
       kpis.push({label:`Pot run-out age (lifestyle)`, value: okLife?`Never (to ${s.endAge})`:String(br.runOut_life)});
     }
 
-    getEl('bridgeKpis').innerHTML = kpis.map(k=>`<div class="k"><div class="label">${k.label}</div><div class="value">${k.value}</div></div>`).join('');
+    getEl('bridgeKpis').innerHTML = `<div class="bridge-kpi-grid">${kpis.map(k=>{
+      const key = String(k.label || '').toLowerCase();
+      const isResult = key.includes('bridge result');
+      const isFail = isResult && String(k.value || '').toLowerCase().includes('fails');
+      const resultToneClass = isResult ? (isFail ? ' bridge-kpi--result-bad' : ' bridge-kpi--result-good') : '';
+      return `<div class="bridge-kpi${resultToneClass}"><div class="label">${k.label}</div><div class="value">${k.value}</div></div>`;
+    }).join('')}</div>`;
 
     const rows = br.baseline.filter(y=> y.phase==='bridge' || (y.phase==='post' && y.age===br.end));
     getEl('tblBridge').querySelector('tbody').innerHTML = rows.map(y=>`<tr>

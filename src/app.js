@@ -33,6 +33,7 @@ import { createActionRecommendationService } from './services/actionRecommendati
 import { createScenarioActions } from './services/scenarioActions.js';
 import { buildProjectionViewModel } from './services/projectionViewModel.js';
 import { buildOverviewViewModel } from './services/overviewViewModel.js';
+import { buildStressScenarioResults, buildMonteInterpretation } from './services/riskResilienceService.js';
 
 (function bootstrap() {
   const app = createInitialAppState();
@@ -56,7 +57,7 @@ import { buildOverviewViewModel } from './services/overviewViewModel.js';
 
   const navigation = createNavigationController({ getEl: $, document, window, onOpenMonte: () => renderAll(false) });
   const renderBridge = createBridgeRenderer({ getEl: $, calcBridge, drawLineChart, fmtGBP });
-  const renderStress = createStressRenderer({ getEl: $, calcProjection, computeStressStatus, badge, drawLineChart });
+  const renderStress = createStressRenderer({ getEl: $, calcProjection, computeStressStatus, badge, drawLineChart, fmtGBP });
 
   const suggestLevers = createActionRecommendationService({
     readState: inputState.readState,
@@ -74,6 +75,7 @@ import { buildOverviewViewModel } from './services/overviewViewModel.js';
     computeOverall,
     badge,
     suggestLevers,
+    getRiskSummary: () => app.riskSummary || null,
     document,
     toast,
   });
@@ -91,6 +93,7 @@ import { buildOverviewViewModel } from './services/overviewViewModel.js';
     toast,
     updateFreshness,
     badge,
+    buildMonteInterpretation,
   });
 
   const renderReport = createReportRenderer({ getEl: $, fmtGBP, badge, app });
@@ -118,6 +121,8 @@ import { buildOverviewViewModel } from './services/overviewViewModel.js';
     buildDecisionTimeline,
     renderStrategyTab: (bundle) => renderStrategyTab({ getEl: $, fmtGBP, badge }, bundle),
     renderStress,
+    buildStressScenarioResults,
+    buildMonteInterpretation,
     renderBridge,
     computeBridgeStatus,
     statusFromScore,
