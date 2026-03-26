@@ -80,7 +80,7 @@ function buildRowView(row, previousRow, state) {
       ...(Number(row.taxableLumpGross || 0) > 0 ? [{ label: 'Taxable lump sum taken', value: Number(row.taxableLumpGross || 0) }] : []),
       ...(previousRow ? [{ label: 'Recurring income change', text: formatDelta(recurringIncomeDelta) }] : []),
     ],
-    phaseLabel: row.phase === 'retired' ? 'Retired' : 'Working',
+    phaseLabel: (row.phase === 'retired' || row.phase === 'bridge') ? 'Retired' : 'Working',
     rowTone: hasMajorIncomeDrop ? 'attention' : hasLumpSum ? 'cash' : (isRetirementStart || isStatePensionStart || isDbStart) ? 'milestone' : 'default',
   };
 }
@@ -151,15 +151,11 @@ export function buildProjectionViewModel(projection, state, options = {}) {
     range: range.selected,
     rangeOptions: range.options,
     visibleRows: range.visibleRows,
-    helpText: 'Recurring total net income excludes one-off lump sums. Total cash received includes one-off lump sums in the year they are taken.',
+    helpText: '',
     rows,
     summaryCards: buildSummaryCards(rows, state),
     rowCountText: `${range.visibleRows.length} of ${rows.length} years shown • ${range.label}`,
-    legendItems: [
-      { key: 'milestone', label: 'Milestone year', tone: 'milestone' },
-      { key: 'cash', label: 'One-off cash year', tone: 'cash' },
-      { key: 'attention', label: 'Attention year', tone: 'attention' },
-    ],
+    legendItems: [],
     personView,
     householdMode,
     partnerLabel,

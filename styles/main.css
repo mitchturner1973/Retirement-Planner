@@ -2039,53 +2039,82 @@ details.helpAcc .a { color: var(--text-3); font-size: 12.5px; line-height: 1.45;
 
 /* Table shell */
 #view-projection .projection-table-shell {
+  margin-top: 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-1);
+  background: linear-gradient(180deg, rgba(255,255,255,1), rgba(248,250,255,.92));
+  box-shadow: var(--shadow-md);
   overflow-x: auto;
-  overflow-y: auto;
-  max-width: 100%;
   -webkit-overflow-scrolling: touch;
 }
 
 #view-projection #tblProjection {
-  width: max-content;
-  min-width: 1400px;
-}
-#view-projection #tblProjection {
-  width: max-content; min-width: 100%; font-size: 13px;
-  border-collapse: separate; border-spacing: 0;
-  table-layout: auto; color: #111827;
+  width: 100%;
+  min-width: 1080px;
+  font-size: 13px;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--text-2);
 }
 #view-projection #tblProjection .projection-group-head th {
-  position: sticky; top: 0; z-index: 4;
+  position: sticky; top: 0; z-index: 3;
   font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
-  background: var(--bg-surface-strong) !important; color: var(--text-3) !important;
-  border-bottom: 1px solid var(--border-1) !important;
-  padding: 10px;
+  background: rgba(249,250,255,.96);
+  color: var(--text-3);
+  border-bottom: 1px solid var(--border-1);
+  padding: 12px 14px;
 }
 #view-projection #tblProjection thead tr:nth-child(2) th {
-  position: sticky; top: 40px; z-index: 3;
-  background: var(--bg-surface-muted) !important; color: var(--text-2) !important;
-  font-weight: 650; font-size: 12px; padding: 9px 10px; white-space: nowrap;
+  position: sticky; top: 42px; z-index: 2;
+  background: rgba(247,249,255,.94);
+  color: var(--text-2);
+  font-weight: 650;
+  font-size: 12px;
+  padding: 10px 14px;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-1);
 }
 #view-projection #tblProjection td {
-  padding: 9px 10px; line-height: 1.35; color: var(--text-1);
-  border-bottom: 1px solid var(--border-1) !important;
-  background: rgba(255,255,255,.86); white-space: nowrap;
+  padding: 14px;
+  line-height: 1.35;
+  color: var(--text-1);
+  border-bottom: 1px solid rgba(15,23,42,.06);
+  background: rgba(255,255,255,.92);
+  vertical-align: middle;
 }
-#view-projection #tblProjection tbody tr:hover td { background: var(--bg-surface-muted) !important; }
+#view-projection #tblProjection tbody tr:hover td { background: rgba(248,251,255,.95); }
 
-/* Milestone column */
+/* Column sizing */
 #view-projection .projection-col-milestones,
 #view-projection .projection-milestone-cell {
-  width: 52px; min-width: 52px; text-align: center;
-  position: sticky; left: 0; z-index: 2; background: inherit;
+  width: 48px;
+  min-width: 48px;
+  text-align: center;
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  background: inherit;
+  box-shadow: 3px 0 0 rgba(255,255,255,.65);
 }
-#view-projection .projection-col-age, #view-projection .projection-age-cell { min-width: 72px; }
-#view-projection .projection-col-phase, #view-projection .projection-phase-cell { min-width: 128px; }
+#view-projection .projection-col-phase-name,
+#view-projection .projection-phase-cell { min-width: 140px; }
+#view-projection .projection-col-age,
+#view-projection .projection-age-cell { min-width: 120px; }
+#view-projection .projection-col-events,
+#view-projection .projection-events-column { min-width: 320px; max-width: 420px; white-space: normal; }
 
+/* Milestones */
 #view-projection .projection-milestone-dot {
-  display: inline-flex; width: 20px; height: 20px; border-radius: 999px;
-  align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; border: 1px solid transparent; color: #0f172a;
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  color: #0f172a;
 }
 #view-projection .projection-milestone-dot--milestone { background: #e0f2fe; border-color: #7dd3fc; color: #0c4a6e; }
 #view-projection .projection-milestone-dot--income { background: #dcfce7; border-color: #86efac; color: #14532d; }
@@ -2093,37 +2122,92 @@ details.helpAcc .a { color: var(--text-3); font-size: 12.5px; line-height: 1.45;
 #view-projection .projection-milestone-dot--bad { background: #fee2e2; border-color: #fca5a5; color: #7f1d1d; }
 #view-projection .projection-milestone-empty { color: #cbd5e1; font-weight: 600; }
 
-/* Phase pill */
+/* Phase + age */
+#view-projection .projection-phase-cell { white-space: nowrap; }
 #view-projection .projection-phase-pill {
-  display: inline-flex; align-items: center; padding: 2px 10px;
-  border-radius: 999px; border: 1px solid rgba(37,99,235,.22);
-  background: #eef5ff; color: #1d4ed8; font-size: 11px; line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(37,99,235,.24);
+  background: #eef4ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 600;
 }
 #view-projection .projection-phase-pill--retired {
-  border-color: rgba(239,68,68,.24); background: #fff1f2; color: #b91c1c;
+  border-color: rgba(239,68,68,.28);
+  background: #fff1f2;
+  color: #b91c1c;
+}
+#view-projection .projection-age-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+#view-projection .projection-age-value {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+#view-projection .projection-age-sub {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--text-3);
 }
 
-/* Age + events columns */
-#view-projection .projection-age-cell .projection-age-phase { display: none; }
-#view-projection .projection-age-cell { min-width: 72px; }
-#view-projection .projection-age-value {
-  font-size: 15px; line-height: 1.1;
+/* Cashflow + portfolio bands */
+#view-projection .projection-drill-cell { white-space: nowrap; }
+#view-projection .projection-drill-button {
+  all: unset;
+  cursor: pointer;
+  border-bottom: 1px dotted rgba(15,23,42,.55);
+  padding-bottom: 1px;
+  font-weight: 600;
+  color: var(--text-1);
+  transition: color var(--transition-fast), border-color var(--transition-fast);
 }
-#view-projection .projection-age-phase {
-  margin-top: 4px; color: #667085; font-size: 11px;
-  text-transform: uppercase; letter-spacing: .08em;
+#view-projection .projection-drill-button:hover {
+  color: var(--accent);
+  border-color: rgba(37,99,235,.6);
 }
-#view-projection .projection-emphasis-cell { font-weight: 700; color: var(--text-1); white-space: nowrap; }
+#view-projection .projection-spending {
+  display: inline-flex;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(15,23,42,.04);
+  font-weight: 600;
+}
+#view-projection .projection-spending.is-shortfall {
+  background: rgba(190,18,60,.1);
+  color: var(--danger);
+}
+#view-projection .projection-growth-cell {
+  min-width: 140px;
+}
+#view-projection .projection-growth-cell div:first-child {
+  font-weight: 600;
+}
+#view-projection .projection-growth-pct {
+  font-size: 12px;
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+#view-projection .projection-growth-pct--positive { color: var(--success); }
+#view-projection .projection-growth-pct--negative { color: var(--danger); }
+
 #view-projection .projection-events-column {
-  min-width: 300px; max-width: 420px; white-space: normal;
+  line-height: 1.45;
 }
-#view-projection .projection-note-list { display: grid; gap: 2px; }
-#view-projection .projection-note-line {
-  font-size: 12px; line-height: 1.45; color: var(--text-2) !important;
-}
+#view-projection .projection-note-list { display: grid; gap: 3px; }
+#view-projection .projection-note-line { font-size: 12px; color: var(--text-2); }
 #view-projection #tblProjection td.right,
 #view-projection #tblProjection th.right { white-space: nowrap; }
-#view-projection #tblProjection.projection-table--compact { min-width: 980px; }
 
 /* Row highlights */
 #view-projection .projection-row--milestone,
@@ -2134,6 +2218,105 @@ details.helpAcc .a { color: var(--text-3); font-size: 12.5px; line-height: 1.45;
 #view-projection .projection-row.has-lump-sum { background: rgba(217,119,6,.05); }
 #view-projection .projection-row--attention,
 #view-projection .projection-row.has-income-drop { background: rgba(220,38,38,.055); }
+
+/* Drilldown overlay */
+.projection-drilldown {
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-med);
+  z-index: 120;
+}
+.projection-drilldown.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.projection-drilldown-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15,23,42,.55);
+}
+.projection-drilldown-card {
+  position: absolute;
+  right: clamp(20px, 6vw, 80px);
+  top: clamp(60px, 14vh, 160px);
+  width: min(420px, calc(100% - 40px));
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-1);
+  box-shadow: var(--shadow-lg);
+  padding: 22px;
+}
+.projection-drilldown-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-1);
+  border-radius: 50%;
+  background: rgba(248,250,255,.92);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+.projection-drilldown-body { display: grid; gap: 14px; }
+.projection-drilldown-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.projection-drilldown-eyebrow {
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin: 0;
+}
+.projection-drilldown-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: var(--text-1);
+}
+.projection-drilldown-figure {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.projection-drilldown-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.projection-drilldown-table td {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-1);
+  font-size: 13px;
+}
+.projection-drilldown-table td:last-child {
+  text-align: right;
+  font-weight: 600;
+}
+.projection-drilldown-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.projection-drilldown-steps li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  background: rgba(248,250,255,.8);
+}
+.projection-drilldown-steps strong { font-size: 14px; color: var(--text-1); }
 
 /* Detail rows */
 #view-projection .projection-detail-toggle {
