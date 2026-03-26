@@ -14,16 +14,16 @@ function renderIncomeBarChart(retiredYears, minIncome, stateAge) {
     const bw = Math.max(1, barW - 0.5).toFixed(1);
     const belowMin = minIncome > 0 && v < minIncome;
     const afterSp = Number(y.age) >= Number(stateAge);
-    const fill = belowMin ? 'rgba(248,113,113,.85)' : afterSp ? 'rgba(52,211,153,.7)' : 'rgba(110,231,255,.7)';
+    const fill = belowMin ? 'rgba(190,18,60,.65)' : afterSp ? 'rgba(21,128,61,.55)' : 'rgba(37,99,235,.55)';
     return `<rect x="${x}" y="${yPos}" width="${bw}" height="${barH}" fill="${fill}"/>`;
   }).join('');
   const minLineY = minIncome > 0 ? (H - Math.round((minIncome / maxIncome) * H)) : null;
   const minLineEl = minLineY != null
-    ? `<line x1="0" y1="${minLineY}" x2="${W}" y2="${minLineY}" stroke="rgba(251,191,36,.9)" stroke-width="1.5" stroke-dasharray="5,3"/>`
+    ? `<line x1="0" y1="${minLineY}" x2="${W}" y2="${minLineY}" stroke="rgba(180,83,9,.70)" stroke-width="1.5" stroke-dasharray="5,3"/>`
     : '';
   const spIdx = retiredYears.findIndex((y) => Number(y.age) >= Number(stateAge));
   const spLineEl = spIdx > 0
-    ? `<line x1="${(spIdx * barW).toFixed(1)}" y1="0" x2="${(spIdx * barW).toFixed(1)}" y2="${H}" stroke="rgba(52,211,153,.45)" stroke-width="1.5" stroke-dasharray="4,2"/>`
+    ? `<line x1="${(spIdx * barW).toFixed(1)}" y1="0" x2="${(spIdx * barW).toFixed(1)}" y2="${H}" stroke="rgba(203,213,225,.55)" stroke-width="1.5" stroke-dasharray="4,2"/>`
     : '';
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:80px;display:block" preserveAspectRatio="none">${bars}${minLineEl}${spLineEl}</svg>`;
 }
@@ -41,11 +41,11 @@ function renderPotAreaChart(allYears, retireAge) {
   }).join(' ');
   const retIdx = allYears.findIndex((y) => Number(y.age) >= Number(retireAge));
   const retLineEl = retIdx > 0
-    ? `<line x1="${((retIdx / Math.max(n - 1, 1)) * W).toFixed(1)}" y1="0" x2="${((retIdx / Math.max(n - 1, 1)) * W).toFixed(1)}" y2="${H}" stroke="rgba(110,231,255,.4)" stroke-width="1.5" stroke-dasharray="4,2"/>`
+    ? `<line x1="${((retIdx / Math.max(n - 1, 1)) * W).toFixed(1)}" y1="0" x2="${((retIdx / Math.max(n - 1, 1)) * W).toFixed(1)}" y2="${H}" stroke="rgba(203,213,225,.55)" stroke-width="1.5" stroke-dasharray="4,2"/>`
     : '';
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:80px;display:block" preserveAspectRatio="none">
-    <polygon points="0,${H} ${points} ${W},${H}" fill="rgba(167,139,250,.15)"/>
-    <polyline points="${points}" fill="none" stroke="rgba(167,139,250,.85)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <polygon points="0,${H} ${points} ${W},${H}" fill="rgba(37,99,235,.10)"/>
+    <polyline points="${points}" fill="none" stroke="#2563eb" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
     ${retLineEl}
   </svg>`;
 }

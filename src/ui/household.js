@@ -56,22 +56,22 @@ export function renderHouseholdTab({ getEl, fmtGBP, drawLineChart }, state, hous
   const partnerRetireAge = state.partnerRetireAge ?? state.spouseRetireAge;
   const partnerStateAge = state.partnerStateAge ?? state.spouseStateAge;
   const markers = [
-    { x: state.retireAge, label: 'You retire', color: 'rgba(110,231,255,.28)' },
-    { x: partnerRetireAge, label: `${partnerName} retires`, color: 'rgba(167,139,250,.28)' },
-    { x: state.stateAge, label: 'Your SP', color: 'rgba(52,211,153,.28)' },
-    { x: partnerStateAge, label: `${partnerName} SP`, color: 'rgba(251,191,36,.28)' },
+    { x: state.retireAge, label: 'You retire', color: 'rgba(203,213,225,.55)' },
+    { x: partnerRetireAge, label: `${partnerName} retires`, color: 'rgba(203,213,225,.55)' },
+    { x: state.stateAge, label: 'Your SP', color: 'rgba(203,213,225,.55)' },
+    { x: partnerStateAge, label: `${partnerName} SP`, color: 'rgba(203,213,225,.55)' },
   ];
 
   drawLineChart(getEl('chartHouseholdIncome'), [
-    { name: 'Household net / month', color: 'rgba(110,231,255,.95)', data: household.years.map((year) => ({ x: year.age, y: year.householdNet / 12 })) },
-    { name: 'Your net / month', color: 'rgba(52,211,153,.95)', data: household.years.map((year) => ({ x: year.age, y: year.primaryNet / 12 })) },
-    { name: `${partnerName} net / month`, color: 'rgba(167,139,250,.95)', data: household.years.map((year) => ({ x: year.age, y: year.partnerNet / 12 })) },
+    { name: 'Household net / month', color: '#2563eb', data: household.years.map((year) => ({ x: year.age, y: year.householdNet / 12 })) },
+    { name: 'Your net / month', color: '#64748b', data: household.years.map((year) => ({ x: year.age, y: year.primaryNet / 12 })) },
+    { name: `${partnerName} net / month`, color: '#94a3b8', data: household.years.map((year) => ({ x: year.age, y: year.partnerNet / 12 })) },
   ], markers);
 
   drawLineChart(getEl('chartHouseholdPot'), [
-    { name: 'Combined pot', color: 'rgba(110,231,255,.95)', data: household.years.map((year) => ({ x: year.age, y: year.householdPot })) },
-    { name: 'Your pot', color: 'rgba(52,211,153,.95)', data: household.years.map((year) => ({ x: year.age, y: year.primaryPot })) },
-    { name: `${partnerName} pot`, color: 'rgba(167,139,250,.95)', data: household.years.map((year) => ({ x: year.age, y: year.partnerPot })) },
+    { name: 'Combined pot', color: '#2563eb', data: household.years.map((year) => ({ x: year.age, y: year.householdPot })) },
+    { name: 'Your pot', color: '#64748b', data: household.years.map((year) => ({ x: year.age, y: year.primaryPot })) },
+    { name: `${partnerName} pot`, color: '#94a3b8', data: household.years.map((year) => ({ x: year.age, y: year.partnerPot })) },
   ], markers);
 }
 

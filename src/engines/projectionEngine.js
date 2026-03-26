@@ -19,6 +19,12 @@ export function calcProjection(state, opts = {}) {
   const salaryGrowth = state.salaryGrowth / 100;
   const drawdownPct = state.drawdown / 100;
 
+  const hasEarly = state.earlyAge !== '' && isFinite(state.earlyAge);
+  const effectiveRetireAge = hasEarly ? Math.min(state.earlyAge, state.retireAge) : state.retireAge;
+  const bridgeEnd = hasEarly ? (state.bridgeEndAge || state.retireAge) : null;
+  const bridgeAmount = hasEarly ? (state.bridgeAmount || 0) : 0;
+  const bridgeMode = state.bridgeMode || 'net';
+
   const crashAtAge = opts.crashAtAge ?? null;
   const crashPct = (opts.crashPct ?? 0) / 100;
   const badYears = opts.badYears ?? 0;
@@ -38,9 +44,10 @@ export function calcProjection(state, opts = {}) {
 
     const potStart = totalPot(pots);
     const yearFrac = yearFracForAge(state, age);
-    const isRetired = age >= state.retireAge;
+    const isRetired = age >= effectiveRetireAge;
+    const isBridging = isRetired && bridgeEnd != null && age < bridgeEnd;
     let adjustedReturn = baseReturn;
-    const yearsSinceRetirement = age - state.retireAge;
+    const yearsSinceRetirement = age - effectiveRetireAge;
     if (isRetired && yearsSinceRetirement >= 0 && yearsSinceRetirement < badYears) {
       adjustedReturn = Math.max(-0.9, baseReturn - badPenalty);
     }
@@ -60,6 +67,14 @@ export function calcProjection(state, opts = {}) {
         add += extraContribForPotAtAge(sources.events, pot.id, age, yearFrac);
         pot.value += add;
         contributionTotal += add;
+      }
+    } else if (isBridging && bridgeAmount > 0) {
+      const potAfterLumps = totalPot(pots);
+      if (bridgeMode === 'gross') {
+        drawdownGross = withdrawFromPotsByPriority(pots, Math.min(potAfterLumps, bridgeAmount * yearFrac));
+      } else {
+        const solution = solveGrossForNetTarget(state, potAfterLumps, bridgeAmount * yearFrac, stateIncome + dbIncome, state.otherIncome, tflsUsed);
+        drawdownGross = withdrawFromPotsByPriority(pots, solution.gross);
       }
     } else {
       const potAfterLumps = totalPot(pots);
@@ -84,13 +99,15 @@ export function calcProjection(state, opts = {}) {
 
     const notes = [];
     if (age === state.stateAge) notes.push('State Pension starts');
+    if (hasEarly && age === state.earlyAge) notes.push('Early retirement starts');
+    if (isBridging) notes.push(`Bridge drawdown ${fmtGBP(bridgeAmount)}/yr`);
     if (yearFrac < 1) notes.push(`First period pro-rated (${(yearFrac * 12).toFixed(1)} months)`);
     if (dbIncome > 0) notes.push(`DB income ${fmtGBP(dbIncome)}`);
     notes.push(...lumpRes.notes);
 
     const row = {
       age,
-      phase: isRetired ? 'retired' : 'work',
+      phase: isRetired ? (isBridging ? 'bridge' : 'retired') : 'work',
       salary: isRetired ? 0 : salary,
       contrib: isRetired ? 0 : contributionTotal,
       grossWithdrawal: drawdownGross,
@@ -116,15 +133,15 @@ export function calcProjection(state, opts = {}) {
       note: notes.join(' • '),
     };
 
-    if (age === state.retireAge) startRetirementRow = row;
+    if (age === effectiveRetireAge) startRetirementRow = row;
     years.push(row);
 
     if (!isRetired) salary *= (1 + compoundPeriodRate(salaryGrowth, yearFrac));
   }
 
-  const retRow = startRetirementRow || years.find((year) => year.age === state.retireAge) || years[years.length - 1];
+  const retRow = startRetirementRow || years.find((year) => year.age === effectiveRetireAge) || years[years.length - 1];
   const earlyRow = state.earlyAge !== '' ? years.find((year) => year.age === state.earlyAge) : null;
-  const runOut = years.find((year) => (year.potEnd ?? Infinity) <= 0.000001 && year.age >= state.retireAge);
+  const runOut = years.find((year) => (year.potEnd ?? Infinity) <= 0.000001 && year.age >= effectiveRetireAge);
 
   const potAtRet = retRow?.potStart ?? years[years.length - 1]?.potEnd ?? 0;
   const potAtEarly = earlyRow ? earlyRow.potStart : Number.NaN;

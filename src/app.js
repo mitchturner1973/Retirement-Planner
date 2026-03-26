@@ -6,6 +6,7 @@ import { validateState } from './validation/inputValidation.js';
 import { renderValidationSummary } from './ui/validation.js';
 import { $, fmtGBP, fmtNum, fmtPct, numVal, escapeHtml, escapeHtmlAttr, newId, nowTime } from './ui/dom.js';
 import { drawLineChart, drawBands } from './ui/charts.js';
+import { createChartCard } from './ui/chartCard.js';
 import { createEditorHelpers } from './ui/editors/index.js';
 import { calcHouseholdProjection } from './engines/householdEngine.js';
 import { renderOverviewDashboard } from './ui/overview.js';
@@ -98,6 +99,12 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
 
   const renderReport = createReportRenderer({ getEl: $, fmtGBP, badge, app });
 
+  /* Forecast Snapshot chart card — mounted once, updated on each render */
+  const forecastMount = $('forecastChartMount');
+  const forecastCard = forecastMount ? createChartCard(forecastMount, {
+    formatMoney: fmtGBP,
+  }) : null;
+
   const renderAll = createRenderOrchestrator({
     getState: inputState.readState,
     defaults,
@@ -134,6 +141,7 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
     renderMonte,
     fmtGBP,
     badge,
+    forecastCard,
   });
 
   const scenariosRenderer = createScenariosRenderer({

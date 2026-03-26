@@ -48,16 +48,23 @@ export function calcHouseholdProjection(state) {
 
   const startAge = Math.min(primaryState.currentAge, partnerState.currentAge);
   const endAge = Math.max(primaryState.endAge ?? state.endAge, partnerState.endAge ?? state.endAge);
+  const ageDiff = primaryState.currentAge - partnerState.currentAge; // positive = primary older
   const years = [];
 
   for (let age = startAge; age <= endAge; age += 1) {
-    const p = primary.years.find((year) => year.age === age) || { potEnd: 0, netIncome: 0 };
-    const q = partner.years.find((year) => year.age === age) || { potEnd: 0, netIncome: 0 };
+    // Align by calendar year: when the loop age matches primary's scale,
+    // the partner's age at that same calendar year is (age - ageDiff).
+    const primaryAge = age;
+    const partnerAge = age - ageDiff;
+    const p = primary.years.find((year) => year.age === primaryAge) || { potEnd: 0, netIncome: 0 };
+    const q = partner.years.find((year) => year.age === partnerAge) || { potEnd: 0, netIncome: 0 };
     const notes = [];
     if (age === primaryState.retireAge) notes.push('You retire');
-    if (age === partnerState.retireAge) notes.push('Partner retires');
+    if (partnerAge === partnerState.retireAge) notes.push('Partner retires');
     if (age === primaryState.stateAge) notes.push('Your State Pension starts');
-    if (age === partnerState.stateAge) notes.push('Partner State Pension starts');
+    if (partnerAge === partnerState.stateAge) notes.push('Partner State Pension starts');
+    if (age === (primaryState.earlyAge || 0) && primaryState.earlyAge) notes.push('You take early retirement');
+    if (partnerAge === (partnerState.earlyAge || 0) && partnerState.earlyAge) notes.push('Partner takes early retirement');
 
     years.push({
       age,
@@ -71,9 +78,9 @@ export function calcHouseholdProjection(state) {
     });
   }
 
-  const firstBothRetiredAge = Math.max(primaryState.retireAge, partnerState.retireAge);
+  const firstBothRetiredAge = Math.max(primaryState.retireAge, partnerState.retireAge + ageDiff);
   const firstBothRetired = years.find((year) => year.age === firstBothRetiredAge) || years[years.length - 1];
-  const bothSPAge = Math.max(primaryState.stateAge, partnerState.stateAge);
+  const bothSPAge = Math.max(primaryState.stateAge, partnerState.stateAge + ageDiff);
   const bothSP = years.find((year) => year.age === bothSPAge) || years[years.length - 1];
 
   return {

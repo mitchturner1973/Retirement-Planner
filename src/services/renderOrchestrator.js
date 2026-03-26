@@ -34,6 +34,7 @@ export function createRenderOrchestrator(deps){
     renderScenariosUI,
     renderMonte,
     fmtGBP,
+    forecastCard,
   } = deps;
 
   return function renderAll(showToast = false){
@@ -52,10 +53,30 @@ export function createRenderOrchestrator(deps){
     renderHouseholdTab(s, hh);
 
     const potMarkers=[];
-    if(s.earlyAge!=='') potMarkers.push({x:s.earlyAge,label:'Early',color:'rgba(99,102,241,.25)'});
-    potMarkers.push({x:s.stateAge,label:'SP',color:'rgba(99,102,241,.25)'});
+    if(s.earlyAge!=='') potMarkers.push({x:s.earlyAge,label:'Early',color:'rgba(203,213,225,.55)'});
+    potMarkers.push({x:s.stateAge,label:'SP',color:'rgba(203,213,225,.55)'});
 
-    drawLineChart(getEl('chartPot'), [{name:'Baseline', color:'#3b82f6', data: base.years.map(y=>({x:y.age,y:y.potEnd}))}], potMarkers, {theme:'light', fancy:true, showLegend:false});
+    if(forecastCard){
+      const runOut = base.years.find(y => y.potEnd <= 0.000001 && y.age >= (s.earlyAge || s.retireAge || s.stateAge));
+      const ageDiff = hh ? (hh.primaryState.currentAge - hh.partnerState.currentAge) : 0;
+      forecastCard.update({
+        years: base.years,
+        householdYears: hh ? hh.years : null,
+        currentAge: s.currentAge,
+        earlyAge: s.earlyAge !== '' ? s.earlyAge : null,
+        stateAge: s.stateAge,
+        retireAge: s.retireAge,
+        endAge: s.endAge,
+        runOutAge: runOut ? runOut.age : null,
+        partnerRetireAge: hh ? hh.partnerState.retireAge + ageDiff : null,
+        partnerStateAge:  hh ? hh.partnerState.stateAge + ageDiff : null,
+        partnerEarlyAge:  hh && hh.partnerState.earlyAge ? hh.partnerState.earlyAge + ageDiff : null,
+        partnerLabel:     hh ? (hh.partnerLabel || 'Partner') : null,
+        firstBothRetiredAge: hh ? hh.firstBothRetiredAge : null,
+      });
+    } else {
+      drawLineChart(getEl('chartPot'), [{name:'Baseline', color:'#2563eb', data: base.years.map(y=>({x:y.age,y:y.potEnd}))}], potMarkers, {theme:'light', fancy:true, showLegend:false});
+    }
 
     const projectionPersonView = app.projectionPersonView || 'primary';
     const projectionData = (projectionPersonView === 'partner' && hh) ? hh.partner : base;

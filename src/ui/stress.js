@@ -18,15 +18,15 @@ const PRESETS = {
 };
 
 const PALETTE = [
-  'rgba(220,38,38,.85)',   // red
-  'rgba(217,119,6,.85)',   // amber
-  'rgba(5,150,105,.85)',   // emerald
-  'rgba(124,58,237,.85)',  // violet
-  'rgba(2,132,199,.85)',   // sky
-  'rgba(219,39,119,.85)',  // pink
-  'rgba(101,163,13,.85)',  // lime
-  'rgba(234,88,12,.85)',   // orange
-  'rgba(20,184,166,.85)',  // teal
+  'rgba(190,18,60,.80)',   // danger (red)
+  'rgba(180,83,9,.80)',    // warning (amber)
+  'rgba(21,128,61,.80)',   // success (green)
+  'rgba(100,116,139,.80)', // muted (slate)
+  'rgba(37,99,235,.60)',   // accent-light
+  'rgba(15,23,42,.50)',    // text-muted
+  'rgba(190,18,60,.55)',   // danger-light
+  'rgba(180,83,9,.55)',    // warning-light
+  'rgba(21,128,61,.55)',   // success-light
 ];
 
 export function createStressRenderer(deps){
@@ -282,15 +282,15 @@ export function createStressRenderer(deps){
       }
     }
 
-    // Build chart series — use darker colours that read on the light panel background
+    // Build chart series — use token-derived colours
     const series = [
-      {key: 'baseline', name: 'Baseline', color: 'rgba(37,99,235,.9)', dashed: false, data: base.years.map(y => ({x: y.age, y: y.potEnd}))},
+      {key: 'baseline', name: 'Baseline', color: '#2563eb', dashed: false, data: base.years.map(y => ({x: y.age, y: y.potEnd}))},
     ];
     if (stressSummary?.compound?.result?.years?.length) {
       series.push({
         key: 'combined',
         name: 'Combined (market stack)',
-        color: 'rgba(15,23,42,.82)',
+        color: '#0f172a',
         dashed: false,
         data: stressSummary.compound.result.years.map((y) => ({x: y.age, y: y.potEnd})),
       });
@@ -306,7 +306,7 @@ export function createStressRenderer(deps){
     });
 
     lastSeries  = series;
-    lastMarkers = [{x: s.retireAge, label: 'Retire', color: 'rgba(15,23,42,.28)'}];
+    lastMarkers = [{x: s.retireAge, label: 'Retire', color: 'rgba(203,213,225,.55)'}];
     redrawChart();
 
     // Wire interactive controls (idempotent after first render)

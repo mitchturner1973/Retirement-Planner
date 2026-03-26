@@ -24,7 +24,7 @@ export function createStatusPanelRenderer(deps){
       getEl('actionPanel').innerHTML = `<div class="muted">No obvious improvements found within conservative bounds. Try adjusting multiple levers (spend + retirement age + contributions).</div>`;
       return;
     }
-    getEl('actionPanel').innerHTML = recs.map((r,idx)=>`<div class="callout" style="margin-top:${idx?10:0}px"><div class="dot" style="background:rgba(110,231,255,.9)"></div><div style="flex:1">
+    getEl('actionPanel').innerHTML = recs.map((r,idx)=>`<div class="callout" style="margin-top:${idx?10:0}px"><div class="dot"></div><div style="flex:1">
       <div><strong>${r.title}</strong></div>
       <div class="muted small" style="margin-top:4px">${r.detail}</div>
       <div class="row" style="margin-top:8px"><button class="btn" data-act="${idx}">Apply</button></div>

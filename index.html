@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Retirement Planner — Web Version</title>
-     <link rel="stylesheet" href="./styles/main.css?v=tokens-1" />
+     <link rel="stylesheet" href="./styles/main.css?v=chartcard-1" />
 </head>
 <body>
 <div id="toastWrap" aria-live="polite" aria-atomic="true"></div>
@@ -171,6 +171,8 @@
           <span class="badge"><span class="ico">£</span>Recurring figures are annual and after tax</span>
         </div>
 
+        <article class="overview-panel overview-panel--wide" id="forecastChartMount" style="margin-bottom:16px"></article>
+
         <div class="overview-grid">
           <article class="overview-panel">
             <h4>Retirement income composition</h4>
@@ -207,15 +209,6 @@
             <h4>Top 3 levers (recommended input changes)</h4>
             <div id="actionPanel" class="muted"></div>
             <div class="footer">These are small, targeted changes that are most likely to improve your weakest status (Stress / Bridge / Monte Carlo).</div>
-          </article>
-          <article class="overview-panel overview-panel--wide overview-visual-panel">
-            <div class="overview-chart-header">
-              <div>
-                <h4>Forecast Snapshot</h4>
-                <p class="overview-chart-subtitle">Pot value over time at today's prices</p>
-              </div>
-            </div>
-            <div class="svgwrap"><svg id="chartPot" width="900" height="380" role="img" aria-label="Pension pot chart"></svg></div>
           </article>
         </div>
       </div>

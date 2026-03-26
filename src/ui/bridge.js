@@ -51,15 +51,15 @@ export function createBridgeRenderer(deps){
     </tr>`).join('');
 
     const markers=[
-      {x: br.early, label:'Early', color:'rgba(110,231,255,.35)'},
-      {x: s.stateAge, label:'SP', color:'rgba(52,211,153,.35)'}
+      {x: br.early, label:'Early', color:'rgba(203,213,225,.55)'},
+      {x: s.stateAge, label:'SP', color:'rgba(203,213,225,.55)'}
     ];
-    if(br.runOut_base!==null) markers.push({x: br.runOut_base, label:'Run-out', color:'rgba(251,113,133,.40)'});
+    if(br.runOut_base!==null) markers.push({x: br.runOut_base, label:'Run-out', color:'rgba(190,18,60,.40)'});
 
-    const series=[{name:'Baseline', color:'rgba(110,231,255,.95)', data: br.baseline.map(y=>({x:y.age,y:y.potEnd}))}];
+    const series=[{name:'Baseline', color:'#2563eb', data: br.baseline.map(y=>({x:y.age,y:y.potEnd}))}];
     if(br.lifestyle){
-      series.push({name:'Maintain lifestyle', color:'rgba(167,139,250,.95)', data: br.lifestyle.map(y=>({x:y.age,y:y.potEnd}))});
-      if(br.runOut_life!==null) markers.push({x: br.runOut_life, label:'Run-out (life)', color:'rgba(167,139,250,.40)'});
+      series.push({name:'Maintain lifestyle', color:'#64748b', data: br.lifestyle.map(y=>({x:y.age,y:y.potEnd}))});
+      if(br.runOut_life!==null) markers.push({x: br.runOut_life, label:'Run-out (life)', color:'rgba(190,18,60,.40)'});
     }
 
     drawLineChart(getEl('chartBridge'), series, markers);

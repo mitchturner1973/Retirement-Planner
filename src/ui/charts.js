@@ -1,16 +1,55 @@
 import { fmtGBP, fmtNum } from './dom.js';
 
-/** Format a value for Y-axis: 450k, 1.4M etc. */
+/* ═══════════════════════════════════════════════════════════════
+   Shared chart design tokens — mirrors :root in main.css
+   Only change colours here; every chart reads from this palette.
+   ═══════════════════════════════════════════════════════════════ */
+const C = {
+  accent:     '#2563eb',
+  accentHover:'#1d4ed8',
+  accentSoft: 'rgba(37,99,235,.10)',
+  success:    '#15803d',
+  warning:    '#b45309',
+  danger:     '#be123c',
+  text1:      '#0f172a',
+  text2:      '#334155',
+  text3:      '#64748b',
+  border1:    '#e2e8f0',
+  border2:    '#cbd5e1',
+  bgMuted:    '#f8fafc',
+  grid:       'rgba(226,232,240,.50)',
+  axis:       'rgba(203,213,225,.70)',
+  label:      'rgba(100,116,139,.72)',
+  marker:     'rgba(203,213,225,.55)',
+  markerLbl:  'rgba(100,116,139,.72)',
+  areaFill0:  'rgba(37,99,235,.12)',
+  areaFill1:  'rgba(37,99,235,.04)',
+  band10:     'rgba(37,99,235,.08)',
+  band25:     'rgba(37,99,235,.16)',
+  median:     '#0f172a',
+  font:       'system-ui,-apple-system,sans-serif',
+};
+
+/** Format a value for Y-axis: £450k, £1.4M etc. */
 function fmtAxis(val){
-  if(val >= 1e6) return (val/1e6).toFixed(val%1e6===0?0:1)+'M';
-  if(val >= 1e3) return Math.round(val/1e3)+'k';
-  return String(Math.round(val));
+  if(val >= 1e6){
+    const m = val / 1e6;
+    return '£' + (m === Math.floor(m) ? m.toFixed(0) : m.toFixed(1)) + 'M';
+  }
+  if(val >= 1e3) return '£' + Math.round(val/1e3) + 'k';
+  if(val === 0) return '£0';
+  return '£' + String(Math.round(val));
 }
 
-/** Pick nice Y-axis tick values */
-function niceScale(maxVal, count=5){
-  if(maxVal<=0) return [0];
-  const rough = maxVal / count;
+/**
+ * Pick nice Y-axis tick values.
+ * Uses 1-2-5 sequence for clean financial increments.
+ * headroom: fraction above rawMax to add (e.g. 0.30 = 30%)
+ */
+function niceScale(maxVal, count=5, headroom=0){
+  const ceil = maxVal * (1 + headroom);
+  if(ceil <= 0) return [0];
+  const rough = ceil / count;
   const mag = Math.pow(10, Math.floor(Math.log10(rough)));
   const residual = rough / mag;
   let nice;
@@ -19,7 +58,11 @@ function niceScale(maxVal, count=5){
   else if(residual <= 7) nice = 5 * mag;
   else nice = 10 * mag;
   const ticks = [];
-  for(let v=0; v<=maxVal+nice*0.01; v+=nice) ticks.push(Math.round(v));
+  for(let v=0; v<=ceil+nice*0.01; v+=nice) ticks.push(Math.round(v));
+  // Ensure the top tick provides at least 10% headroom above rawMax
+  if(ticks[ticks.length-1] < maxVal * 1.10){
+    ticks.push(ticks[ticks.length-1] + nice);
+  }
   return ticks;
 }
 
@@ -32,12 +75,12 @@ export function drawLineChart(svg, series, markers=[], opts={}){
   // Delegate to modern renderer for fancy mode
   if(fancy) return _drawFancyChart(svg, series, markers, opts);
 
-  const gridColor      = light ? 'rgba(15,23,42,.06)'    : 'rgba(255,255,255,.07)';
-  const axisColor      = light ? 'rgba(15,23,42,.10)'    : 'rgba(255,255,255,.12)';
-  const labelColor     = light ? 'rgba(30,41,59,.45)'     : 'rgba(231,238,252,.70)';
-  const legendColor    = light ? 'rgba(15,23,42,.82)'    : 'rgba(231,238,252,.85)';
-  const markerColor    = light ? 'rgba(15,23,42,.35)'    : 'rgba(255,255,255,.25)';
-  const markerLblColor = light ? 'rgba(30,41,59,.60)'    : 'rgba(231,238,252,.70)';
+  const gridColor      = C.grid;
+  const axisColor      = C.axis;
+  const labelColor     = C.label;
+  const legendColor    = C.text2;
+  const markerColor    = C.marker;
+  const markerLblColor = C.markerLbl;
 
   const w=Number(svg.getAttribute('width')), h=Number(svg.getAttribute('height'));
   const basePad={l:52,r:18,t:28,b:34};
@@ -56,7 +99,7 @@ export function drawLineChart(svg, series, markers=[], opts={}){
   const legend = showLeg ? series.map((s,i)=>{
     const col = i % perRow, row = Math.floor(i / perRow);
     const lx = basePad.l + col * legendItemW, ly = 12 + row * 16;
-    return `<g transform="translate(${lx},${ly})"><rect width="12" height="3" y="4" fill="${s.color}" rx="1.5" /><text x="16" y="10" fill="${legendColor}" font-size="11">${s.name}</text></g>`;
+    return `<g transform="translate(${lx},${ly})"><rect width="12" height="3" y="4" fill="${s.color}" rx="1.5" /><text x="16" y="10" fill="${legendColor}" font-size="11" font-weight="500" font-family="${C.font}">${s.name}</text></g>`;
   }).join('') : '';
 
   const pad = Object.assign({}, basePad, {t: basePad.t + legendH});
@@ -65,16 +108,16 @@ export function drawLineChart(svg, series, markers=[], opts={}){
 
   const gridLines=Array.from({length:6}, (_,i)=>{
     const yy=pad.t+i*(h-pad.t-pad.b)/5;
-    return `<line x1="${pad.l}" y1="${yy}" x2="${w-pad.r}" y2="${yy}" stroke="${gridColor}" />`;
+    return `<line x1="${pad.l}" y1="${yy}" x2="${w-pad.r}" y2="${yy}" stroke="${gridColor}" stroke-dasharray="4,4" />`;
   }).join('');
   const yLabels=Array.from({length:6}, (_,i)=>{
     const val = ymax - i*(ymax)/5;
     const yy=pad.t+i*(h-pad.t-pad.b)/5;
-    return `<text x="${pad.l-8}" y="${yy+4}" fill="${labelColor}" font-size="11" text-anchor="end">${fmtNum(val/1000)}k</text>`;
+    return `<text x="${pad.l-8}" y="${yy+4}" fill="${labelColor}" font-size="11" font-weight="500" font-family="${C.font}" text-anchor="end">${fmtNum(val/1000)}k</text>`;
   }).join('');
   const xTickValues = [xmin, Math.round((xmin+xmax)/2), xmax];
   const xLabels = xTickValues.map(a=>
-    `<text x="${X(a)}" y="${h-12}" fill="${labelColor}" font-size="11" text-anchor="middle">${a}</text>`
+    `<text x="${X(a)}" y="${h-12}" fill="${labelColor}" font-size="11" font-weight="500" font-family="${C.font}" text-anchor="middle">${a}</text>`
   ).join('');
 
   const lines = series.map((s, si)=>{
@@ -96,8 +139,8 @@ export function drawLineChart(svg, series, markers=[], opts={}){
     </g>`;
   }).join('');
 
-  const axes = `<line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="${axisColor}" />
-     <line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${h-pad.b}" stroke="${axisColor}" />`;
+  const axes = `<line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="${axisColor}" stroke-width="1" />
+     <line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${h-pad.b}" stroke="${axisColor}" stroke-width="1" />`;
 
   svg.innerHTML = `
     <rect x="0" y="0" width="${w}" height="${h}" fill="transparent" />
@@ -110,12 +153,12 @@ export function drawLineChart(svg, series, markers=[], opts={}){
    ═══════════════════════════════════════════════════════════════════ */
 function _drawFancyChart(svg, series, markers, opts){
   const W = 900, H = 380;
-  svg.setAttribute('width', W);
-  svg.setAttribute('height', H);
+  svg.removeAttribute('width');
+  svg.removeAttribute('height');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.style.overflow = 'hidden';
 
-  const pad = {l:60, r:20, t:24, b:48};
+  const pad = {l:72, r:40, t:38, b:48};
   const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
 
   // ── Collect data ──
@@ -125,8 +168,8 @@ function _drawFancyChart(svg, series, markers, opts){
   const xmin=Math.min(...xs), xmax=Math.max(...xs);
   const rawMax=Math.max(...ys);
 
-  // 25% headroom so the peak never nears the top
-  const ticks = niceScale(rawMax * 1.25, 5);
+  // 30% headroom via niceScale — guarantees the line never touches the top
+  const ticks = niceScale(rawMax, 5, 0.30);
   const ymax = ticks[ticks.length-1];
 
   // ── Scale helpers ──
@@ -135,7 +178,7 @@ function _drawFancyChart(svg, series, markers, opts){
 
   // ── Data points ──
   const s0 = series[0];
-  const color = s0?.color || '#6366f1';
+  const color = s0?.color || C.accent;
   const pts = (s0?.data || []).map(p=>({x:p.x, y:p.y, sx:X(p.x), sy:Y(p.y)}));
 
   // ── Monotone cubic Hermite spline (no overshoot, smooth curves) ──
@@ -181,24 +224,27 @@ function _drawFancyChart(svg, series, markers, opts){
   // ── SVG defs ──
   const defs = `<defs>
     <linearGradient id="hlGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="${color}" stop-opacity="0.14"/>
-      <stop offset="60%"  stop-color="${color}" stop-opacity="0.06"/>
+      <stop offset="0%"   stop-color="${color}" stop-opacity="0.18"/>
+      <stop offset="50%"  stop-color="${color}" stop-opacity="0.08"/>
       <stop offset="100%" stop-color="${color}" stop-opacity="0.01"/>
     </linearGradient>
     <clipPath id="hlClip"><rect x="${pad.l}" y="${pad.t}" width="${plotW}" height="${plotH}"/></clipPath>
   </defs>`;
 
-  // ── Horizontal grid lines (faint dashed) ──
+  // ── Plot background rect (subtle frame inside the SVG) ──
+  const plotBg = `<rect x="${pad.l}" y="${pad.t}" width="${plotW}" height="${plotH}" fill="${C.bgMuted}" rx="4"/>`;
+
+  // ── Horizontal grid lines ──
   const grid = ticks.map(v =>
-    `<line x1="${pad.l}" y1="${Y(v)}" x2="${W-pad.r}" y2="${Y(v)}" stroke="rgba(15,23,42,.06)" stroke-dasharray="4,4"/>`
+    `<line x1="${pad.l}" y1="${Y(v)}" x2="${W-pad.r}" y2="${Y(v)}" stroke="${C.grid}" stroke-dasharray="4,4"/>`
   ).join('');
 
   // ── Left axis line ──
-  const axisL = `<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${H-pad.b}" stroke="rgba(15,23,42,.08)"/>`;
+  const axisL = `<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${H-pad.b}" stroke="${C.axis}"/>`;
 
-  // ── Y labels (left, outside plot) ──
+  // ── Y labels ──
   const yLabels = ticks.map(v =>
-    `<text x="${pad.l-10}" y="${Y(v)+4}" fill="rgba(71,85,105,.6)" font-size="12" font-weight="500" text-anchor="end" font-family="system-ui,-apple-system,sans-serif">${fmtAxis(v)}</text>`
+    `<text x="${pad.l-10}" y="${Y(v)+4}" fill="${C.label}" font-size="12" font-weight="500" text-anchor="end" font-family="${C.font}">${fmtAxis(v)}</text>`
   ).join('');
 
   // ── X labels ──
@@ -211,30 +257,33 @@ function _drawFancyChart(svg, series, markers, opts){
   if(xVals[xVals.length-1] !== xmax) xVals.push(xmax);
   xVals = xVals.filter((v,i,a) => i===0 || v - a[i-1] >= step*0.5);
   const xLabels = xVals.map(v =>
-    `<text x="${X(v)}" y="${H-pad.b+20}" fill="rgba(71,85,105,.5)" font-size="12" font-weight="500" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif">${v}</text>`
+    `<text x="${X(v)}" y="${H-pad.b+20}" fill="${C.label}" font-size="12" font-weight="500" text-anchor="middle" font-family="${C.font}">${v}</text>`
   ).join('');
 
-  // ── Markers (Early / SP) — thin vertical line + small label ──
-  const mkrs = markers.map(m=>{
+  // ── Markers — vertical reference lines with labels ──
+  const mkrs = markers.map((m, idx)=>{
     const xx = X(m.x);
-    return `<line x1="${xx}" y1="${pad.t}" x2="${xx}" y2="${H-pad.b}" stroke="rgba(148,163,184,.20)" stroke-dasharray="3,4"/>`;
+    const label = m.label ? `<text x="${xx+5}" y="${pad.t+14+(idx*14)}" fill="${C.markerLbl}" font-size="11" font-weight="600" font-family="${C.font}">${m.label}</text>` : '';
+    return `<line x1="${xx}" y1="${pad.t}" x2="${xx}" y2="${H-pad.b}" stroke="${C.marker}" stroke-dasharray="3,4"/>${label}`;
   }).join('');
 
   // ── Area fill + smooth line (clipped to plot area) ──
   const areaD = `${curvePath} L${lastPt.sx.toFixed(1)},${bottomY.toFixed(1)} L${firstPt.sx.toFixed(1)},${bottomY.toFixed(1)} Z`;
+  const endDot = `<circle cx="${lastPt.sx.toFixed(1)}" cy="${lastPt.sy.toFixed(1)}" r="4" fill="#fff" stroke="${color}" stroke-width="2"/>`;
   const plot = `<g clip-path="url(#hlClip)">
     <path d="${areaD}" fill="url(#hlGrad)"/>
     <path d="${curvePath}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${endDot}
   </g>`;
 
   // ── Interactive hover elements ──
   const hover = `
-    <line class="hl-vline" y1="${pad.t}" y2="${H-pad.b}" stroke="rgba(99,102,241,.18)" stroke-width="1" style="display:none"/>
+    <line class="hl-vline" y1="${pad.t}" y2="${H-pad.b}" stroke="${C.grid}" stroke-width="1" style="display:none"/>
     <circle class="hl-dot" r="5" fill="#fff" stroke="${color}" stroke-width="2.5" style="display:none"/>
     <rect class="hl-zone" x="${pad.l}" y="${pad.t}" width="${plotW}" height="${plotH}" fill="transparent" style="cursor:crosshair"/>
   `;
 
-  svg.innerHTML = `${defs}${grid}${axisL}${mkrs}${plot}${yLabels}${xLabels}${hover}`;
+  svg.innerHTML = `${defs}${plotBg}${grid}${axisL}${mkrs}${plot}${yLabels}${xLabels}${hover}`;
 
   _attachFancyTooltip(svg, {
     data: s0?.data || [], xmin, xmax, ymax, pad, plotW, plotH, W, H, color
@@ -312,36 +361,35 @@ export function drawBarBreakdown(svg, data){
 
   const legendItems = [
     ...grossItems,
-    {label:'Tax', value:-tax, color:'rgba(248,113,113,.85)'},
-    {label:'Total net income', value:netTotal, color:'rgba(231,238,252,.90)'}
+    {label:'Tax', value:-tax, color:'rgba(190,18,60,.65)'},
+    {label:'Total net income', value:netTotal, color:C.border2}
   ];
 
   const legend = legendItems.map((it,i)=>{
     const yy = 150 + i*18;
     return `<g>
       <rect x="${pad.l}" y="${yy-10}" width="10" height="10" rx="2" fill="${it.color}" />
-      <text x="${pad.l+14}" y="${yy}" fill="rgba(231,238,252,.85)" font-size="12">${it.label}</text>
-      <text x="${w-pad.r}" y="${yy}" fill="rgba(231,238,252,.85)" font-size="12" text-anchor="end">${it.value < 0 ? '−' + fmtGBP(Math.abs(it.value)).replace('£','£') : fmtGBP(it.value)}</text>
+      <text x="${pad.l+14}" y="${yy}" fill="${C.text2}" font-size="12" font-family="${C.font}">${it.label}</text>
+      <text x="${w-pad.r}" y="${yy}" fill="${C.text2}" font-size="12" font-family="${C.font}" text-anchor="end">${it.value < 0 ? '−' + fmtGBP(Math.abs(it.value)).replace('£','£') : fmtGBP(it.value)}</text>
     </g>`;
   }).join('');
 
   svg.innerHTML = `
     <rect x="0" y="0" width="${w}" height="${h}" fill="transparent" />
-    <text x="${pad.l}" y="34" fill="rgba(231,238,252,.85)" font-size="26" font-weight="700">${fmtGBP(netTotal)}</text>
-    <text x="${pad.l}" y="54" fill="rgba(231,238,252,.65)" font-size="12">Gross income sources less tax = total net income</text>
+    <text x="${pad.l}" y="34" fill="${C.text1}" font-size="26" font-weight="700" font-family="${C.font}">${fmtGBP(netTotal)}</text>
+    <text x="${pad.l}" y="54" fill="${C.text3}" font-size="12" font-family="${C.font}">Gross income sources less tax = total net income</text>
     ${segs}
     ${legend}
   `;
 }
 
 export function drawBands(svg, bands, showBands=true, opts={}){
-  const light = opts.theme === 'light';
-  const gridColor = light ? 'rgba(15,23,42,.07)' : 'rgba(255,255,255,.07)';
-  const axisColor = light ? 'rgba(15,23,42,.15)' : 'rgba(255,255,255,.12)';
-  const labelColor = light ? 'rgba(30,41,59,.60)' : 'rgba(231,238,252,.70)';
-  const medianColor = light ? 'rgba(30,41,59,.92)' : 'rgba(231,238,252,.85)';
-  const band10Color = light ? 'rgba(99,102,241,.16)' : 'rgba(167,139,250,.12)';
-  const band25Color = light ? 'rgba(59,130,246,.18)' : 'rgba(110,231,255,.14)';
+  const gridColor  = C.grid;
+  const axisColor  = C.axis;
+  const labelColor = C.label;
+  const medianColor = C.median;
+  const band10Color = C.band10;
+  const band25Color = C.band25;
   const w=Number(svg.getAttribute('width')), h=Number(svg.getAttribute('height'));
   const pad={l:46,r:18,t:18,b:34};
   const xs=bands.map(b=>b.age);
@@ -353,16 +401,16 @@ export function drawBands(svg, bands, showBands=true, opts={}){
 
   const grid = Array.from({length:6}, (_,i)=>{
     const yy=pad.t+i*(h-pad.t-pad.b)/5;
-    return `<line x1="${pad.l}" y1="${yy}" x2="${w-pad.r}" y2="${yy}" stroke="${gridColor}" />`;
+    return `<line x1="${pad.l}" y1="${yy}" x2="${w-pad.r}" y2="${yy}" stroke="${gridColor}" stroke-dasharray="4,4" />`;
   }).join('');
 
   const yLabels = Array.from({length:6}, (_,i)=>{
     const val = ymax - i*(ymax)/5;
     const yy=pad.t+i*(h-pad.t-pad.b)/5;
-    return `<text x="${pad.l-10}" y="${yy+4}" fill="${labelColor}" font-size="11" text-anchor="end">${fmtNum(val/1000)}k</text>`;
+    return `<text x="${pad.l-10}" y="${yy+4}" fill="${labelColor}" font-size="11" font-weight="500" font-family="${C.font}" text-anchor="end">${fmtNum(val/1000)}k</text>`;
   }).join('');
 
-  const xLabels = [xmin, Math.round((xmin+xmax)/2), xmax].map(a=>`<text x="${X(a)}" y="${h-12}" fill="${labelColor}" font-size="11" text-anchor="middle">${a}</text>`).join('');
+  const xLabels = [xmin, Math.round((xmin+xmax)/2), xmax].map(a=>`<text x="${X(a)}" y="${h-12}" fill="${labelColor}" font-size="11" font-weight="500" font-family="${C.font}" text-anchor="middle">${a}</text>`).join('');
 
   const path = (key)=> bands.map((b,i)=>`${i?'L':'M'} ${X(b.age).toFixed(1)} ${Y(b[key]).toFixed(1)}`).join(' ');
 
@@ -383,6 +431,6 @@ export function drawBands(svg, bands, showBands=true, opts={}){
     ${xLabels}
     ${showBands?`<path d="${band10_90}" fill="${band10Color}" stroke="none" />`:''}
     ${showBands?`<path d="${band25_75}" fill="${band25Color}" stroke="none" />`:''}
-    <path d="${path('p50')}" fill="none" stroke="${medianColor}" stroke-width="2.2" />
+    <path d="${path('p50')}" fill="none" stroke="${medianColor}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" />
   `;
 }
