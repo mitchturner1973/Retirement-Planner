@@ -131,7 +131,7 @@ export function createRenderOrchestrator(deps){
       ? {base:{s:'na', text:'Bridge: Not applicable', reason:'No early retirement age set'}, life:null}
       : (br.error
           ? {base:{s:'warn', text:'Bridge: N/A', reason: br.error}, life:null}
-          : computeBridgeStatus(br.runOut_base, (s.bridgeKeepLifestyle===1? br.runOut_life : undefined), s.endAge));
+          : computeBridgeStatus(br.runOut_base, (s.bridgeKeepLifestyle===1? br.runOut_life : undefined), s.endAge, 75, { potAtEnd: br.potEnd_base, bridgeAmount: Number(s.bridgeAmount) || 0 }));
 
     let monteStatus=null;
     const monteCurrent = app.mc.result && app.mc.lastKey===buildModelSignature(s, 'monte');
@@ -178,6 +178,7 @@ export function createRenderOrchestrator(deps){
       overview = buildOverviewViewModel({
         state: s,
         base,
+        basePlan: (s.earlyAge !== '' && isFinite(s.earlyAge)) ? calcProjection({ ...s, earlyAge: '' }) : null,
         household: hh,
         bridgeResult: br,
         riskSummary: app.riskSummary,

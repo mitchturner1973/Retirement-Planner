@@ -25,15 +25,20 @@ function buildHeadlineCards(state, base, household) {
   const recurringSeries = normalizeSeries((base.years || []).map((row) => recurringNet(row)));
   const guaranteedSeries = normalizeSeries((base.years || []).map((row) => num(row.statePension) + num(row.dbIncome)));
 
+  const hasEarly = state.earlyAge !== '' && isFinite(state.earlyAge) && Number(state.earlyAge) < Number(state.retireAge);
+
   const cards = [
     {
-      key: 'pot-at-retirement',
-      title: 'Pot at retirement',
-      value: num(base.potAtRet),
+      key: hasEarly ? 'pot-at-early-retirement' : 'pot-at-retirement',
+      title: hasEarly ? 'Pot at early retirement' : 'Pot at retirement',
+      value: hasEarly ? num(base.potAtEarly) : num(base.potAtRet),
       tone: 'core',
-      detail: `Age ${state.retireAge}`,
+      detail: `Age ${hasEarly ? state.earlyAge : state.retireAge}`,
       sparkline: potSeries,
     },
+  ];
+
+  cards.push(
     {
       key: 'net-income-at-retirement',
       title: 'Estimated total net income',
@@ -50,7 +55,7 @@ function buildHeadlineCards(state, base, household) {
       detail: 'State Pension + DB pensions',
       sparkline: guaranteedSeries,
     },
-  ];
+  );
 
   const age75 = findRowAtAge(base.years || [], 75);
   cards.push({
@@ -302,6 +307,79 @@ function buildTopRiskDrivers(riskSummary) {
   return drivers.slice(0, 3);
 }
 
+function buildPlanSummary(state, base) {
+  const currentAge = Number(state.currentAge);
+  const retireAge = Number(state.retireAge);
+  const stateAge = Number(state.stateAge);
+  const endAge = Number(state.endAge);
+  const runOutAge = base.runOutAge;
+  const lastRow = (base.years || []).at(-1);
+  const potAtEnd = num(lastRow?.potEnd);
+  const potAtRetirement = num(base.potAtRet);
+  const netAtRet = num(base.netAtRet);
+  const guaranteed = num(base.stateAtRet) + num(base.dbAtRet);
+  const guaranteedPct = netAtRet > 0 ? Math.round((guaranteed / netAtRet) * 100) : 0;
+
+  /* Plan status based on the no-bridge projection itself */
+  const planHolds = runOutAge == null;
+  let overallStatus;
+  if (!planHolds && runOutAge < 75) overallStatus = 'bad';
+  else if (!planHolds) overallStatus = 'warn';
+  else if (potAtEnd < potAtRetirement * 0.1) overallStatus = 'warn';
+  else overallStatus = 'good';
+
+  const badgeMap = { good: 'STRONG', warn: 'CAUTION', bad: 'WEAK', na: 'N/A' };
+  const badgeLabel = badgeMap[overallStatus] || 'N/A';
+
+  const statusLabel = planHolds ? 'Sustainable' : 'At risk';
+  const depletionLabel = planHolds ? `Never (to ${endAge})` : `Age ${runOutAge}`;
+
+  let narrative;
+  if (planHolds) {
+    if (potAtEnd > potAtRetirement * 0.5) {
+      narrative = `Your plan sustains income from age ${retireAge} to ${endAge} with a healthy pot remaining. The combination of drawdown and guaranteed income keeps the overall trajectory on track.`;
+    } else {
+      narrative = `Your plan sustains income through to age ${endAge}, though the pot is largely drawn down by the end. Guaranteed income covers ${guaranteedPct}% of retirement income, which helps.`;
+    }
+  } else {
+    narrative = `Under current assumptions the pot runs out at age ${runOutAge}, leaving ${endAge - runOutAge} years reliant solely on guaranteed income of £${Math.round(guaranteed).toLocaleString()}/yr. Consider adjusting contributions, drawdown rate, or retirement age.`;
+  }
+
+  /* Sparkline: full pot trajectory */
+  const sparkline = (base.years || []).map(r => num(r.potEnd));
+
+  /* Timeline markers */
+  const span = endAge - currentAge || 1;
+  const pctThrough = age => Math.round(((age - currentAge) / span) * 100);
+  const markers = [
+    { label: 'TODAY', age: currentAge, pct: 0 },
+    { label: 'RETIREMENT', age: retireAge, pct: pctThrough(retireAge) },
+  ];
+  if (stateAge !== retireAge) {
+    markers.push({ label: 'STATE PENSION', age: stateAge, pct: pctThrough(stateAge) });
+  }
+  if (runOutAge != null) {
+    markers.push({ label: 'POT RUNS OUT', age: runOutAge, pct: pctThrough(runOutAge) });
+  }
+
+  return {
+    available: true,
+    overallStatus,
+    badgeLabel,
+    narrative,
+    potAtRet: potAtRetirement,
+    retireAge,
+    netAtRet,
+    statusLabel,
+    depletionLabel,
+    guaranteedPct,
+    sparkline,
+    currentAge,
+    endAge,
+    markers,
+  };
+}
+
 function buildEarlyBridgeSummary(state, base, bridgeResult, bridgeStatus) {
   if (state.earlyAge === '' || state.earlyAge == null) return null;
 
@@ -324,32 +402,86 @@ function buildEarlyBridgeSummary(state, base, bridgeResult, bridgeStatus) {
   const lifeRunOut = bridgeResult?.runOut_life;
   const lifeEnabled = Number(state.bridgeKeepLifestyle || 0) === 1;
 
+  const startAge = Number(bridgeResult?.early ?? state.earlyAge);
+  const endAge = Number(bridgeResult?.end ?? state.stateAge);
+  const planEndAge = Number(state.endAge);
+  const currentAge = Number(state.currentAge);
+  const potAtEnd = num(bridgeResult?.potEnd_base);
+  const bridgeAmt = num(state.bridgeAmount);
+  const neverRunsOut = baseRunOut == null;
+  const marginal = neverRunsOut && bridgeAmt > 0 && potAtEnd < bridgeAmt * 5;
+  const baseHolds = neverRunsOut && !marginal;
+  const bStatus = bridgeStatus?.base?.s || 'na';
+
+  /* Sparkline: pot trajectory during bridge window only */
+  const sparkline = (base.years || [])
+    .filter(r => num(r.age) >= startAge && num(r.age) <= endAge)
+    .map(r => num(r.potEnd));
+
+  /* Badge text mapped from status */
+  const badgeMap = { good: 'STRONG', warn: 'CAUTION', bad: 'WEAK', na: 'N/A' };
+  const badgeLabel = badgeMap[bStatus] || 'N/A';
+
+  /* Narrative */
+  let narrative;
+  if (baseHolds) {
+    narrative = `Your bridge strategy from age ${startAge} to ${endAge} holds up: the pot sustains ${endAge - startAge} years of drawdown before State Pension begins. That doesn't make the plan risk-free, but the bridge itself is viable.`;
+  } else if (marginal) {
+    narrative = `Your bridge strategy from age ${startAge} to ${endAge} technically survives, but the pot is almost exhausted — only £${Math.round(potAtEnd).toLocaleString()} remains at State Pension age. That leaves very little cushion for the rest of retirement.`;
+  } else {
+    narrative = `Your bridge strategy from age ${startAge} to ${endAge} falls short: the pot is projected to run out at age ${baseRunOut}, leaving a gap before State Pension begins at ${endAge}. Consider reducing withdrawals or topping up savings.`;
+  }
+
+  /* Timeline markers */
+  const span = planEndAge - currentAge || 1;
+  const pctThrough = age => Math.round(((age - currentAge) / span) * 100);
+  const markers = [
+    { label: 'TODAY', age: currentAge, pct: 0 },
+  ];
+  if (startAge > currentAge) {
+    markers.push({ label: 'EARLY RETIREMENT', age: startAge, pct: pctThrough(startAge) });
+  }
+  if (Number(state.retireAge) !== startAge) {
+    markers.push({ label: 'RETIREMENT', age: Number(state.retireAge), pct: pctThrough(Number(state.retireAge)) });
+  }
+  markers.push({ label: 'STATE PENSION', age: Number(state.stateAge), pct: pctThrough(Number(state.stateAge)) });
+
   return {
     enabled: true,
     available: true,
-    startAge: Number(bridgeResult?.early ?? state.earlyAge),
-    endAge: Number(bridgeResult?.end ?? state.stateAge),
-    years: Math.max(0, Number(bridgeResult?.end ?? state.stateAge) - Number(bridgeResult?.early ?? state.earlyAge)),
+    startAge,
+    endAge,
+    years: Math.max(0, endAge - startAge),
     bridgeMode: String(state.bridgeMode || 'net'),
     bridgeAmount: num(state.bridgeAmount),
-    potAtEarly: num(bridgeResult?.potEarly_base),
+    potAtEarly: num(base.potAtEarly),
     potAtStateAge: num(bridgeResult?.potEnd_base),
     netAtStateAge: num(bridgeResult?.netEnd_base),
     guaranteedAtStateAge,
-    baseHolds: baseRunOut == null,
+    baseHolds,
     baseRunOutAge: baseRunOut,
-    baseStatus: bridgeStatus?.base?.s || 'na',
+    baseStatus: bStatus,
     lifeEnabled,
     lifeHolds: lifeEnabled ? lifeRunOut == null : null,
     lifeRunOutAge: lifeEnabled ? lifeRunOut : null,
     lifeNetAtStateAge: lifeEnabled ? num(bridgeResult?.netEnd_life) : null,
     lifeStatus: lifeEnabled ? (bridgeStatus?.life?.s || 'na') : null,
+    /* New proof-card fields */
+    sparkline,
+    badgeLabel,
+    narrative,
+    statusLabel: baseHolds ? 'Succeeds' : marginal ? 'Marginal' : 'Fails',
+    depletionLabel: baseHolds ? 'Not depleted' : marginal ? `~Age ${endAge}` : `Age ${baseRunOut}`,
+    planEndAge,
+    currentAge,
+    markers,
   };
 }
 
 export function buildOverviewViewModel({
   state,
   base,
+  basePlan,
   household,
   bridgeResult,
   riskSummary,
@@ -385,6 +517,7 @@ export function buildOverviewViewModel({
     incomeComposition: buildIncomeComposition(base),
     watchouts,
     topRiskDrivers: buildTopRiskDrivers(riskSummary),
+    planSummary: buildPlanSummary(state, basePlan || base),
     earlyBridge: buildEarlyBridgeSummary(state, base, bridgeResult, bridgeStatus),
     changes: buildChanges(currentSnapshot, compareSnapshot, compareLabel),
     nextSteps: buildNextSteps(statuses, watchouts),

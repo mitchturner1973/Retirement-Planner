@@ -5,6 +5,34 @@ function formatDelta(value, fmtGBP) {
   return `${sign}${fmtGBP(Math.abs(amount))}`;
 }
 
+function fmtCompact(v) {
+  const abs = Math.abs(v);
+  if (abs >= 1e6) return `£${(v / 1e6).toFixed(1)}M`;
+  if (abs >= 1e3) return `£${Math.round(v / 1e3)}K`;
+  return `£${Math.round(v)}`;
+}
+
+function donutSegments(sources, total) {
+  const cx = 90, cy = 90, r = 65, sw = 24;
+  const C = 2 * Math.PI * r;
+  if (!sources.length || total <= 0) {
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="${sw}" />`;
+  }
+  const colors = { dc: '#f59e0b', state: '#22c55e', db: '#6366f1', other: '#60a5fa' };
+  let offset = 0;
+  return sources.map(item => {
+    const pct = item.value / total;
+    const dash = pct * C;
+    const gap = sources.length > 1 ? 3 : 0;
+    const seg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+      stroke="${colors[item.key] || '#94a3b8'}" stroke-width="${sw}"
+      stroke-dasharray="${Math.max(0, dash - gap)} ${C - Math.max(0, dash - gap)}"
+      stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})" />`;
+    offset += dash;
+    return seg;
+  }).join('');
+}
+
 function sparklinePath(values, width = 130, height = 34) {
   const series = Array.isArray(values) && values.length ? values.map((value) => Number(value || 0)) : [0, 0, 0];
   const min = Math.min(...series);
@@ -25,6 +53,7 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
     const income = getEl('overviewIncomeBreakdown');
     const watchouts = getEl('overviewWatchouts');
     const riskDrivers = getEl('overviewRiskDrivers');
+    const planSummary = getEl('overviewPlanSummary');
     const earlyBridge = getEl('overviewBridgeFeasibility');
     const changes = getEl('overviewChanges');
     const nextSteps = getEl('overviewNextSteps');
@@ -55,12 +84,37 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
     }
 
     if (income) {
-      income.innerHTML = model.incomeComposition.items.map((item) => `
-        <div class="overview-breakdown-item ${item.emphasis ? 'is-emphasis' : ''}">
-          <span class="overview-breakdown-label">${item.label}</span>
-          <strong>${fmtGBP(item.value)}</strong>
-        </div>
-      `).join('');
+      const comp = model.incomeComposition;
+      const sources = comp.items.filter(i => !['tax', 'net', 'lump'].includes(i.key) && i.value > 0);
+      const grossTotal = sources.reduce((sum, i) => sum + i.value, 0);
+      const colors = { dc: '#f59e0b', state: '#22c55e', db: '#6366f1', other: '#60a5fa' };
+
+      const legend = sources.map(item => {
+        const pct = grossTotal > 0 ? Math.round((item.value / grossTotal) * 100) : 0;
+        const shortLabel = item.label.replace(/ \(gross\)/, '');
+        return `<span class="income-donut-legend-item">
+          <span class="income-donut-dot" style="background:${colors[item.key] || '#94a3b8'}"></span>
+          ${shortLabel}&ensp;${pct}%
+        </span>`;
+      }).join('');
+
+      const lumpNote = comp.oneOff > 0
+        ? `<div class="income-donut-extra">Plus ${fmtGBP(comp.oneOff)} in one-off lump sums</div>`
+        : '';
+
+      income.innerHTML = `
+        <div class="income-donut-wrap">
+          <div class="income-donut-chart">
+            <svg viewBox="0 0 180 180" class="income-donut-svg">${donutSegments(sources, grossTotal)}</svg>
+            <div class="income-donut-center">
+              <div class="income-donut-total">${fmtCompact(comp.recurringNet)}</div>
+              <div class="income-donut-sub">Net of tax</div>
+            </div>
+          </div>
+          <div class="income-donut-legend">${legend}</div>
+          <div class="income-donut-footer muted">Recurring annual income at retirement.</div>
+          ${lumpNote}
+        </div>`;
     }
 
     if (watchouts) {
@@ -91,6 +145,66 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
       }
     }
 
+    if (planSummary) {
+      const ps = model.planSummary;
+      if (!ps || !ps.available) {
+        planSummary.innerHTML = '<div class="muted">Run a projection to see the plan summary.</div>';
+      } else {
+        const sparkW = 280, sparkH = 50;
+        const psSparkD = sparklinePath(ps.sparkline, sparkW, sparkH);
+        planSummary.innerHTML = `
+          <div class="proof-card proof-card--${ps.overallStatus}">
+            <div class="proof-header">
+              <span class="proof-title">Retirement Plan</span>
+              <span class="proof-badge proof-badge--${ps.overallStatus}">${ps.badgeLabel}</span>
+            </div>
+            <p class="proof-narrative">${ps.narrative}</p>
+
+            <div class="proof-kpis">
+              <div class="proof-kpi">
+                <div class="proof-kpi-label">POT AT RETIREMENT (AGE ${ps.retireAge})</div>
+                <div class="proof-kpi-value">${fmtGBP(ps.potAtRet)}</div>
+              </div>
+              <div class="proof-kpi">
+                <div class="proof-kpi-label">NET INCOME</div>
+                <div class="proof-kpi-value">${fmtGBP(ps.netAtRet)}</div>
+              </div>
+              <div class="proof-kpi">
+                <div class="proof-kpi-label">PLAN STATUS</div>
+                <div class="proof-kpi-value">${ps.statusLabel}</div>
+              </div>
+              <div class="proof-kpi">
+                <div class="proof-kpi-label">POT RUN-OUT</div>
+                <div class="proof-kpi-value">${ps.depletionLabel}</div>
+              </div>
+            </div>
+
+            <div class="proof-spark-wrap">
+              <svg class="proof-spark" viewBox="0 0 ${sparkW} ${sparkH}" preserveAspectRatio="none" aria-hidden="true">
+                <path d="${psSparkD}" />
+              </svg>
+            </div>
+
+            <div class="proof-guidance">
+              <strong>How to read this:</strong> This card shows the overall health of your retirement plan from age ${ps.currentAge} to ${ps.endAge}. Guaranteed income (State Pension + DB) covers ${ps.guaranteedPct}% of retirement income — higher is more resilient.
+            </div>
+
+            <p class="proof-detail muted">The sparkline shows your total pot trajectory. A line that rises during working years and falls gently in retirement is typical. A steep late decline or early run-out warrants attention.</p>
+
+            <div class="proof-timeline">
+              <div class="proof-timeline-header">
+                <span class="proof-timeline-title">TIMELINE MARKERS</span>
+                <span class="proof-timeline-range">AGE ${ps.currentAge} TO ${ps.endAge}</span>
+              </div>
+              <div class="proof-timeline-pills">
+                ${ps.markers.map(m => `<span class="proof-pill proof-pill--${m.label === 'TODAY' ? 'now' : 'milestone'}"><strong>${m.label}</strong> · Age ${m.age}  ${m.pct}% through plan</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
     if (earlyBridge) {
       const panel = model.earlyBridge;
       if (!panel) {
@@ -99,20 +213,57 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
         earlyBridge.innerHTML = `<div class="overview-bridge-summary overview-bridge-summary--warn"><strong>Bridge unavailable</strong><div class="muted">${panel.error}</div></div>`;
       } else {
         const bridgeAmountLabel = panel.bridgeMode === 'gross' ? 'Gross withdrawal target' : 'Net spend target';
-        const baseText = panel.baseHolds ? `Holds to age ${model.horizonText.split(' -> ')[1]}` : `Runs out at age ${panel.baseRunOutAge}`;
-        const lifeText = panel.lifeEnabled
-          ? (panel.lifeHolds ? `Holds to age ${model.horizonText.split(' -> ')[1]}` : `Runs out at age ${panel.lifeRunOutAge}`)
-          : 'Not enabled';
+        const sparkW = 280, sparkH = 50;
+        const sparkD = sparklinePath(panel.sparkline, sparkW, sparkH);
+
         earlyBridge.innerHTML = `
-          <div class="overview-bridge-summary overview-bridge-summary--${panel.baseStatus}">
-            <div class="overview-bridge-row"><span>Bridge window</span><strong>Age ${panel.startAge} -> ${panel.endAge} (${panel.years} years)</strong></div>
-            <div class="overview-bridge-row"><span>${bridgeAmountLabel}</span><strong>${fmtGBP(panel.bridgeAmount)}</strong></div>
-            <div class="overview-bridge-row"><span>Pot at early retirement</span><strong>${fmtGBP(panel.potAtEarly)}</strong></div>
-            <div class="overview-bridge-row"><span>Pot at State Pension age</span><strong>${fmtGBP(panel.potAtStateAge)}</strong></div>
-            <div class="overview-bridge-row"><span>Net at State Pension age</span><strong>${fmtGBP(panel.netAtStateAge)}</strong></div>
-            <div class="overview-bridge-row"><span>Guaranteed income at State Pension age</span><strong>${fmtGBP(panel.guaranteedAtStateAge)}</strong></div>
-            <div class="overview-bridge-row"><span>Baseline bridge result</span><strong>${baseText}</strong></div>
-            <div class="overview-bridge-row"><span>Lifestyle bridge result</span><strong>${lifeText}</strong></div>
+          <div class="proof-card proof-card--${panel.baseStatus}">
+            <div class="proof-header">
+              <span class="proof-title">Bridge Feasibility</span>
+              <span class="proof-badge proof-badge--${panel.baseStatus}">${panel.badgeLabel}</span>
+            </div>
+            <p class="proof-narrative">${panel.narrative}</p>
+
+            <div class="proof-kpis">
+              <div class="proof-kpi">
+                <div class="proof-kpi-label">POT AT EARLY RETIREMENT</div>
+                <div class="proof-kpi-value">${fmtGBP(panel.potAtEarly)}</div>
+              </div>
+              <div class="proof-kpi">
+                <div class="proof-kpi-label">POT AT STATE PENSION</div>
+                <div class="proof-kpi-value">${fmtGBP(panel.potAtStateAge)}</div>
+              </div>
+              <div class="proof-kpi">
+                <div class="proof-kpi-label">BRIDGE STATUS</div>
+                <div class="proof-kpi-value">${panel.statusLabel}</div>
+              </div>
+              <div class="proof-kpi">
+                <div class="proof-kpi-label">DEPLETION AGE</div>
+                <div class="proof-kpi-value">${panel.depletionLabel}</div>
+              </div>
+            </div>
+
+            <div class="proof-spark-wrap">
+              <svg class="proof-spark" viewBox="0 0 ${sparkW} ${sparkH}" preserveAspectRatio="none" aria-hidden="true">
+                <path d="${sparkD}" />
+              </svg>
+            </div>
+
+            <div class="proof-guidance">
+              <strong>How to read this:</strong> This shows whether your pension pot can sustain withdrawals from early retirement (age ${panel.startAge}) until State Pension begins (age ${panel.endAge}). A falling line that stays above zero means the bridge holds.
+            </div>
+
+            <p class="proof-detail muted">The sparkline tracks your pot value during the bridge window. A gentle decline is normal — you are drawing down without State Pension support. A steep drop or line hitting zero means the pot may not last.</p>
+
+            <div class="proof-timeline">
+              <div class="proof-timeline-header">
+                <span class="proof-timeline-title">TIMELINE MARKERS</span>
+                <span class="proof-timeline-range">AGE ${panel.currentAge} TO ${panel.planEndAge}</span>
+              </div>
+              <div class="proof-timeline-pills">
+                ${panel.markers.map(m => `<span class="proof-pill proof-pill--${m.label === 'TODAY' ? 'now' : 'milestone'}"><strong>${m.label}</strong> · Age ${m.age}  ${m.pct}% through plan</span>`).join('')}
+              </div>
+            </div>
           </div>
         `;
       }

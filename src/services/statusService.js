@@ -12,13 +12,21 @@ export function computeStressStatus(passBase, passCrash, passBadSeq) {
   return { s: 'bad', text: 'Stress: Action', reason: passBase ? 'Both stress scenarios fail' : 'Baseline fails' };
 }
 
-export function computeBridgeStatus(runOutBase, runOutLife, endAge, tolerableAge = 75) {
-  const baseOk = runOutBase === null;
-  const base = baseOk
-    ? { s: 'good', text: 'Bridge baseline: OK', reason: `Holds to ${endAge}` }
-    : (runOutBase >= tolerableAge
+export function computeBridgeStatus(runOutBase, runOutLife, endAge, tolerableAge = 75, opts = {}) {
+  const { potAtEnd, bridgeAmount } = opts;
+  const neverRunsOut = runOutBase === null;
+  let base;
+  if (neverRunsOut && potAtEnd != null && bridgeAmount > 0 && potAtEnd < bridgeAmount * 5) {
+    base = potAtEnd < bridgeAmount * 2
+      ? { s: 'bad', text: 'Bridge baseline: Barely holds', reason: `Pot only ${Math.round(potAtEnd).toLocaleString()} at State Pension` }
+      : { s: 'warn', text: 'Bridge baseline: Thin cushion', reason: `Pot only ${Math.round(potAtEnd).toLocaleString()} at State Pension` };
+  } else if (neverRunsOut) {
+    base = { s: 'good', text: 'Bridge baseline: OK', reason: `Holds to ${endAge}` };
+  } else {
+    base = runOutBase >= tolerableAge
       ? { s: 'warn', text: 'Bridge baseline: Watch', reason: `Runs out at ${runOutBase}` }
-      : { s: 'bad', text: 'Bridge baseline: Action', reason: `Runs out at ${runOutBase}` });
+      : { s: 'bad', text: 'Bridge baseline: Action', reason: `Runs out at ${runOutBase}` };
+  }
 
   if (runOutLife === undefined) return { base, life: null };
 

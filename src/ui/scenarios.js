@@ -82,7 +82,7 @@ export function createScenariosRenderer(deps){
         const bad=calcProjection(s,{badYears:s.badYears,badPenalty:s.badPenalty});
         const pass=(res)=>res.years.filter(y=>y.age<=s.successAge).every(y=>y.potEnd>0) && res.years.filter(y=>y.age>=70 && y.netIncome>0).every(y=>y.netIncome>=s.floor70);
         const st=computeStressStatus(pass(base), pass(crash), pass(bad));
-        const bridge = (s.earlyAge==='') ? {base:{s:'na', text:'Bridge: Not applicable', reason:'No early retirement age set'}, life:null} : computeBridgeStatus(br.runOut_base, (s.bridgeKeepLifestyle===1? br.runOut_life : undefined), s.endAge);
+        const bridge = (s.earlyAge==='') ? {base:{s:'na', text:'Bridge: Not applicable', reason:'No early retirement age set'}, life:null} : computeBridgeStatus(br.runOut_base, (s.bridgeKeepLifestyle===1? br.runOut_life : undefined), s.endAge, 75, { potAtEnd: br.potEnd_base, bridgeAmount: Number(s.bridgeAmount) || 0 });
         const mc = (appMc.result && appMc.lastKey===buildModelSignature(s, 'monte')) ? statusFromScore(appMc.result.successProb) : {s:'warn', label:(appMc.result?'Out of date':'Not run'), reason:(appMc.result?'Run Monte for this scenario':'Open Monte tab to run')};
         const overall=computeOverall(st, bridge.base, bridge.life, mc);
         const potAtDraw = (s.earlyAge!=='' && !br.error) ? br.potEarly_base : base.potAtRet;

@@ -186,10 +186,16 @@
             <h4>Top risk drivers</h4>
             <div class="overview-watchouts" id="overviewRiskDrivers"></div>
           </article>
-          <article class="overview-panel">
-            <h4>Early retirement bridge feasibility</h4>
-            <div id="overviewBridgeFeasibility"></div>
-          </article>
+          <div class="overview-proof-row">
+            <article class="overview-panel overview-panel--proof">
+              <h4>Plan overview</h4>
+              <div id="overviewPlanSummary"></div>
+            </article>
+            <article class="overview-panel overview-panel--proof">
+              <h4>Early retirement bridge feasibility</h4>
+              <div id="overviewBridgeFeasibility"></div>
+            </article>
+          </div>
           <article class="overview-panel">
             <h4>What changed</h4>
             <div class="overview-compare-controls">
@@ -206,9 +212,12 @@
             <div class="overview-next-steps" id="overviewNextSteps"></div>
           </article>
           <article class="overview-panel overview-panel--wide">
-            <h4>Top 3 levers (recommended input changes)</h4>
+            <div class="mentor-header">
+              <div class="mentor-eyebrow">PLANNING MENTOR</div>
+              <h4>Next Best Actions</h4>
+              <p class="mentor-subtitle">Start here. These are the highest-priority changes the mentor found after ranking impact, confidence, and effort.</p>
+            </div>
             <div id="actionPanel" class="muted"></div>
-            <div class="footer">These are small, targeted changes that are most likely to improve your weakest status (Stress / Bridge / Monte Carlo).</div>
           </article>
         </div>
       </div>

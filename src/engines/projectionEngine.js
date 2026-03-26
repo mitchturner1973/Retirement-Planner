@@ -140,23 +140,26 @@ export function calcProjection(state, opts = {}) {
   }
 
   const retRow = startRetirementRow || years.find((year) => year.age === effectiveRetireAge) || years[years.length - 1];
+  const normalRetRow = (hasEarly && state.retireAge !== effectiveRetireAge)
+    ? years.find((year) => year.age === state.retireAge) || retRow
+    : retRow;
   const earlyRow = state.earlyAge !== '' ? years.find((year) => year.age === state.earlyAge) : null;
   const runOut = years.find((year) => (year.potEnd ?? Infinity) <= 0.000001 && year.age >= effectiveRetireAge);
 
-  const potAtRet = retRow?.potStart ?? years[years.length - 1]?.potEnd ?? 0;
+  const potAtRet = normalRetRow?.potStart ?? years[years.length - 1]?.potEnd ?? 0;
   const potAtEarly = earlyRow ? earlyRow.potStart : Number.NaN;
-  const stateAtRet = retRow?.statePension ?? 0;
-  const dbAtRet = retRow?.dbIncome ?? 0;
-  const netAtRet = retRow?.recurringNetIncome ?? retRow?.annualNetIncome ?? retRow?.totalNetIncome ?? retRow?.netIncome ?? 0;
-  const privateAtRet = retRow?.dcNetIncome ?? 0;
-  const grossDcAtRet = retRow?.drawdownGross ?? retRow?.grossWithdrawal ?? 0;
-  const taxAtRet = Math.max(0, ((retRow?.drawdownGross ?? 0) + stateAtRet + dbAtRet + (retRow?.otherIncome ?? 0)) - netAtRet);
-  const otherAtRet = retRow?.otherIncome ?? 0;
-  const remainingLsaAtRet = retRow?.remainingLsa ?? Math.max(0, Number(state.tflsCap || 0));
-  const retirementLumpSumAtRet = retRow?.lumpSumGross ?? 0;
-  const pclsAtRet = retRow?.pclsGross ?? 0;
-  const ufplsAtRet = retRow?.ufplsGross ?? 0;
-  const taxableLumpAtRet = retRow?.taxableLumpGross ?? 0;
+  const stateAtRet = normalRetRow?.statePension ?? 0;
+  const dbAtRet = normalRetRow?.dbIncome ?? 0;
+  const netAtRet = normalRetRow?.recurringNetIncome ?? normalRetRow?.annualNetIncome ?? normalRetRow?.totalNetIncome ?? normalRetRow?.netIncome ?? 0;
+  const privateAtRet = normalRetRow?.dcNetIncome ?? 0;
+  const grossDcAtRet = normalRetRow?.drawdownGross ?? normalRetRow?.grossWithdrawal ?? 0;
+  const taxAtRet = Math.max(0, ((normalRetRow?.drawdownGross ?? 0) + stateAtRet + dbAtRet + (normalRetRow?.otherIncome ?? 0)) - netAtRet);
+  const otherAtRet = normalRetRow?.otherIncome ?? 0;
+  const remainingLsaAtRet = normalRetRow?.remainingLsa ?? Math.max(0, Number(state.tflsCap || 0));
+  const retirementLumpSumAtRet = normalRetRow?.lumpSumGross ?? 0;
+  const pclsAtRet = normalRetRow?.pclsGross ?? 0;
+  const ufplsAtRet = normalRetRow?.ufplsGross ?? 0;
+  const taxableLumpAtRet = normalRetRow?.taxableLumpGross ?? 0;
 
   return {
     years,

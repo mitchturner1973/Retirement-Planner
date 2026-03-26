@@ -16,14 +16,15 @@ export function createBridgeRenderer(deps){
     }
 
     const okBase = (br.runOut_base===null);
+    const marginalBase = okBase && Number(s.bridgeAmount) > 0 && br.potEnd_base < Number(s.bridgeAmount) * 5;
     const okLife = (s.bridgeKeepLifestyle===1 ? (br.runOut_life===null) : null);
 
     const kpis=[];
     kpis.push({label:`Pot at start of early retirement (age ${br.early})`, value: fmtGBP(br.potEarly_base)});
     kpis.push({label:`Pot at State Pension age (age ${br.end}) — baseline`, value: fmtGBP(br.potEnd_base)});
     kpis.push({label:`Net income at age ${br.end} (after tax, incl. State Pension) — baseline`, value: fmtGBP(br.netEnd_base)});
-    kpis.push({label:`Bridge result (baseline)`, value: okBase?`Holds (to age ${s.endAge})`:`Fails (runs out at age ${br.runOut_base})`});
-    kpis.push({label:`Pot run-out age (baseline)`, value: okBase?`Never (to ${s.endAge})`:String(br.runOut_base)});
+    kpis.push({label:`Bridge result (baseline)`, value: marginalBase ? `Barely holds — only ${fmtGBP(br.potEnd_base)} left at ${br.end}` : okBase ? `Holds (to age ${s.endAge})` : `Fails (runs out at age ${br.runOut_base})`});
+    kpis.push({label:`Pot run-out age (baseline)`, value: marginalBase ? `Effective: ~${br.end}` : okBase ? `Never (to ${s.endAge})` : String(br.runOut_base)});
 
     if(s.bridgeKeepLifestyle===1){
       kpis.push({label:`Pot at State Pension age (age ${br.end}) — lifestyle path`, value: fmtGBP(br.potEnd_life)});
