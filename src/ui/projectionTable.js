@@ -2,6 +2,15 @@ function renderAmount(fmtGBP, value, shouldShow = true) {
   return shouldShow ? fmtGBP(Number(value || 0)) : '—';
 }
 
+function milestoneIcon(row) {
+  if (row.flags.hasMajorIncomeDrop) return { icon: '!', tone: 'bad', label: 'Income drop' };
+  if (row.flags.isRetirementStart) return { icon: '↗', tone: 'milestone', label: 'Retirement starts' };
+  if (row.flags.isStatePensionStart) return { icon: '◎', tone: 'income', label: 'State Pension starts' };
+  if (row.flags.isDbStart) return { icon: '◉', tone: 'income', label: 'DB starts' };
+  if (row.flags.hasLumpSum) return { icon: '◍', tone: 'cash', label: 'One-off cash' };
+  return null;
+}
+
 function buildColumns(mode) {
   const RECURRING_TIP = 'Recurring total net income: your regular annual income (DC drawdown net of tax, State Pension, DB pensions, other income). Does not include one-off lump sums.';
   const TOTAL_CASH_TIP = 'Total cash received: recurring net income plus any one-off lump sums taken that year (PCLS, UFPLS, or ad-hoc withdrawals).';
@@ -9,13 +18,16 @@ function buildColumns(mode) {
   if (mode === 'compact') {
     return {
       groups: [
-        { label: 'Year', span: 1 },
+        { label: 'Milestones', span: 1 },
+        { label: 'Year', span: 2 },
         { label: 'Cashflow', span: 5 },
         { label: 'Totals', span: 3 },
         { label: 'Events', span: 1 },
       ],
       columns: [
+        { key: 'milestone', label: 'Milestones', className: 'projection-col-milestones' },
         { key: 'age', label: 'Age', className: 'projection-col-age' },
+        { key: 'phaseLabel', label: 'Phase', className: 'projection-col-phase' },
         { key: 'grossWithdrawal', label: 'Gross DC withdrawal', numeric: true, emptyWhenNoCash: true },
         { key: 'dcNetIncome', label: 'Recurring DC net income', numeric: true, emptyWhenNoCash: true },
         { key: 'statePension', label: 'State Pension', numeric: true, emptyWhenNoCash: true },
@@ -31,7 +43,8 @@ function buildColumns(mode) {
 
   return {
     groups: [
-      { label: 'Year', span: 1 },
+      { label: 'Milestones', span: 1 },
+      { label: 'Year', span: 2 },
       { label: 'Working years', span: 2 },
       { label: 'Pot path', span: 3 },
       { label: 'Retirement cashflow', span: 5 },
@@ -39,7 +52,9 @@ function buildColumns(mode) {
       { label: 'Events', span: 1 },
     ],
     columns: [
+      { key: 'milestone', label: 'Milestones', className: 'projection-col-milestones' },
       { key: 'age', label: 'Age', className: 'projection-col-age' },
+      { key: 'phaseLabel', label: 'Phase', className: 'projection-col-phase' },
       { key: 'salary', label: 'Salary', numeric: true, hideWhenRetired: true },
       { key: 'contrib', label: 'Contrib', numeric: true, hideWhenRetired: true },
       { key: 'potStart', label: 'Pot start-year', numeric: true },
@@ -61,7 +76,7 @@ function renderEventsCell(row) {
   const badges = row.eventBadges.map((badge) => `<span class="projection-event-chip projection-event-chip--${badge.tone}">${badge.label}</span>`).join('');
   const notes = row.noteParts.map((part) => `<div class="projection-note-line">${part}</div>`).join('');
   const notesHtml = notes || '<div class="projection-note-line muted">No major events</div>';
-  return `<div class="projection-events-cell">${badges ? `<div class="projection-event-chip-row">${badges}</div>` : ''}<div class="projection-note-list">${notesHtml}</div><button class="btn projection-detail-toggle" type="button" data-projection-toggle-age="${row.age}">More detail</button></div>`;
+  return `<div class="projection-events-cell">${badges ? `<div class="projection-event-chip-row">${badges}</div>` : ''}<div class="projection-note-list">${notesHtml}</div></div>`;
 }
 
 function renderDetailValue(fmtGBP, item) {
@@ -159,8 +174,16 @@ export function renderProjectionTable({ getEl, fmtGBP, app, rerender }, model) {
 
         return `<tr class="${rowClasses}">
           ${layout.columns.map((column) => {
+            if (column.key === 'milestone') {
+              const marker = milestoneIcon(row);
+              if (!marker) return '<td class="projection-milestone-cell"><span class="projection-milestone-empty">—</span></td>';
+              return `<td class="projection-milestone-cell"><span class="projection-milestone-dot projection-milestone-dot--${marker.tone}" title="${marker.label}" aria-label="${marker.label}">${marker.icon}</span></td>`;
+            }
             if (column.key === 'age') {
               return `<td class="projection-age-cell"><div class="projection-age-value">${row.age}</div><div class="projection-age-phase">${row.phaseLabel}</div></td>`;
+            }
+            if (column.key === 'phaseLabel') {
+              return `<td class="projection-phase-cell"><span class="projection-phase-pill projection-phase-pill--${row.phase === 'retired' ? 'retired' : 'working'}">${row.phaseLabel}</span></td>`;
             }
             if (column.key === 'events') {
               return `<td class="projection-events-column">${renderEventsCell(row)}</td>`;

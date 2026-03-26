@@ -52,10 +52,10 @@ export function createRenderOrchestrator(deps){
     renderHouseholdTab(s, hh);
 
     const potMarkers=[];
-    if(s.earlyAge!=='') potMarkers.push({x:s.earlyAge,label:'Early',color:'rgba(110,231,255,.30)'});
-    potMarkers.push({x:s.stateAge,label:'SP',color:'rgba(52,211,153,.30)'});
+    if(s.earlyAge!=='') potMarkers.push({x:s.earlyAge,label:'Early',color:'rgba(99,102,241,.25)'});
+    potMarkers.push({x:s.stateAge,label:'SP',color:'rgba(99,102,241,.25)'});
 
-    drawLineChart(getEl('chartPot'), [{name:'Baseline', color:'rgba(110,231,255,.95)', data: base.years.map(y=>({x:y.age,y:y.potEnd}))}], potMarkers);
+    drawLineChart(getEl('chartPot'), [{name:'Baseline', color:'#3b82f6', data: base.years.map(y=>({x:y.age,y:y.potEnd}))}], potMarkers, {theme:'light', fancy:true, showLegend:false});
 
     const projectionPersonView = app.projectionPersonView || 'primary';
     const projectionData = (projectionPersonView === 'partner' && hh) ? hh.partner : base;

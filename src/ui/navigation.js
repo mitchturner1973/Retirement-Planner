@@ -1,5 +1,6 @@
 export function createNavigationController({ getEl, document, window, onOpenMonte }){
   const menuBtn = getEl('btnMenu');
+  const railToggle = getEl('btnRailToggle');
   const overlay = document.getElementById('sideOverlay');
   const bottomNav = document.getElementById('bottomNav');
   const sheet = document.getElementById('actionSheet');
@@ -118,6 +119,19 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     if(menuBtn) menuBtn.setAttribute('aria-expanded', open?'true':'false');
   }
 
+  function setRailCollapsed(collapsed){
+    document.body.classList.toggle('railCollapsed', collapsed);
+    if(railToggle){
+      railToggle.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+      railToggle.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+      railToggle.setAttribute('title', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+      railToggle.textContent = collapsed ? '⇥' : '⇤';
+    }
+    try {
+      window.localStorage?.setItem('rp:railCollapsed', collapsed ? '1' : '0');
+    } catch {}
+  }
+
   function syncBottomNav(view){
     if(!bottomNav) return;
     bottomNav.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
@@ -146,7 +160,14 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     ];
     renderCmdList('');
 
+    try {
+      setRailCollapsed(window.localStorage?.getItem('rp:railCollapsed') === '1');
+    } catch {
+      setRailCollapsed(false);
+    }
+
     if(menuBtn) menuBtn.addEventListener('click', ()=>setNavOpen(!document.body.classList.contains('navOpen')));
+    if(railToggle) railToggle.addEventListener('click', ()=>setRailCollapsed(!document.body.classList.contains('railCollapsed')));
     if(overlay) overlay.addEventListener('click', ()=>setNavOpen(false));
     if(btnActions) btnActions.addEventListener('click', ()=>setSheet(true));
     if(btnSheetClose) btnSheetClose.addEventListener('click', ()=>setSheet(false));
@@ -218,5 +239,5 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     updateNavHints();
   }
 
-  return { setView, setNavOpen, syncBottomNav, setSheet, bindNavigation, updateNavHints };
+  return { setView, setNavOpen, setRailCollapsed, syncBottomNav, setSheet, bindNavigation, updateNavHints };
 }
