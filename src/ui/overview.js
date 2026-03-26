@@ -51,8 +51,7 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
   try {
     const headline = getEl('overviewHeadlineCards');
     const income = getEl('overviewIncomeBreakdown');
-    const watchouts = getEl('overviewWatchouts');
-    const riskDrivers = getEl('overviewRiskDrivers');
+    const risksSection = getEl('overviewWatchouts');
     const planSummary = getEl('overviewPlanSummary');
     const earlyBridge = getEl('overviewBridgeFeasibility');
     const changes = getEl('overviewChanges');
@@ -117,32 +116,45 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
         </div>`;
     }
 
-    if (watchouts) {
-      if (!model.watchouts.length) {
-        watchouts.innerHTML = '<div class="muted">No major watchouts detected from current assumptions.</div>';
-      } else {
-        watchouts.innerHTML = model.watchouts.map((item) => `
-          <div class="overview-watchout overview-watchout--${item.tone}">
-            <div class="overview-watchout-title">${item.title}</div>
-            <div class="overview-watchout-text muted">${item.text}</div>
-            <button class="btn" type="button" data-overview-nav="${item.view}">Open ${item.view}</button>
-          </div>
-        `).join('');
-      }
-    }
-
-    if (riskDrivers) {
-      if (!model.topRiskDrivers || model.topRiskDrivers.length === 0) {
-        riskDrivers.innerHTML = '<div class="muted">No major risk drivers identified yet. Run Stress and Monte to populate this panel.</div>';
-      } else {
-        riskDrivers.innerHTML = model.topRiskDrivers.map((item) => `
-          <div class="overview-watchout overview-watchout--${item.tone}">
-            <div class="overview-watchout-title">${item.title}</div>
-            <div class="overview-watchout-text muted">${item.text}</div>
-            <button class="btn" type="button" data-overview-nav="${item.view}">Open ${item.view}</button>
-          </div>
-        `).join('');
-      }
+    if (risksSection) {
+      // Merge watchouts and topRiskDrivers, dedupe by key
+      const risks = [...(model.watchouts || []), ...(model.topRiskDrivers || [])];
+      const seen = new Set();
+      const merged = risks.filter(r => {
+        if (!r.key || seen.has(r.key)) return false;
+        seen.add(r.key); return true;
+      });
+      risksSection.innerHTML = `
+        <div class="watchout-header">
+          <div class="watchout-eyebrow">PLAN RISKS</div>
+          <h4>Risks & Watchouts</h4>
+          <p class="watchout-subtitle">Review these critical risks and watchouts. Addressing them can improve your plan’s resilience.</p>
+        </div>
+        ${merged.length === 0
+          ? '<div class="muted">No major risks or watchouts detected from current assumptions.</div>'
+          : merged.map(item => `
+            <div class="risk-watchout risk-watchout-${item.tone || 'warn'}">
+              <div class="risk-watchout-head">
+                <span class="risk-badge risk-badge--${item.tone || 'warn'}">${item.tone === 'bad' ? 'Critical' : item.tone === 'warn' ? 'Warning' : 'Info'}</span>
+                ${item.category ? `<span class="risk-category">${item.category}</span>` : ''}
+              </div>
+              <div class="risk-watchout-title">${item.title}</div>
+              <div class="risk-watchout-detail">${item.text}</div>
+              ${item.trigger ? `<blockquote class="risk-watchout-reason">${item.trigger}</blockquote>` : ''}
+              <div class="risk-watchout-columns">
+                <div class="risk-col risk-col--action">
+                  <div class="risk-col-title">WHAT TO DO</div>
+                  <div class="risk-col-text">${item.action || 'See recommended actions above or review this area in detail.'}</div>
+                </div>
+                <div class="risk-col risk-col--risk">
+                  <div class="risk-col-title">WHAT COULD GO WRONG</div>
+                  <div class="risk-col-text">${item.risk || 'If ignored, this risk could impact your plan resilience.'}</div>
+                </div>
+              </div>
+              <button class="btn btn--mini" type="button" data-overview-nav="${item.view}">Open ${item.view}</button>
+            </div>
+          `).join('')}
+      `;
     }
 
     if (planSummary) {
