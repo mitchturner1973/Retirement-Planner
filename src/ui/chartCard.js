@@ -2,8 +2,8 @@
  * chartCard.js — Premium forecast snapshot chart card
  *
  * Self-contained SVG renderer with phase-coloured line segments,
- * background phase bands, milestone dots, rich tooltip, KPI row,
- * mode/range toggles, and premium age slider.
+ * background phase bands, milestone dots, rich tooltip,
+ * and responsive mode/range controls.
  *
  * Usage:
  *   const card = createChartCard(containerEl, { formatMoney });
@@ -107,7 +107,7 @@ export function createChartCard(container, cfg = {}) {
   /* ── Inner state ── */
   let S = {
     mode: 'pot', range: 'all', person: 'you',
-    years: [], householdYears: null, selectedAge: null, loading: false,
+    years: [], householdYears: null, loading: false,
     currentAge: null, earlyAge: null, stateAge: null, retireAge: null,
     endAge: null, runOutAge: null,
     partnerRetireAge: null, partnerStateAge: null, partnerEarlyAge: null,
@@ -125,51 +125,50 @@ export function createChartCard(container, cfg = {}) {
 
   el.innerHTML = `
     <div class="fc-header">
-      <div class="fc-titles">
-        <h4 class="fc-title">Forecast Snapshot</h4>
-        <p class="fc-subtitle">Your pension pot trajectory at today\u2019s prices</p>
-      </div>
-      <div class="fc-controls">
-        <div class="fc-toggle fc-person-toggle" data-fc-group="person" style="display:none">
-          <button class="fc-toggle-btn is-active" data-fc-action="person" data-fc-value="you">You</button>
-          <button class="fc-toggle-btn" data-fc-action="person" data-fc-value="household">Household</button>
-        </div>
-        <div class="fc-toggle" data-fc-group="mode">
-          <button class="fc-toggle-btn is-active" data-fc-action="mode" data-fc-value="pot">Pot value</button>
-          <button class="fc-toggle-btn" data-fc-action="mode" data-fc-value="income">Net income</button>
-        </div>
-        <div class="fc-toggle" data-fc-group="range">
-          <button class="fc-toggle-btn is-active" data-fc-action="range" data-fc-value="all">All ages</button>
-          <button class="fc-toggle-btn" data-fc-action="range" data-fc-value="retirement">Retirement</button>
-          <button class="fc-toggle-btn" data-fc-action="range" data-fc-value="next10">Next 10 yrs</button>
-        </div>
-      </div>
+      <h4 class="fc-title">Forecast Snapshot</h4>
     </div>
-    <div class="fc-kpi-row" id="fcKpis"></div>
     <div class="fc-body">
       <div class="fc-loading" style="display:none"><div class="fc-spinner"></div><span>Calculating\u2026</span></div>
       <div class="fc-empty" style="display:none">${esc(emptyMessage)}</div>
       <div class="fc-plot"></div>
     </div>
-    <div class="fc-slider">
-      <span class="fc-slider-lo"></span>
-      <input type="range" class="fc-slider-input" />
-      <span class="fc-slider-hi"></span>
-    </div>
-    <div class="fc-slider-readout" style="display:none"></div>
     <div class="fc-phase-legend"></div>
+    <div class="fc-controls fc-controls--footer">
+      <div class="fc-control-group fc-control-group--person">
+        <div class="fc-control-label">Focus</div>
+        <div class="fc-toggle fc-person-toggle" data-fc-group="person" style="display:none">
+          <button class="fc-toggle-btn is-active" data-fc-action="person" data-fc-value="you">You</button>
+          <button class="fc-toggle-btn" data-fc-action="person" data-fc-value="household">Household</button>
+        </div>
+      </div>
+      <div class="fc-control-group">
+        <div class="fc-control-label">Metric</div>
+        <div class="fc-toggle" data-fc-group="mode">
+          <button class="fc-toggle-btn is-active" data-fc-action="mode" data-fc-value="pot">Pot value</button>
+          <button class="fc-toggle-btn" data-fc-action="mode" data-fc-value="income">Net income</button>
+        </div>
+      </div>
+      <div class="fc-control-group fc-control-group--range">
+        <div class="fc-control-label">Range</div>
+        <div class="fc-toggle" data-fc-group="range">
+          <button class="fc-toggle-btn is-active" data-fc-action="range" data-fc-value="all">All ages</button>
+          <button class="fc-toggle-btn" data-fc-action="range" data-fc-value="retirement">Retirement</button>
+          <button class="fc-toggle-btn" data-fc-action="range" data-fc-value="next10">Next 10 yrs</button>
+        </div>
+        <select class="fc-range-select" aria-label="Age range">
+          <option value="all">All ages</option>
+          <option value="retirement">Retirement</option>
+          <option value="next10">Next 10 yrs</option>
+        </select>
+      </div>
+    </div>
   `;
 
-  const $kpis     = el.querySelector('#fcKpis');
-  const $plot     = el.querySelector('.fc-plot');
-  const $loading  = el.querySelector('.fc-loading');
-  const $empty    = el.querySelector('.fc-empty');
-  const $sliderIn = el.querySelector('.fc-slider-input');
-  const $sliderLo = el.querySelector('.fc-slider-lo');
-  const $sliderHi = el.querySelector('.fc-slider-hi');
-  const $slider   = el.querySelector('.fc-slider');
-  const $readout  = el.querySelector('.fc-slider-readout');
-  const $phaseLeg = el.querySelector('.fc-phase-legend');
+  const $plot        = el.querySelector('.fc-plot');
+  const $loading     = el.querySelector('.fc-loading');
+  const $empty       = el.querySelector('.fc-empty');
+  const $phaseLeg    = el.querySelector('.fc-phase-legend');
+  const $rangeSelect = el.querySelector('.fc-range-select');
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
@@ -193,11 +192,13 @@ export function createChartCard(container, cfg = {}) {
     render();
   });
 
-  $sliderIn.addEventListener('input', () => {
-    S.selectedAge = Number($sliderIn.value);
-    updateSliderReadout();
-    render();
-  });
+  if ($rangeSelect) {
+    $rangeSelect.addEventListener('change', () => {
+      S.range = $rangeSelect.value;
+      refreshToggles();
+      render();
+    });
+  }
 
   /* ── Phase helpers ── */
   function phaseColor(age) {
@@ -264,31 +265,12 @@ export function createChartCard(container, cfg = {}) {
       b.classList.toggle('is-active', b.dataset.fcValue === S.range));
     el.querySelectorAll('[data-fc-action="person"]').forEach(b =>
       b.classList.toggle('is-active', b.dataset.fcValue === S.person));
+    if ($rangeSelect) $rangeSelect.value = S.range;
     /* show person toggle only when household data exists */
     const $pt = el.querySelector('.fc-person-toggle');
     if ($pt) $pt.style.display = S.householdYears ? '' : 'none';
-    /* update subtitle */
-    const $sub = el.querySelector('.fc-subtitle');
-    if ($sub) $sub.textContent = S.person === 'household'
-      ? 'Combined household projection at today\u2019s prices'
-      : 'Your pension pot trajectory at today\u2019s prices';
   }
 
-  function updateSliderReadout() {
-    if (S.selectedAge == null) { $readout.style.display = 'none'; return; }
-    const yr = activeYears().find(y => y.age === S.selectedAge);
-    if (!yr) { $readout.style.display = 'none'; return; }
-    const hh = S.person === 'household';
-    const pot = hh ? (yr.householdPot || 0) : yr.potEnd;
-    const inc = hh ? (yr.householdNet || 0) : (yr.recurringNetIncome || yr.annualNetIncome || 0);
-    $readout.style.display = '';
-    $readout.innerHTML = `
-      <span class="fc-readout-age">Age ${yr.age}</span>
-      <span class="fc-readout-phase" style="color:${phaseColor(yr.age)}">${phaseLabel(yr.age)}</span>
-      <span class="fc-readout-val">${formatMoney(pot)}</span>
-      <span class="fc-readout-income">${formatMoney(inc)}/yr net</span>
-    `;
-  }
 
   /* ── Main render ── */
   function render() {
@@ -298,9 +280,6 @@ export function createChartCard(container, cfg = {}) {
     $loading.style.display = S.loading ? '' : 'none';
     $empty.style.display   = (!S.loading && !hasData) ? '' : 'none';
     $plot.style.display    = (hasData && !S.loading) ? '' : 'none';
-    $slider.style.display  = (hasData && !S.loading) ? '' : 'none';
-    $readout.style.display = (hasData && S.selectedAge != null) ? '' : 'none';
-
     if (!hasData || S.loading) return;
 
     const ages = vis.map(y => y.age);
@@ -483,12 +462,6 @@ export function createChartCard(container, cfg = {}) {
       parts.push(`<text x="${lb.cx.toFixed(1)}" y="${ty.toFixed(1)}" fill="${lb.col}" font-size="10" font-weight="700" text-anchor="middle" font-family="${P.font}">${lb.text}</text>`);
     });
 
-    /* ── Selected-age reference ── */
-    if (S.selectedAge != null && S.selectedAge >= xmin && S.selectedAge <= xmax) {
-      const sx = X(S.selectedAge);
-      parts.push(`<line x1="${sx}" y1="${pad.t}" x2="${sx}" y2="${H - pad.b}" stroke="rgba(37,99,235,.30)" stroke-dasharray="4,4"/>`);
-    }
-
     /* ── Hover elements ── */
     parts.push(`<line class="fc-vline" y1="${pad.t}" y2="${H - pad.b}" stroke="${P.grid}" stroke-width="1" style="display:none"/>`);
     parts.push(`<circle class="fc-dot" r="6" fill="#fff" stroke="${P.accumulation}" stroke-width="2.5" style="display:none"/>`);
@@ -496,48 +469,8 @@ export function createChartCard(container, cfg = {}) {
 
     svg.innerHTML = parts.join('');
     attachHover(vis, xmin, xmax, ymax);
-    renderKpis(vis);
-
-    /* ── Slider ── */
-    $sliderIn.min = Math.min(...ages);
-    $sliderIn.max = Math.max(...ages);
-    $sliderLo.textContent = Math.min(...ages);
-    $sliderHi.textContent = Math.max(...ages);
-    if (S.selectedAge != null) $sliderIn.value = S.selectedAge;
-    updateSliderReadout();
 
     renderPhaseLegend(vis);
-  }
-
-  /* ── KPI row ── */
-  function renderKpis(vis) {
-    if (!vis.length) { $kpis.innerHTML = ''; return; }
-    const items = [];
-    const hh = S.person === 'household';
-    const now = vis.find(y => y.age === S.currentAge) || vis[0];
-    const nowPot = hh ? (now.householdPot || 0) : now.potEnd;
-    items.push({ label: hh ? 'Combined pot' : 'Current pot', value: formatMoney(nowPot), tone: '' });
-
-    let peak = vis[0];
-    vis.forEach(y => { if (yValue(y) > yValue(peak)) peak = y; });
-    items.push({ label: `Peak (age ${peak.age})`, value: formatMoney(yValue(peak)), tone: 'good' });
-
-    const retAge = S.earlyAge || S.retireAge || S.stateAge || 67;
-    const atRet = vis.find(y => y.age === retAge);
-    if (atRet) items.push({ label: `At retirement (${retAge})`, value: formatMoney(yValue(atRet)), tone: '' });
-
-    const last = vis[vis.length - 1];
-    const lastPot = hh ? (last.householdPot || 0) : last.potEnd;
-    const peakPot = hh ? (peak.householdPot || 0) : peak.potEnd;
-    const tone = lastPot <= 0 ? 'bad' : lastPot < peakPot * 0.2 ? 'warn' : 'good';
-    items.push({ label: `Age ${last.age}`, value: formatMoney(yValue(last)), tone });
-
-    $kpis.innerHTML = items.map(k => `
-      <div class="fc-kpi${k.tone ? ' fc-kpi--' + k.tone : ''}">
-        <div class="fc-kpi-label">${k.label}</div>
-        <div class="fc-kpi-value">${k.value}</div>
-      </div>
-    `).join('');
   }
 
   /* ── Phase legend ── */
@@ -626,7 +559,6 @@ export function createChartCard(container, cfg = {}) {
     if ('endAge' in patch)          S.endAge = patch.endAge;
     if ('runOutAge' in patch)       S.runOutAge = patch.runOutAge || null;
     if ('loading' in patch)         S.loading = patch.loading;
-    if ('selectedAge' in patch)     S.selectedAge = patch.selectedAge;
     if ('partnerRetireAge' in patch) S.partnerRetireAge = patch.partnerRetireAge || null;
     if ('partnerStateAge' in patch)  S.partnerStateAge = patch.partnerStateAge || null;
     if ('partnerEarlyAge' in patch)  S.partnerEarlyAge = patch.partnerEarlyAge || null;

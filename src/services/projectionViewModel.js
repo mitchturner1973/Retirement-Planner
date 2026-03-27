@@ -1,6 +1,23 @@
 const MAJOR_INCOME_DROP_PCT = 0.1;
 const MAJOR_INCOME_DROP_ABS = 2500;
 
+const SUMMARY_CARD_META = {
+  'retirement-year': { tone: 'milestone', icon: '↗' },
+  'state-pension-year': { tone: 'income', icon: '◎' },
+  'age-75': { tone: 'default', icon: '⏳' },
+  'age-75-checkpoint': { tone: 'default', icon: '⏳' },
+  'end-age': { tone: 'future', icon: '🏁' },
+};
+
+const TONE_ICON_FALLBACK = {
+  milestone: '↗',
+  income: '◎',
+  cash: '◍',
+  attention: '!',
+  future: '🏁',
+  default: '•',
+};
+
 function formatDelta(value) {
   const amount = Math.round(Number(value || 0));
   if (!amount) return 'Flat versus previous year';
@@ -85,6 +102,14 @@ function buildRowView(row, previousRow, state) {
   };
 }
 
+function resolveSummaryCardMeta(key, row) {
+  const primaryBadge = row?.eventBadges?.[0];
+  const base = SUMMARY_CARD_META[key] || {};
+  const tone = primaryBadge?.tone || base.tone || 'default';
+  const icon = base.icon || TONE_ICON_FALLBACK[tone] || TONE_ICON_FALLBACK.default;
+  return { tone, icon };
+}
+
 function buildSummaryCards(rows, state) {
   const cards = [];
   const seenAges = new Set();
@@ -92,6 +117,7 @@ function buildSummaryCards(rows, state) {
   const addCard = (key, title, row, fallbackText = '') => {
     if (!row || seenAges.has(row.age)) return;
     seenAges.add(row.age);
+    const meta = resolveSummaryCardMeta(key, row);
     cards.push({
       key,
       title,
@@ -100,6 +126,8 @@ function buildSummaryCards(rows, state) {
       totalCashReceived: row.totalCashReceived,
       potEnd: Number(row.potEnd || 0),
       highlight: row.eventBadges[0]?.label || row.noteParts[0] || fallbackText,
+      tone: meta.tone,
+      icon: meta.icon,
     });
   };
 

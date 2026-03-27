@@ -269,6 +269,14 @@ export function renderProjectionTable({ getEl, fmtGBP, app, rerender }, model) {
 
   model.rangeOptions.forEach((option) => getEl(`btnProjectionRange_${option.key}`)?.classList.toggle('active', model.range === option.key));
 
+  const scrollProjectionRowIntoView = (age) => {
+    const target = table.querySelector(`[data-projection-row-age="${age}"]`);
+    if (!target) return;
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    target.classList.add('projection-row--flash');
+    window.setTimeout(() => target.classList.remove('projection-row--flash'), 1600);
+  };
+
   const personGroup = getEl('projectionPersonToggle');
   if (personGroup) {
     personGroup.hidden = model.householdMode !== 'joint';
@@ -281,18 +289,45 @@ export function renderProjectionTable({ getEl, fmtGBP, app, rerender }, model) {
   }
 
   if (summary) {
-    summary.innerHTML = model.summaryCards.map((card) => `
-      <article class="projection-summary-card">
-        <div class="projection-summary-label">${card.title}</div>
-        <div class="projection-summary-age">Age ${card.age}</div>
-        <div class="projection-summary-kpis">
-          <div><span class="projection-summary-kpi-label">Recurring net</span><strong>${fmtGBP(card.recurringNetIncome)}</strong></div>
-          <div><span class="projection-summary-kpi-label">Total cash</span><strong>${fmtGBP(card.totalCashReceived)}</strong></div>
-          <div><span class="projection-summary-kpi-label">Pot end-year</span><strong>${fmtGBP(card.potEnd)}</strong></div>
-        </div>
-        <div class="projection-summary-highlight muted">${card.highlight || ''}</div>
-      </article>
-    `).join('');
+    summary.innerHTML = model.summaryCards.map((card) => {
+      const kpis = [
+        { label: 'Recurring net', value: fmtGBP(card.recurringNetIncome) },
+        { label: 'Total cash', value: fmtGBP(card.totalCashReceived) },
+        { label: 'Pot end-year', value: fmtGBP(card.potEnd) },
+      ];
+      const toneClass = card.tone ? `projection-summary-card--${card.tone}` : 'projection-summary-card--default';
+      const icon = card.icon || '•';
+
+      return `
+        <article class="projection-summary-card ${toneClass}" data-projection-summary-age="${card.age}" role="button" tabindex="0" aria-label="${card.title} at age ${card.age}. Click to jump in table.">
+          <header class="projection-summary-card-header">
+            <span class="projection-summary-chip"><span class="projection-summary-chip-icon">${icon}</span>${card.title}</span>
+            <span class="projection-summary-age">Age ${card.age}</span>
+          </header>
+          <div class="projection-summary-kpis">
+            ${kpis.map((kpi) => `
+              <div class="projection-summary-kpi"><span class="projection-summary-kpi-label">${kpi.label}</span><strong>${kpi.value}</strong></div>
+            `).join('')}
+          </div>
+          <footer class="projection-summary-foot">
+            <span class="projection-summary-foot-icon">${icon}</span>
+            <span class="projection-summary-highlight">${card.highlight || 'No headline event this year'}</span>
+          </footer>
+        </article>
+      `;
+    }).join('');
+
+    summary.querySelectorAll('[data-projection-summary-age]').forEach((cardEl) => {
+      const age = Number(cardEl.getAttribute('data-projection-summary-age'));
+      const activate = () => scrollProjectionRowIntoView(age);
+      cardEl.addEventListener('click', activate);
+      cardEl.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          activate();
+        }
+      });
+    });
   }
 
   if (legend) legend.innerHTML = '';
@@ -332,7 +367,7 @@ export function renderProjectionTable({ getEl, fmtGBP, app, rerender }, model) {
         const isExpanded = app?.projectionExpandedAge === row.age;
         const isRetirementPhase = row.phase === 'retired' || row.phase === 'bridge';
 
-        return `<tr class="${rowClasses}">
+        return `<tr class="${rowClasses}" data-projection-row-age="${row.age}">
           ${columns.map((column) => {
             if (column.key === 'milestone') {
               const marker = milestoneIcon(row);

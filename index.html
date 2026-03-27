@@ -163,18 +163,11 @@
 
         <div class="overview-summary-grid" id="overviewHeadlineCards"></div>
 
-        <div class="overview-status-row">
-          <span id="overallBadge"></span>
-          <span id="robustBadge"></span>
-          <span id="bridgeOverallBadge"></span>
-          <span class="badge"><span class="ico">⏱</span>Projection horizon: <span id="horizonLbl"></span></span>
-          <span class="badge"><span class="ico">£</span>Recurring figures are annual and after tax</span>
-        </div>
-
-        <article class="overview-panel overview-panel--wide" id="forecastChartMount" style="margin-bottom:16px"></article>
+      
 
         <div class="overview-grid">
-          <article class="overview-panel overview-panel--wide">
+          <article class="overview-panel overview-panel--flush" id="forecastChartMount"></article>
+          <article class="overview-panel">
             <h4>Retirement income composition</h4>
             <div class="overview-breakdown-grid" id="overviewIncomeBreakdown"></div>
           </article>
@@ -509,11 +502,6 @@
             </div>
             <button class="btn btn-outline" id="btnProjectionJumpToRetirement" type="button" title="Scroll to retirement year">⬇ Retirement</button>
           </div>
-        </div>
-        <div class="row projection-header-badges">
-          <span class="badge"><span class="ico">👔</span>Salary & contributions stop at retirement age</span>
-          <span class="badge"><span class="ico">🏦</span>Recurring total net excludes one-off lump sums</span>
-          <span class="badge"><span class="ico">💸</span>Total cash received includes one-off lump sums</span>
         </div>
         <div class="projection-table-shell" style="margin-top:10px; overflow:auto">
           <table id="tblProjection">
