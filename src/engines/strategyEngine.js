@@ -31,6 +31,19 @@ function roundToStep(value, step) {
   return Math.round(value / step) * step;
 }
 
+function decorateStrategy(base, meta = {}) {
+  return {
+    ...base,
+    labCategory: meta.category || 'core',
+    labCategoryLabel: meta.categoryLabel || 'Strategy ideas',
+    labOrder: Number.isFinite(meta.order) ? meta.order : 0,
+    labTagline: meta.tagline || base.summary || base.name,
+    labBadges: Array.isArray(meta.badges) ? meta.badges : [],
+    labSupportsEarlyGap: Boolean(meta.supportsEarlyGap),
+    labIcon: meta.icon || null,
+  };
+}
+
 function dbReductionFactor(takeAge, npa, earlyReductionPct, deferralIncreasePct) {
   const earlyPct = Math.max(0, Number(earlyReductionPct || 0));
   const deferPct = Math.max(0, Number(deferralIncreasePct || 0));
@@ -80,7 +93,7 @@ function buildPclsCandidate(ctx, amount, targetOption, idPrefix = 'pcls-at-retir
   const amountRatio = Math.max(0, Math.min(1, amount / Math.max(1, ctx.cappedPool)));
   const beforeSpCut = Math.min(1.3, 0.2 + (amountRatio * 1.8));
   const afterSpCut = Math.min(1.6, 0.35 + (amountRatio * 2.0));
-  return {
+  const strat = {
     id: `${idPrefix}-${targetOption.id}-${Math.round(amount)}`,
     name: `Take ~£${amountK}k tax-free at retirement`,
     summary: `Take approximately £${amountK}k as a tax-free lump sum at retirement ${targetOption.label}, then draw a lower recurring income from the remaining pot.`,
@@ -101,6 +114,13 @@ function buildPclsCandidate(ctx, amount, targetOption, idPrefix = 'pcls-at-retir
     },
     optimisationMeta: { kind: 'retirement-pcls-grid', targetId: targetOption.id, amount },
   };
+  return decorateStrategy(strat, {
+    category: 'lump-sum',
+    categoryLabel: 'Cash-at-retirement options',
+    order: 50,
+    tagline: `Unlock ~£${amountK}k tax-free then dial down income`,
+    badges: ['Cash boost', 'Lower future drawdown'],
+  });
 }
 
 function buildRetirementLumpSumCandidatesFromAmounts(state, retireAge, amountSteps, idPrefix = 'pcls-at-retirement') {
@@ -151,7 +171,10 @@ export function getCandidateStrategies(state) {
   const hasDb = (state.dbPensions || []).length > 0;
   const retireAge = Number(state.retireAge || state.stateAge || 67);
   const stateAge = Number(state.stateAge || 67);
-  const hasBridgeWindow = retireAge < stateAge;
+  const hasExplicitEarly = state.earlyAge !== '' && state.earlyAge !== null && state.earlyAge !== undefined;
+  const parsedEarlyAge = hasExplicitEarly ? Number(state.earlyAge) : null;
+  const bridgeStartAge = Number.isFinite(parsedEarlyAge) ? parsedEarlyAge : retireAge;
+  const hasBridgeWindow = bridgeStartAge < stateAge;
   const bridgeTarget = Math.max(18000, Math.round((Number(state.salary || 0) * 0.33) / 1000) * 1000 || 24000);
   const retirementLumpSumCandidates = buildRetirementLumpSumCandidates(state, retireAge);
 
@@ -171,7 +194,7 @@ export function getCandidateStrategies(state) {
   }
 
   const baseStrategies = [
-    {
+    decorateStrategy({
       id: 'straight-drawdown',
       name: 'Straight drawdown',
       summary: 'Keep the existing drawdown approach with your normal pension order.',
@@ -183,9 +206,16 @@ export function getCandidateStrategies(state) {
         beforeStatePensionPct: Number(state.drawdown || 0),
         afterStatePensionPct: Number(state.drawdown || 0),
       },
-    },
+    }, {
+      category: 'core',
+      categoryLabel: 'Core plan templates',
+      order: 0,
+      tagline: 'Keep your existing withdrawal order and rate.',
+      badges: ['Simple', 'No lump sum'],
+      supportsEarlyGap: hasBridgeWindow && bridgeStartAge <= retireAge,
+    }),
     ...retirementLumpSumCandidates,
-    {
+    decorateStrategy({
       id: 'highest-fee-first',
       name: 'Use highest-fee pot first',
       summary: 'Draw from the most expensive DC pension first to try to preserve cheaper pots for longer.',
@@ -197,11 +227,18 @@ export function getCandidateStrategies(state) {
         beforeStatePensionPct: Number(state.drawdown || 0),
         afterStatePensionPct: Math.max(2.5, Number(state.drawdown || 0) - 0.25),
       },
-    },
+    }, {
+      category: 'efficiency',
+      categoryLabel: 'Sequencing & fee tweaks',
+      order: 32,
+      tagline: 'Spend higher-fee pots earlier to curb drag.',
+      badges: ['Fee aware', 'Sequencing'],
+      supportsEarlyGap: hasBridgeWindow,
+    }),
   ];
 
   if (hasBridgeWindow) {
-    baseStrategies.push({
+    baseStrategies.push(decorateStrategy({
       id: 'bridge-to-state-pension',
       name: 'Bridge to State Pension',
       summary: 'Use DC more heavily before State Pension starts, then ease back once guaranteed income begins.',
@@ -213,9 +250,16 @@ export function getCandidateStrategies(state) {
         targetNetBeforeSp: bridgeTarget,
         afterStatePensionPct: Math.max(2.5, Number(state.drawdown || 0) - 1),
       },
-    });
+    }, {
+      category: 'bridge',
+      categoryLabel: 'Bridge-to-gap strategies',
+      order: 10,
+      tagline: `Cover ages ${bridgeStartAge}–${stateAge} more aggressively, then ease back.`,
+      badges: ['Gap coverage', 'Draw DC earlier'],
+      supportsEarlyGap: true,
+    }));
 
-    baseStrategies.push({
+    baseStrategies.push(decorateStrategy({
       id: 'tax-smoothing',
       name: 'Tax smoothing before State Pension',
       summary: 'Aim for steadier taxable income before State Pension so later years do not spike as sharply.',
@@ -227,11 +271,18 @@ export function getCandidateStrategies(state) {
         targetNetBeforeSp: Math.max(16000, Math.round((bridgeTarget * 0.8) / 1000) * 1000),
         afterStatePensionPct: Math.max(2.0, Number(state.drawdown || 0) - 1.25),
       },
-    });
+    }, {
+      category: 'bridge',
+      categoryLabel: 'Bridge-to-gap strategies',
+      order: 12,
+      tagline: 'Keep taxable income steadier before State Pension to avoid spikes.',
+      badges: ['Gap coverage', 'Tax aware'],
+      supportsEarlyGap: true,
+    }));
   }
 
   if (hasDb && hasBridgeWindow) {
-    baseStrategies.push({
+    baseStrategies.push(decorateStrategy({
       id: 'db-aware-balance',
       name: 'DB-aware balanced plan',
       summary: 'Lean on defined benefit income as it starts and reduce DC strain once that guaranteed income is in payment.',
@@ -244,7 +295,14 @@ export function getCandidateStrategies(state) {
         afterStatePensionPct: Math.max(2.0, Number(state.drawdown || 0) - 1.5),
       },
       dbAware: true,
-    });
+    }, {
+      category: 'bridge',
+      categoryLabel: 'Bridge-to-gap strategies',
+      order: 14,
+      tagline: 'Blend DB start dates with DC draw to soften the gap.',
+      badges: ['DB aware', 'Gap coverage'],
+      supportsEarlyGap: true,
+    }));
   }
 
   // If no DB, return base strategies; otherwise multiply by DB timing options
@@ -272,6 +330,8 @@ export function getCandidateStrategies(state) {
         id: `${baseStrat.id}|${Object.values(dbStartAges).join('-')}`,
         name: `${baseStrat.name} — ${timing.label}`,
         summary: `${baseStrat.summary} ${timing.label.toLowerCase()}.`,
+        labTagline: `${baseStrat.labTagline || baseStrat.summary} ${timing.label.toLowerCase()}.`,
+        labBadges: [...new Set([...(baseStrat.labBadges || []), 'DB timing'])],
         dbStartAges,
       };
 
@@ -349,13 +409,46 @@ function simulateStrategy(state, strategy) {
   let salary = workingState.salary;
   let tflsUsed = 0;
   let startRetirementRow = null;
+  let stateRetirementRow = null;
   const withdrawalByPotTotals = {};
   const lumpSumByPotTotals = {};
   let totalRetirementDrawdown = 0;
 
+  const toNumberOrNull = (value) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : null;
+  };
+
+  const strategyBridgePlan = strategy?.bridgePlan || null;
+  const planEarlyAge = toNumberOrNull(strategyBridgePlan?.startAge);
+  const stateEarlyAge = toNumberOrNull(workingState.earlyAge);
+  const derivedEarlyAge = planEarlyAge ?? stateEarlyAge;
+  const hasEarlyAge = derivedEarlyAge != null;
+  const effectiveRetireAge = hasEarlyAge
+    ? Math.min(derivedEarlyAge, Number(workingState.retireAge))
+    : Number(workingState.retireAge);
+
+  const planBridgeEnd = toNumberOrNull(strategyBridgePlan?.endAge);
+  const stateBridgeEnd = hasEarlyAge ? toNumberOrNull(workingState.bridgeEndAge) : null;
+  const derivedBridgeEnd = planBridgeEnd ?? stateBridgeEnd ?? Number(workingState.retireAge);
+
+  const planBridgeEnabled = strategyBridgePlan?.enabled;
+  const bridgeEnabled = planBridgeEnabled != null ? Boolean(planBridgeEnabled) : hasEarlyAge;
+  const bridgeMode = (strategyBridgePlan?.mode || workingState.bridgeMode || 'net').toLowerCase();
+  const stateBridgeAmount = hasEarlyAge ? Number(workingState.bridgeAmount || 0) : 0;
+  const bridgeAmount = bridgeEnabled ? Number(strategyBridgePlan?.amount ?? stateBridgeAmount ?? 0) : 0;
+  const hasBridgeWindow = bridgeEnabled
+    && derivedEarlyAge != null
+    && derivedBridgeEnd != null
+    && derivedBridgeEnd > derivedEarlyAge;
+
   for (let age = workingState.currentAge; age <= workingState.endAge; age += 1) {
     const yearFrac = yearFracForAge(workingState, age);
-    const isRetired = age >= workingState.retireAge;
+    const isRetired = age >= effectiveRetireAge;
+    const isBridging = hasBridgeWindow
+      && bridgeAmount > 0
+      && age >= derivedEarlyAge
+      && age < derivedBridgeEnd;
     const potStart = totalPot(pots);
     const stateIncome = age >= workingState.stateAge ? workingState.statePension * yearFrac : 0;
     const dbIncome = dbIncomeAtAge(workingState, sources.db, age);
@@ -381,7 +474,22 @@ function simulateStrategy(state, strategy) {
     } else {
       const potAfterLumps = totalPot(pots);
       const plan = strategy.drawdownPlan || {};
-      if (plan.mode === 'target-net-before-sp' && age < workingState.stateAge) {
+      if (isBridging) {
+        if (bridgeMode === 'gross') {
+          const grossTarget = Math.min(potAfterLumps, Math.max(0, bridgeAmount * yearFrac));
+          const drawdownRes = withdrawFromPotsByPriorityDetailed(pots, grossTarget);
+          drawdownGross = drawdownRes.withdrawn;
+          drawdownByPot = drawdownRes.byPot;
+          drawdownDetail = `Bridge drawdown targeting approximately \u00a3${Math.round(bridgeAmount).toLocaleString()} gross per year until age ${derivedBridgeEnd}.`;
+        } else {
+          const targetNet = Math.max(0, bridgeAmount * yearFrac);
+          const solved = solveGrossForNetTarget(workingState, potAfterLumps, targetNet, stateIncome + dbIncome, workingState.otherIncome, lumpRes.tflsUsedAfterLumps);
+          const drawdownRes = withdrawFromPotsByPriorityDetailed(pots, solved.gross);
+          drawdownGross = drawdownRes.withdrawn;
+          drawdownByPot = drawdownRes.byPot;
+          drawdownDetail = `Bridge drawdown targeting approximately \u00a3${Math.round(bridgeAmount).toLocaleString()} net per year until age ${derivedBridgeEnd}.`;
+        }
+      } else if (plan.mode === 'target-net-before-sp' && age < workingState.stateAge) {
         const targetNet = Number(plan.targetNetBeforeSp || 0) * yearFrac;
         const solved = solveGrossForNetTarget(workingState, potAfterLumps, targetNet, stateIncome + dbIncome, workingState.otherIncome, lumpRes.tflsUsedAfterLumps);
         const drawdownRes = withdrawFromPotsByPriorityDetailed(pots, solved.gross);
@@ -423,6 +531,7 @@ function simulateStrategy(state, strategy) {
 
     const notes = [];
     if (age === workingState.stateAge) notes.push('State Pension starts');
+    if (isBridging && bridgeAmount > 0) notes.push(`Bridge drawdown approx \u00a3${Math.round(bridgeAmount).toLocaleString()} ${bridgeMode === 'gross' ? 'gross' : 'net'}`);
     if (yearFrac < 1) notes.push(`First period pro-rated (${(yearFrac * 12).toFixed(1)} months)`);
     if (dbIncome > 0) notes.push(`DB income ${dbIncome.toFixed(0)}`);
     notes.push(...lumpRes.notes);
@@ -488,14 +597,20 @@ function simulateStrategy(state, strategy) {
       note: notes.join(' • '),
     };
 
-    if (age === workingState.retireAge) startRetirementRow = row;
+    if (age === effectiveRetireAge && !startRetirementRow) startRetirementRow = row;
+    if (age === workingState.retireAge && !stateRetirementRow) stateRetirementRow = row;
     years.push(row);
     if (!isRetired) salary *= (1 + compoundPeriodRate(salaryGrowth, yearFrac));
   }
 
-  const retRow = startRetirementRow || years.find((y) => y.age === workingState.retireAge) || years[years.length - 1];
+  const effectiveRetRow = startRetirementRow
+    || years.find((y) => y.age === effectiveRetireAge)
+    || years[years.length - 1];
+  const normalRetRow = stateRetirementRow
+    || years.find((y) => y.age === workingState.retireAge)
+    || effectiveRetRow;
   const potAt75Row = years.find((y) => y.age === 75) || years[years.length - 1];
-  const retirementYears = years.filter((y) => y.age >= workingState.retireAge);
+  const retirementYears = years.filter((y) => y.age >= effectiveRetireAge);
   const allowance = Number(workingState.allowance || 0);
   const higherRateYears = retirementYears.filter((y) => Number(y.higherBand || 0) > 0).length;
   const wastedAllowanceYears = retirementYears.filter((y) => Number(y.grossTaxableIncome || 0) > 0 && Number(y.grossTaxableIncome || 0) < allowance).length;
@@ -530,7 +645,7 @@ function simulateStrategy(state, strategy) {
     }, 0) / laterLifeRows.length
     : 0;
 
-  const guaranteedIncomeRatioAtRet = Number(retRow?.guaranteedIncome || 0) / Math.max(1, Number(retRow?.recurringNetIncome || 0));
+  const guaranteedIncomeRatioAtRet = Number(normalRetRow?.guaranteedIncome || 0) / Math.max(1, Number(normalRetRow?.recurringNetIncome || 0));
   const guaranteedFloorCoverageYears = retirementYears.filter((row) => Number(row.guaranteedIncome || 0) >= Math.max(0, Number(workingState.minimumDesiredNetIncome || 0))).length;
 
   const withdrawalShares = Object.values(withdrawalByPotTotals).map((value) => Number(value || 0) / Math.max(1, totalRetirementDrawdown));
@@ -540,14 +655,14 @@ function simulateStrategy(state, strategy) {
 
   const metrics = {
     totalTax: years.reduce((sum, y) => sum + Number(y.tax || 0), 0),
-    netAtRet: Number(retRow?.recurringNetIncome || 0),
-    totalCashAtRet: Number(retRow?.totalCashReceived || 0),
+    netAtRet: Number(normalRetRow?.recurringNetIncome || 0),
+    totalCashAtRet: Number(normalRetRow?.totalCashReceived || 0),
     lowestIncomeAfterRet: retirementYears.length
       ? retirementYears.reduce((min, y) => Math.min(min, Number(y.recurringNetIncome ?? 0)), Infinity)
       : 0,
     potAt75: Number(potAt75Row?.potEnd || 0),
     potAtEnd: Number(years[years.length - 1]?.potEnd || 0),
-    remainingLsaAtRet: Number(retRow?.remainingLsa || 0),
+    remainingLsaAtRet: Number(normalRetRow?.remainingLsa || 0),
     totalLumpSums: years.reduce((sum, y) => sum + Number(y.lumpSumGross || 0), 0),
     averageRetirementIncome: retirementYears.reduce((sum, y, idx, arr) => sum + Number(y.recurringNetIncome || 0) / Math.max(arr.length, 1), 0),
     higherRateYears,
@@ -561,8 +676,8 @@ function simulateStrategy(state, strategy) {
     guaranteedFloorCoverageYears,
     maxWithdrawalShare,
     totalFees,
-    lsaUsedByRet: Math.max(0, Number(workingState.tflsCap || 0) - Number(retRow?.remainingLsa || 0)),
-    oneOffLumpSpikeAtRet: Math.max(0, Number(retRow?.totalCashReceived || 0) - Number(retRow?.recurringNetIncome || 0)),
+    lsaUsedByRet: Math.max(0, Number(workingState.tflsCap || 0) - Number(normalRetRow?.remainingLsa || 0)),
+    oneOffLumpSpikeAtRet: Math.max(0, Number(normalRetRow?.totalCashReceived || 0) - Number(normalRetRow?.recurringNetIncome || 0)),
     withdrawalByPotTotals,
     lumpSumByPotTotals,
   };
@@ -574,14 +689,14 @@ function simulateStrategy(state, strategy) {
     actions,
     metrics,
     summary: {
-      potAtRet: Number(retRow?.potStart || 0),
-      netAtRet: Number(retRow?.recurringNetIncome || 0),
-      totalCashAtRet: Number(retRow?.totalCashReceived || 0),
-      taxAtRet: Number(retRow?.tax || 0),
-      stateAtRet: Number(retRow?.statePension || 0),
-      dbAtRet: Number(retRow?.dbIncome || 0),
-      grossDcAtRet: Number(retRow?.drawdownGross || 0),
-      remainingLsaAtRet: Number(retRow?.remainingLsa || 0),
+      potAtRet: Number(normalRetRow?.potStart || 0),
+      netAtRet: Number(normalRetRow?.recurringNetIncome || 0),
+      totalCashAtRet: Number(normalRetRow?.totalCashReceived || 0),
+      taxAtRet: Number(normalRetRow?.tax || 0),
+      stateAtRet: Number(normalRetRow?.statePension || 0),
+      dbAtRet: Number(normalRetRow?.dbIncome || 0),
+      grossDcAtRet: Number(normalRetRow?.drawdownGross || 0),
+      remainingLsaAtRet: Number(normalRetRow?.remainingLsa || 0),
     },
   };
 }
@@ -644,6 +759,7 @@ export function evaluateStrategies(state) {
           ...scored.strategy,
           name: `Take ~\u00a3${actualK}k tax-free at retirement`,
           summary: `Take approximately \u00a3${actualK.toLocaleString()}k as a one-off tax-free lump sum from your DC pot at retirement, then draw a lower recurring income from the remaining pot.`,
+          labTagline: `Unlock ~\u00a3${actualK}k at retirement to boost cash.`,
         },
       };
     }

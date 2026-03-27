@@ -602,11 +602,40 @@
         <div class="view-subnav" role="tablist" data-subnav="strategy">
           <button class="active" data-subnav-target="overview" type="button">Recommendations</button>
           <button data-subnav-target="settings" type="button">Strategy inputs</button>
+          <button data-subnav-target="tax" type="button">Tax optimisation</button>
         </div>
 
         <div class="view-subpanel" data-subnav="strategy" data-subnav-panel="overview">
           <p class="muted view-subpanel-hint">Use the Strategy inputs panel to adjust goals and constraints. Recommendations update automatically when you recalculate.</p>
-          <div id="strategyTopCards"></div>
+          <div class="strategy-lab-shell">
+            <aside class="strategy-lab-sidebar">
+              <div class="strategy-lab-intro">
+                <div class="strategy-lab-eyebrow">Strategy Lab</div>
+                <h4>Browse withdrawal playbooks</h4>
+                <p class="small muted">Compare focus areas (cash, tax, bridge) and pick one to drive your action plan.</p>
+              </div>
+              <div id="strategyLabList"></div>
+            </aside>
+            <div class="strategy-lab-main">
+              <div id="strategyDetailWrap" class="strategy-detail-stack"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="view-subpanel" data-subnav="strategy" data-subnav-panel="tax" hidden>
+          <div class="strategy-tax-shell">
+            <div id="strategyTaxSummary" class="strategy-tax-summary"></div>
+            <div class="strategy-tax-grid">
+              <section id="strategyTaxOrder" class="card strategy-tax-card"></section>
+              <section id="strategyTaxFindings" class="card strategy-tax-card"></section>
+            </div>
+            <section id="strategyTaxComparisons" class="card strategy-tax-card"></section>
+            <div class="strategy-tax-grid">
+              <section id="strategyTaxExplainer" class="card strategy-tax-card"></section>
+              <section id="strategyTaxBands" class="card strategy-tax-card"></section>
+            </div>
+            <section id="strategyTaxActions" class="card strategy-tax-card"></section>
+          </div>
         </div>
 
         <div class="view-subpanel" data-subnav="strategy" data-subnav-panel="settings" hidden>
@@ -676,16 +705,6 @@
               <input type="number" id="in_watchoutLowLsa" min="0" step="1000" />
             </div>
           </div>
-        </div>
-      </div>
-      <div class="grid strategy-detail-grid view-subpanel" data-subnav="strategy" data-subnav-panel="overview">
-        <div class="card strategy-compare-card" style="grid-column: span 12;">
-          <h3>Strategy comparison</h3>
-          <div id="strategyCompareWrap"></div>
-        </div>
-        <div class="card strategy-timeline-shell" style="grid-column: span 12;">
-          <h3>Decision timeline</h3>
-          <div id="strategyTimelineWrap"></div>
         </div>
       </div>
     </section>

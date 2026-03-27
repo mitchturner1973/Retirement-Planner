@@ -2,9 +2,8 @@ import { assert } from './_helpers.mjs';
 import { renderStrategyTab } from '../../src/ui/decisionTimeline.js';
 
 const els = {
-  strategyTopCards: { innerHTML: '' },
-  strategyCompareWrap: { innerHTML: '' },
-  strategyTimelineWrap: { innerHTML: '' },
+  strategyLabList: { innerHTML: '', querySelectorAll: () => [] },
+  strategyDetailWrap: { innerHTML: '', querySelectorAll: () => [] },
   strategySelect: { innerHTML: '', disabled: false },
 };
 
@@ -33,9 +32,11 @@ const candidate = {
     potAt75: 260000,
     totalLumpSums: 10000,
     remainingLsaAtRet: 240000,
+    withdrawalByPotTotals: { 'current-workplace': 50000 },
+    lumpSumByPotTotals: { 'current-workplace': 10000 },
   },
   summary: { netAtRet: 20500, potAtRet: 310000 },
-  state: { endAge: 72 },
+  state: { endAge: 72, feePct: 0.3, pot: 250000 },
 };
 
 renderStrategyTab({
@@ -47,13 +48,14 @@ renderStrategyTab({
   bestTax: candidate,
   bestSustainable: candidate,
   bestBalanced: candidate,
-  selectedTimeline: [],
+  selectedTimeline: [
+    { age: 67, items: [{ action: 'Take £50k PCLS', reason: 'Fund home remodel', category: 'pcls' }] },
+  ],
   selectedStrategyId: 'alt',
 });
 
-assert.ok(els.strategyTopCards.innerHTML.includes('Pot at end age (72)'), 'top card should label pot metric as end-age when end age is below 75');
-assert.ok(els.strategyCompareWrap.innerHTML.includes('Pot at 75 (or end age)'), 'compare table should clarify Pot at 75 fallback');
-assert.ok(els.strategyCompareWrap.innerHTML.includes('Δ vs baseline net (ret)'), 'compare table should include net delta column');
-assert.ok(els.strategyCompareWrap.innerHTML.includes('Δ vs baseline pot (ret)'), 'compare table should include pot delta column');
-assert.ok(els.strategyCompareWrap.innerHTML.includes('+£500'), 'compare table should show positive net delta against baseline');
-assert.ok(els.strategyCompareWrap.innerHTML.includes('+£10,000'), 'compare table should show positive pot delta against baseline');
+assert.ok(els.strategyDetailWrap.innerHTML.includes('Selected plan'), 'detail stack should include the hero summary');
+assert.ok(els.strategyDetailWrap.innerHTML.includes('Score breakdown'), 'detail stack should include the diagnostics card');
+assert.ok(els.strategyDetailWrap.innerHTML.includes('Withdrawal plumbing'), 'detail stack should surface the DC + DB plan section');
+assert.ok(els.strategyDetailWrap.innerHTML.includes('Lump sum sources'), 'detail stack should list lump sum sourcing when present');
+assert.ok(els.strategyDetailWrap.innerHTML.includes('One-off moves'), 'detail stack should show a condensed action timeline');

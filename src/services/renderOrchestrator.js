@@ -35,6 +35,8 @@ export function createRenderOrchestrator(deps){
     renderMonte,
     fmtGBP,
     forecastCard,
+    buildTaxOptimisationAnalysis,
+    renderStrategyTaxOptimisation,
   } = deps;
 
   return function renderAll(showToast = false){
@@ -99,27 +101,47 @@ export function createRenderOrchestrator(deps){
         minimumFlexibilityBufferAt75: s.minimumFlexibilityBufferAt75,
       },
     });
-    if (!app.strategySelectedId && strategyScores.bestBalanced) app.strategySelectedId = strategyScores.bestBalanced.strategy.id;
-    const selected = strategyScores.ranked.find((r) => r.strategy.id === app.strategySelectedId) || strategyScores.bestBalanced || strategyScores.ranked[0] || null;
-    const strategyTimeline = buildDecisionTimeline(selected);
+    if (!app.strategySelectedId) {
+      const defaultStrategyId = strategyScores.bestBalanced?.strategy?.id
+        || strategyScores.ranked[0]?.strategy?.id
+        || null;
+      if (defaultStrategyId) app.strategySelectedId = defaultStrategyId;
+    }
+    let selected = null;
+    if (app.strategySelectedId) {
+      selected = strategyScores.ranked.find((r) => r.strategy.id === app.strategySelectedId) || null;
+      if (!selected) app.strategySelectedId = null;
+    }
+    const strategyTimeline = selected ? buildDecisionTimeline(selected) : [];
 
 
     
-  renderStrategyTab({
-  ranked: strategyScores.ranked,
-  bestTax: strategyScores.bestTax,
-  bestSustainable: strategyScores.bestSustainable,
-  bestBalanced: strategyScores.bestBalanced,
-  selectedTimeline: strategyTimeline,
-  selectedStrategyId: selected?.strategy?.id || null,
-  selectedResult: selected,
-  priorityMode: s.strategyPriorityMode,
-  targets: {
-    minimumDesiredNetIncome: s.minimumDesiredNetIncome,
-    targetRetirementNetIncome: s.targetRetirementNetIncome,
-    minimumFlexibilityBufferAt75: s.minimumFlexibilityBufferAt75,
-  },
-});
+    renderStrategyTab({
+      ranked: strategyScores.ranked,
+      bestTax: strategyScores.bestTax,
+      bestSustainable: strategyScores.bestSustainable,
+      bestBalanced: strategyScores.bestBalanced,
+      selectedTimeline: strategyTimeline,
+      selectedStrategyId: selected?.strategy?.id || null,
+      selectedResult: selected,
+      priorityMode: s.strategyPriorityMode,
+      targets: {
+        minimumDesiredNetIncome: s.minimumDesiredNetIncome,
+        targetRetirementNetIncome: s.targetRetirementNetIncome,
+        minimumFlexibilityBufferAt75: s.minimumFlexibilityBufferAt75,
+      },
+      stateMeta: {
+        earlyAge: s.earlyAge,
+        retireAge: s.retireAge,
+        stateAge: s.stateAge,
+      },
+    });
+
+    const taxAnalysis = buildTaxOptimisationAnalysis({
+      state: s,
+      selectedResult: selected,
+    });
+    renderStrategyTaxOptimisation(taxAnalysis);
 
     const stressSummary = typeof buildStressScenarioResults === 'function'
       ? buildStressScenarioResults({ state: s, base, calcProjection })

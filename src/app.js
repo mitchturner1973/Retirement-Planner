@@ -15,6 +15,8 @@ import { evaluateStrategies } from './engines/strategyEngine.js';
 import { scoreStrategies } from './engines/strategyScorer.js';
 import { buildDecisionTimeline } from './services/decisionTimelineService.js';
 import { renderStrategyTab } from './ui/decisionTimeline.js';
+import { buildTaxOptimisationAnalysis } from './services/taxOptimisationAnalysis.js';
+import { renderStrategyTaxOptimisation } from './ui/strategyTaxOptimisation.js';
 import { renderHouseholdSummary, renderHouseholdTab } from './ui/household.js';
 import { createRenderOrchestrator } from './services/renderOrchestrator.js';
 import { createNavigationController } from './ui/navigation.js';
@@ -129,6 +131,8 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
     scoreStrategies,
     buildDecisionTimeline,
     renderStrategyTab: (bundle) => renderStrategyTab({ getEl: $, fmtGBP, badge }, bundle),
+    buildTaxOptimisationAnalysis,
+    renderStrategyTaxOptimisation: (analysis) => renderStrategyTaxOptimisation({ getEl: $, fmtGBP, badge }, analysis),
     renderStress,
     buildStressScenarioResults,
     buildMonteInterpretation,

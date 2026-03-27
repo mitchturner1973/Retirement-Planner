@@ -81,23 +81,27 @@ export function renderStrategyTab(deps, strategyBundle) {
     selectedResult = null,
     priorityMode = 'balanced',
     targets = {},
+    stateMeta = {},
   } = strategyBundle || {};
 
-  const cardsWrap = getEl('strategyTopCards');
-  const compareWrap = getEl('strategyCompareWrap');
-  const timelineWrap = getEl('strategyTimelineWrap');
+  const labListEl = getEl('strategyLabList');
+  const detailWrap = getEl('strategyDetailWrap');
   const selectEl = getEl('strategySelect');
 
- 
-
-  const effectiveSelectedId = selectedStrategyId || ranked[0]?.strategy?.id || '';
+  const effectiveSelectedId = selectedStrategyId
+    || bestBalanced?.strategy?.id
+    || ranked[0]?.strategy?.id
+    || '';
 
   if (selectEl) {
     if (ranked.length === 0) {
       selectEl.innerHTML = '<option value="">No strategies available</option>';
       selectEl.disabled = true;
     } else {
-      selectEl.innerHTML = ranked
+      const placeholder = effectiveSelectedId
+        ? '<option value="" disabled hidden>Select a strategy…</option>'
+        : '<option value="" disabled selected>Select a strategy…</option>';
+      const options = ranked
         .map(
           (r) =>
             `<option value="${r.strategy.id}" ${
@@ -105,6 +109,7 @@ export function renderStrategyTab(deps, strategyBundle) {
             }>${r.strategy.name}</option>`
         )
         .join('');
+      selectEl.innerHTML = `${placeholder}${options}`;
       selectEl.disabled = false;
     }
   }
@@ -117,31 +122,133 @@ export function renderStrategyTab(deps, strategyBundle) {
     'prioritise-guaranteed-income': 'Prioritise guaranteed income',
   }[String(priorityMode || 'balanced')] || 'Balanced';
 
-  const topCards = [
-    { label: `Top pick: ${priorityModeLabel}`, result: ranked[0] || null, scoreKey: 'balanced' },
-    { label: 'Most tax-efficient', result: bestTax, scoreKey: 'tax' },
-    { label: 'Most stable income', result: bestSustainable, scoreKey: 'sustainable' },
-  ];
-  const topWinnerIds = topCards.map((card) => card.result?.strategy?.id).filter(Boolean);
-  const uniqueTopWinnerCount = new Set(topWinnerIds).size;
+  const stateAge = Number(stateMeta?.stateAge || 67);
+  const retireAge = Number(stateMeta?.retireAge || stateAge);
+  const hasEarlyAge = stateMeta?.earlyAge !== '' && stateMeta?.earlyAge !== null && stateMeta?.earlyAge !== undefined;
+  const earlyAge = hasEarlyAge ? Number(stateMeta?.earlyAge) : null;
+  const hasEarlyGap = Number.isFinite(earlyAge) && earlyAge < stateAge;
 
-  const baseline = ranked.find((r) => String(r.strategy.id || '').startsWith('straight-drawdown')) || null;
-  const formatDelta = (value) => {
-    if (!Number.isFinite(value)) return '—';
-    return `${value >= 0 ? '+' : '-'}${fmtGBP(Math.abs(value))}`;
-  };
-
-  const pot75LabelFor = (result) => {
-    const endAge = Number(result?.state?.endAge || 0);
-    return endAge > 0 && endAge < 75 ? `Pot at end age (${endAge})` : 'Pot at 75';
-  };
-
-  const selected = selectedResult || ranked.find((r) => r.strategy.id === effectiveSelectedId) || null;
+  const selected = selectedResult
+    || (effectiveSelectedId ? ranked.find((r) => r.strategy.id === effectiveSelectedId) : null)
+    || null;
   const selectedWatchouts = Array.isArray(selected?.watchouts) ? selected.watchouts : [];
-  const dims = selected?.dimensionScores || null;
   const explanation = selected?.rankingExplanation || null;
 
-  const dimensionLabel = {
+  const awardMap = new Map();
+  const addAward = (result, label) => {
+    if (!result?.strategy?.id || awardMap.has(result.strategy.id)) return;
+    awardMap.set(result.strategy.id, label);
+  };
+  addAward(bestBalanced, `Top pick (${priorityModeLabel})`);
+  addAward(bestTax, 'Tax focus');
+  addAward(bestSustainable, 'Steadiest income');
+
+  const handleStrategySelect = (id) => {
+    if (!id) return;
+    if (selectEl) {
+      selectEl.value = id;
+      selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+    } else if (window?.__RP_APP) {
+      window.__RP_APP.strategySelectedId = id;
+    }
+  };
+
+  const renderLabCard = (result, groupLabel) => {
+    const strat = result.strategy || {};
+    if (!strat.id) return '';
+    const metrics = result.metrics || {};
+    const award = awardMap.get(strat.id);
+    const isSelected = strat.id === effectiveSelectedId;
+    const metricCells = [
+      { label: `${priorityModeLabel} score`, value: `${result.scores?.balanced ?? 0}/100` },
+      { label: 'Net @ retirement', value: fmtGBP(metrics.netAtRet) },
+      { label: 'Pot @ 75', value: fmtGBP(metrics.potAt75) },
+      { label: 'Total tax (full plan)', value: fmtGBP(metrics.totalTax) },
+    ];
+    const labBadges = (strat.labBadges || []).map((text) => `<span class="pill">${text}</span>`).join('');
+    const gapBadge = hasEarlyGap
+      ? `<span class="pill ${strat.labSupportsEarlyGap ? 'pill-good' : 'pill-warn'}">${strat.labSupportsEarlyGap ? `Covers age ${earlyAge}–${stateAge}` : 'Needs other income before SP'}</span>`
+      : '';
+    return `<article class="strategy-lab-card${isSelected ? ' active' : ''}" data-strategy-id="${strat.id}" tabindex="0">
+      <div class="strategy-lab-card-head">
+        <div>
+          <p class="strategy-lab-card-eyebrow">${groupLabel}</p>
+          <h4>${strat.name}</h4>
+        </div>
+        <div class="strategy-lab-score">
+          <span>${result.scores?.balanced ?? 0}</span>
+          <small>${priorityModeLabel}</small>
+        </div>
+      </div>
+      ${award ? `<div class="strategy-lab-ribbon">${award}</div>` : ''}
+      <p class="strategy-lab-tagline">${strat.labTagline || strat.summary || ''}</p>
+      <div class="strategy-lab-metrics">
+        ${metricCells.map((metric) => `<div><span class="label">${metric.label}</span><span class="value">${metric.value}</span></div>`).join('')}
+      </div>
+      <div class="strategy-lab-tags">${gapBadge}${labBadges}</div>
+    </article>`;
+  };
+
+  const rankIndex = new Map();
+  ranked.forEach((item, idx) => {
+    if (item?.strategy?.id) rankIndex.set(item.strategy.id, idx);
+  });
+
+  const groupMap = new Map();
+  ranked.forEach((result, idx) => {
+    const strat = result.strategy || {};
+    const key = strat.labCategory || 'other';
+    if (!groupMap.has(key)) {
+      groupMap.set(key, {
+        key,
+        label: strat.labCategoryLabel || 'Other ideas',
+        order: Number(strat.labOrder || 0),
+        items: [],
+      });
+    }
+    groupMap.get(key).items.push({ result, rank: idx });
+  });
+
+  const labGroups = [...groupMap.values()]
+    .sort((a, b) => (a.order === b.order ? a.label.localeCompare(b.label) : a.order - b.order))
+    .map((group) => ({
+      ...group,
+      items: group.items.sort((a, b) => a.rank - b.rank),
+    }));
+
+  if (labListEl) {
+    if (ranked.length === 0) {
+      labListEl.innerHTML = '<div class="muted small">Recalculate to populate the Strategy Lab.</div>';
+    } else if (labGroups.length === 0) {
+      labListEl.innerHTML = '<div class="muted small">No strategy candidates matched the current inputs.</div>';
+    } else {
+      labListEl.innerHTML = labGroups
+        .map((group) => `
+          <div class="strategy-lab-group">
+            <div class="strategy-lab-group-head">
+              <div>
+                <p class="strategy-lab-group-label">${group.label}</p>
+                <p class="small muted">${group.items.length} option${group.items.length === 1 ? '' : 's'}</p>
+              </div>
+            </div>
+            ${group.items.map(({ result }) => renderLabCard(result, group.label)).join('')}
+          </div>`)
+        .join('');
+      labListEl.querySelectorAll('.strategy-lab-card').forEach((card) => {
+        const id = card.dataset.strategyId;
+        const invoke = () => handleStrategySelect(id);
+        card.addEventListener('click', invoke);
+        card.addEventListener('keydown', (evt) => {
+          if (evt.key === 'Enter' || evt.key === ' ') {
+            evt.preventDefault();
+            invoke();
+          }
+        });
+      });
+    }
+  }
+
+  const dimensionLabels = {
     taxEfficiency: 'Tax efficiency',
     incomeSustainability: 'Income sustainability',
     incomeSmoothness: 'Income smoothness',
@@ -149,47 +256,74 @@ export function renderStrategyTab(deps, strategyBundle) {
     guaranteedIncomeStrength: 'Guaranteed income',
     potEfficiency: 'Pot efficiency',
   };
-
-  cardsWrap.innerHTML =
-    ranked.length === 0
-      ? '<div class="muted">No strategies were generated for the current inputs.</div>'
-      : `<div class="grid strategy-card-grid">
-          ${uniqueTopWinnerCount === 1
-            ? `<div class="strategy-context-callout strategy-full-span strategy-tight-bottom"><strong>One strategy leads in all categories</strong> under <em>${priorityModeLabel}</em> mode. Try a different priority mode above to compare alternative focus areas.</div>`
-            : ''}
-          ${topCards.map(({ label, result, scoreKey }) => {
-            if (!result) return '';
-            return `<div class="card strategy-top-card strategy-col-4">
-              <div class="muted small strategy-top-card-label">${label}</div>
-              <h3 class="strategy-top-card-title strategy-tight-top">${result.strategy.name}</h3>
-              <div class="row strategy-top-card-badges strategy-chip-row">
-                ${badge('good', `${result.scores[scoreKey]}/100`, `${label} score`)}
-                ${badge('warn', `Tax to end age ${fmtGBP(result.metrics.totalTax)}`, 'Estimated total tax across the full projection horizon')}
-              </div>
-              ${result.dimensionScores
-                ? `<div class="row strategy-top-card-badges strategy-chip-row">
-                  ${badge('good', `Tax eff. ${result.dimensionScores.taxEfficiency}`, 'Tax efficiency score')}
-                  ${badge('good', `Sustainability ${result.dimensionScores.incomeSustainability}`, 'Income sustainability score')}
-                  ${badge('good', `Smoothness ${result.dimensionScores.incomeSmoothness}`, 'Income smoothness score')}
-                </div>`
-                : ''}
-              <div class="small muted strategy-top-card-summary strategy-top-gap">${result.strategy.summary}</div>
-              ${baseline && baseline.strategy.id !== result.strategy.id
-                ? `<div class="small muted strategy-top-card-note strategy-top-gap-sm">Compared with baseline straight drawdown, this plan changes withdrawal timing and can materially change pot values by age.</div>`
-                : ''}
-              <div class="kpi strategy-top-card-kpis strategy-top-gap-md">
-                <div class="item strategy-kpi-item"><div class="label">Net at retirement</div><div class="value">${fmtGBP(result.summary.netAtRet)}</div></div>
-                <div class="item strategy-kpi-item"><div class="label">Pot at retirement</div><div class="value">${fmtGBP(result.summary.potAtRet)}</div></div>
-                <div class="item strategy-kpi-item"><div class="label">${pot75LabelFor(result)}</div><div class="value">${fmtGBP(result.metrics.potAt75)}</div></div>
-                <div class="item strategy-kpi-item"><div class="label">LSA left at retirement</div><div class="value">${fmtGBP(result.metrics.remainingLsaAtRet)}</div></div>
-              </div>
-            </div>`;
-          }).join('')}
-        </div>`;
-
-  const noPotHint = ranked.length <= 2
-    ? '<div class="strategy-context-callout strategy-tight-bottom"><strong>Limited strategies available.</strong> Enter your current DC pension pot value on the main form to unlock tax-free lump sum strategies and see a broader comparison.</div>'
-    : '';
+  const buildHeroMarkup = () => {
+    if (ranked.length === 0) return '';
+    if (!selected) {
+      return `<article class="strategy-hero-card strategy-hero-card--empty">
+        <div class="strategy-hero-head">
+          <div>
+            <p class="strategy-hero-eyebrow">Selected plan</p>
+            <h3>Choose a strategy</h3>
+            <p class="strategy-hero-tagline">Pick an option in the lab sidebar to load diagnostics here.</p>
+          </div>
+        </div>
+      </article>`;
+    }
+    const metrics = selected.metrics || {};
+    const years = Array.isArray(selected.years) ? selected.years : [];
+    const selectedRetireAge = Number(selected.state?.retireAge || retireAge);
+    const retirementYears = years.filter((row) => Number(row.age) >= selectedRetireAge);
+    const meetsMinYears = retirementYears.filter((row) => Number(row.recurringNetIncome || 0) >= Number(targets.minimumDesiredNetIncome || 0)).length;
+    const totalRetYears = retirementYears.length;
+    const heroKpis = [
+      { label: 'Net at retirement', value: fmtGBP(metrics.netAtRet) },
+      { label: 'Pot at 75', value: fmtGBP(metrics.potAt75) },
+      { label: 'Total tax (full plan)', value: fmtGBP(metrics.totalTax) },
+      { label: 'Years meeting income floor', value: totalRetYears ? `${meetsMinYears}/${totalRetYears}` : '—' },
+    ];
+    const watchoutHtml = selectedWatchouts.length
+      ? selectedWatchouts.slice(0, 2).map((w) => `<div class="strategy-watchout strategy-watchout-${w.severity}"><strong>${w.title}</strong><p class="small muted">${w.detail}</p></div>`).join('')
+      : '<p class="small muted">No major watchouts flagged.</p>';
+    const driverHtml = explanation?.topDrivers?.length
+      ? `<ul class="strategy-driver-list">${explanation.topDrivers.slice(0, 3).map((driver) => `<li><span>${dimensionLabels[driver.dimension] || driver.dimension}</span><strong>${Math.round(Number(driver.points || 0))} pts</strong></li>`).join('')}</ul>`
+      : '';
+    const altCandidates = [];
+    if (bestTax && bestTax.strategy.id !== selected.strategy.id) altCandidates.push({ id: bestTax.strategy.id, title: bestTax.strategy.name, caption: 'Tax focus' });
+    if (bestSustainable && bestSustainable.strategy.id !== selected.strategy.id) altCandidates.push({ id: bestSustainable.strategy.id, title: bestSustainable.strategy.name, caption: 'Steadiest income' });
+    const usedAlt = new Set();
+    const altList = altCandidates.filter((item) => {
+      if (usedAlt.has(item.id)) return false;
+      usedAlt.add(item.id);
+      return true;
+    }).slice(0, 2);
+    const altHtml = altList.length
+      ? `<div class="strategy-selected-alt"><p class="small muted">Other standout picks</p><div class="strategy-alt-links">${altList.map((alt) => `<button type="button" class="strategy-alt-btn" data-strategy-link="${alt.id}">${alt.title}<span>${alt.caption}</span></button>`).join('')}</div></div>`
+      : '';
+    return `<article class="strategy-hero-card">
+      <div class="strategy-hero-head">
+        <div>
+          <p class="strategy-hero-eyebrow">Selected plan</p>
+          <h3>${selected.strategy.name}</h3>
+          <p class="strategy-hero-tagline">${selected.strategy.summary}</p>
+        </div>
+        <div class="strategy-hero-score">
+          <span>${selected.scores?.balanced ?? 0}</span>
+          <small>${priorityModeLabel} score</small>
+        </div>
+      </div>
+      <div class="strategy-hero-kpis">
+        ${heroKpis.map((kpi) => `<div><span class="label">${kpi.label}</span><span class="value">${kpi.value}</span></div>`).join('')}
+      </div>
+      <div class="strategy-hero-section">
+        <div>
+          <p class="small muted">Watchouts</p>
+          ${watchoutHtml}
+        </div>
+        ${driverHtml ? `<div><p class="small muted">Why this ranks well</p>${driverHtml}</div>` : ''}
+      </div>
+      ${altHtml}
+    </article>`;
+  };
 
   const dimensionShortLabel = {
     taxEfficiency: 'Tax efficiency',
@@ -206,277 +340,284 @@ export function renderStrategyTab(deps, strategyBundle) {
     .map(([dim, pct]) => `${dimensionShortLabel[dim] || dim} <strong>${pct}%</strong>`)
     .join(' › ');
 
-  compareWrap.innerHTML =
-    ranked.length === 0
-      ? '<div class="muted">No strategy comparison available yet.</div>'
-        : `${noPotHint}<div class="strategy-context-callout strategy-tight-bottom">
-            <div><strong>Mode: ${priorityModeLabel}</strong> — Priority score column is sorted by this mode’s weights.</div>
-            ${topWeightsStr ? `<div class="small muted strategy-gap-xs">Top weighted dimensions: ${topWeightsStr}</div>` : ''}
-            <div class="small muted strategy-gap-xs">Targets: min net ${fmtGBP(Number(targets.minimumDesiredNetIncome || 0))} / retirement target ${fmtGBP(Number(targets.targetRetirementNetIncome || 0))} / buffer at 75 ${fmtGBP(Number(targets.minimumFlexibilityBufferAt75 || 0))}.</div>
-          </div>
-          <div class="strategy-table-shell strategy-overflow"><table><thead><tr>
-          <th>Strategy</th><th>DB timing</th><th>Priority score</th><th>Tax score</th><th>Stable income score</th><th>Tax to end age</th><th>Net at retirement</th><th>Δ vs baseline net (ret)</th><th>Pot at retirement</th><th>Δ vs baseline pot (ret)</th><th>Lowest later income</th><th>Pot at 75 (or end age)</th><th>One-off lump sums</th></tr></thead><tbody>
-          ${ranked
-            .map(
-              (r, idx) => {
-                const netDelta = baseline ? Number(r.metrics.netAtRet || 0) - Number(baseline.metrics.netAtRet || 0) : Number.NaN;
-                const potDelta = baseline ? Number(r.summary.potAtRet || 0) - Number(baseline.summary.potAtRet || 0) : Number.NaN;
-                const isTop = idx === 0;
-                return `<tr${isTop ? ' class="strategy-row-top"' : ''}>
-                <td class="strategy-cell-main"><strong>${r.strategy.name}</strong>${isTop ? ' <span class="small strategy-top-pick">★ top pick</span>' : ''}<div class="small muted strategy-table-summary">${r.strategy.summary}</div></td>
-                <td class="strategy-cell-db">${formatDbTimingCell(r.state?.dbPensions || [])}</td>
-                <td><strong>${r.scores.balanced}</strong></td>
-                <td>${r.scores.tax}</td>
-                <td>${r.scores.sustainable}</td>
-                <td>${fmtGBP(r.metrics.totalTax)}</td>
-                <td>${fmtGBP(r.metrics.netAtRet)}</td>
-                <td>${formatDelta(netDelta)}</td>
-                <td>${fmtGBP(r.summary.potAtRet)}</td>
-                <td>${formatDelta(potDelta)}</td>
-                <td>${fmtGBP(r.metrics.lowestIncomeAfterRet)}</td>
-                <td>${fmtGBP(r.metrics.potAt75)}</td>
-                <td>${fmtGBP(r.metrics.totalLumpSums)}</td>
-              </tr>`;
-              }
-            )
-            .join('')}
-        </tbody></table></div>`;
+  if (detailWrap) {
+    if (ranked.length === 0) {
+      detailWrap.innerHTML = '<div class="card strategy-detail-placeholder"><p class="muted">Recalculate to see withdrawal diagnostics.</p></div>';
+    } else {
+      const heroSection = buildHeroMarkup();
 
-  timelineWrap.innerHTML =
-    selectedTimeline.length === 0
-      ? '<div class="muted">No strategy timeline available yet.</div>'
-      : (() => {
-          const allYears = selectedResult?.years || [];
-          const retYears = allYears.filter((y) => y.phase === 'retired');
-          const stateAge = Number(selected?.state?.stateAge || 67);
-          const retireAge = Number(selected?.state?.retireAge || 67);
-          const currentAge = Number(selected?.state?.currentAge || 42);
-          const endAge = Number(selected?.state?.endAge || 95);
-          const minIncome = Number(targets.minimumDesiredNetIncome || 0);
-          const targetIncome = Number(targets.targetRetirementNetIncome || 0);
+      const detailSections = (() => {
+        if (!selected) {
+          return '<div class="card strategy-detail-placeholder"><p class="muted">Pick a strategy on the left to view charts, watchouts, and milestone guidance.</p></div>';
+        }
 
-          const totalRetirementIncome = retYears.reduce((s, y) => s + Number(y.recurringNetIncome || 0), 0);
-          const avgAnnualIncome = retYears.length > 0 ? totalRetirementIncome / retYears.length : 0;
-          const yearsOnMinimum = retYears.filter((y) => Number(y.recurringNetIncome || 0) >= minIncome).length;
-          const yearsOnTarget = retYears.filter((y) => Number(y.recurringNetIncome || 0) >= targetIncome).length;
+        const dims = selected?.dimensionScores || null;
+      const detailYears = Array.isArray(selected?.years) ? selected.years : [];
+      const selectedState = selected?.state || {};
+      const stateAge = Number(selectedState.stateAge || 67);
+      const retireAge = Number(selectedState.retireAge || 67);
+      const currentAge = Number(selectedState.currentAge || 42);
+      const endAge = Number(selectedState.endAge || 95);
+      const minIncome = Number(targets.minimumDesiredNetIncome || 0);
+      const targetIncome = Number(targets.targetRetirementNetIncome || 0);
+      const retYears = detailYears.filter((y) => y.phase === 'retired');
+      const totalRetirementIncome = retYears.reduce((sum, row) => sum + Number(row.recurringNetIncome || 0), 0);
+      const avgAnnualIncome = retYears.length ? totalRetirementIncome / retYears.length : 0;
+      const yearsOnMinimum = retYears.filter((row) => Number(row.recurringNetIncome || 0) >= minIncome).length;
+      const yearsOnTarget = retYears.filter((row) => Number(row.recurringNetIncome || 0) >= targetIncome).length;
 
-          const dcOrderRule = String(selected?.state?.dcOrderRule || selected?.strategy?.dcOrder || 'default');
-          const withdrawalByPotTotals = selected?.metrics?.withdrawalByPotTotals || {};
-          const lumpSumByPotTotals = selected?.metrics?.lumpSumByPotTotals || {};
+      const dcOrderRule = String(selectedState.dcOrderRule || selected?.strategy?.dcOrder || 'default');
+      const withdrawalByPotTotals = selected?.metrics?.withdrawalByPotTotals || {};
+      const lumpSumByPotTotals = selected?.metrics?.lumpSumByPotTotals || {};
+      const dbPensionsInState = selectedState.dbPensions || [];
+      const dbTimingNotes = dbPensionsInState
+        .map((dbPen) => {
+          const takeAge = Number(dbPen.dbTakingAge || dbPen.startAge || 67);
+          const npa = Number(dbPen.dbNpa || dbPen.npaAge || dbPen.startAge || 67);
+          const name = String(dbPen.name || 'DB Pension');
+          const adjustedIncome = Number(dbPen.annualIncome || 0);
+          if (takeAge < npa) {
+            const yrsEarly = npa - takeAge;
+            return `${name}: take at age ${takeAge} (${yrsEarly}y early, ~${adjustedIncome.toFixed(0)}/yr)`;
+          }
+          if (takeAge > npa) {
+            const yrsDeferred = takeAge - npa;
+            return `${name}: defer to age ${takeAge} (${yrsDeferred}y late, ~${adjustedIncome.toFixed(0)}/yr)`;
+          }
+          return `${name}: take at age ${takeAge} (NPA)`;
+        })
+        .join(' · ');
 
-          // DB timing info
-          const dbPensionsInState = selected?.state?.dbPensions || [];
-          const dbTimingNotes = dbPensionsInState
-            .map((dbPen) => {
-              const takeAge = Number(dbPen.dbTakingAge || dbPen.startAge || 67);
-              const npa = Number(dbPen.dbNpa || dbPen.npaAge || dbPen.startAge || 67);
-              const name = String(dbPen.name || 'DB Pension');
-              const adjustedIncome = Number(dbPen.annualIncome || 0);
-              if (takeAge < npa) {
-                const yrsEarly = npa - takeAge;
-                return `${name}: take at age ${takeAge} (${yrsEarly} years early, reduced to ~${adjustedIncome.toFixed(0)} per year)`;
-              } else if (takeAge > npa) {
-                const yrsDeferred = takeAge - npa;
-                return `${name}: defer to age ${takeAge} (${yrsDeferred} years late, increased to ~${adjustedIncome.toFixed(0)} per year)`;
-              }
-              return `${name}: take at age ${takeAge} (Normal Pension Age)`;
-            })
-            .join(' \u00b7 ');
+      const currentWorkplaceId = 'current-workplace';
+      const dcPotMeta = [
+        {
+          id: currentWorkplaceId,
+          name: 'Current workplace pension',
+          feePct: Number(selectedState.feePct || 0),
+          startValue: Number(selectedState.pot || 0),
+        },
+        ...((selectedState.dcPensions || []).map((pot) => ({
+          id: String(pot.id || ''),
+          name: String(pot.name || 'DC pension'),
+          feePct: Number(pot.feePct || 0),
+          startValue: Number(pot.currentValue || 0),
+        }))),
+      ].filter((pot) => pot.id);
 
-          const currentWorkplaceId = 'current-workplace';
-          const dcPotMeta = [
-            {
-              id: currentWorkplaceId,
-              name: 'Current workplace pension',
-              feePct: Number(selected?.state?.feePct || 0),
-              startValue: Number(selected?.state?.pot || 0),
-            },
-            ...((selected?.state?.dcPensions || []).map((pot) => ({
-              id: String(pot.id || ''),
-              name: String(pot.name || 'DC pension'),
-              feePct: Number(pot.feePct || 0),
-              startValue: Number(pot.currentValue || 0),
-            }))),
-          ].filter((pot) => pot.id);
+      const potRows = dcPotMeta.map((pot) => {
+        const drawdownUsed = Number(withdrawalByPotTotals[pot.id] || 0);
+        const lumpUsed = Number(lumpSumByPotTotals[pot.id] || 0);
+        return {
+          ...pot,
+          drawdownUsed,
+          lumpUsed,
+          totalUsed: drawdownUsed + lumpUsed,
+        };
+      });
 
-          // Find per-pot values at retirement age from the actual simulation rows
-          const retirementRow = allYears.find((y) => Number(y.age) === retireAge) || null;
-          const retDrawdownByPot = retirementRow?.drawdownByPot || {};
-          const retLumpByPot = retirementRow?.lumpSumByPot || {};
+      const orderedPots = [...potRows].sort((a, b) => {
+        if (dcOrderRule === 'highest-fee-first') {
+          if (b.feePct !== a.feePct) return b.feePct - a.feePct;
+          return b.startValue - a.startValue;
+        }
+        if (dcOrderRule === 'smallest-pot-first') {
+          if (a.startValue !== b.startValue) return a.startValue - b.startValue;
+          return b.feePct - a.feePct;
+        }
+        if (b.totalUsed !== a.totalUsed) return b.totalUsed - a.totalUsed;
+        return b.startValue - a.startValue;
+      });
 
-          const potRows = dcPotMeta.map((pot) => {
-            const drawdownUsed = Number(withdrawalByPotTotals[pot.id] || 0);
-            const lumpUsed = Number(lumpSumByPotTotals[pot.id] || 0);
-            const totalUsed = drawdownUsed + lumpUsed;
-            return {
-              ...pot,
-              drawdownUsed,
-              lumpUsed,
-              totalUsed,
-            };
-          });
+      const potUsageRows = orderedPots
+        .filter((pot) => pot.startValue > 0 || pot.totalUsed > 0)
+        .map((pot, idx) => {
+          const feeTag = pot.feePct > 0 ? ` · fee ${pot.feePct.toFixed(2)}%` : '';
+          const reasonTag = dcOrderRule === 'highest-fee-first'
+            ? `Higher fee priority (${pot.feePct.toFixed(2)}% fee)`
+            : dcOrderRule === 'smallest-pot-first'
+              ? `Smaller pot priority (${fmtGBP(pot.startValue)} today)`
+              : 'Default pension priority';
+          return `<tr>
+            <td><strong>${idx + 1}</strong></td>
+            <td><strong>${pot.name}</strong><div class="small muted">Value today: ${fmtGBP(pot.startValue)}${feeTag}</div></td>
+            <td class="small">${reasonTag}</td>
+            <td>${pot.lumpUsed > 0 ? fmtGBP(pot.lumpUsed) : '<span class="muted">—</span>'}</td>
+            <td>${pot.drawdownUsed > 0 ? fmtGBP(pot.drawdownUsed) : '<span class="muted">—</span>'}</td>
+          </tr>`;
+        })
+        .join('');
 
-          const orderedPots = [...potRows].sort((a, b) => {
-            if (dcOrderRule === 'highest-fee-first') {
-              if (b.feePct !== a.feePct) return b.feePct - a.feePct;
-              return b.startValue - a.startValue;
-            }
-            if (dcOrderRule === 'smallest-pot-first') {
-              if (a.startValue !== b.startValue) return a.startValue - b.startValue;
-              return b.feePct - a.feePct;
-            }
-            if (b.totalUsed !== a.totalUsed) return b.totalUsed - a.totalUsed;
-            return b.startValue - a.startValue;
-          });
+      const lumpSourceRows = orderedPots
+        .filter((pot) => Number(pot.lumpUsed || 0) > 0)
+        .map((pot) => `<div class="small muted">${pot.name}: ${fmtGBP(pot.lumpUsed)} (taken at retirement age ${retireAge})</div>`)
+        .join('');
 
-          const potUsageRows = orderedPots
-            .filter((pot) => pot.startValue > 0 || pot.totalUsed > 0)
-            .map((pot, idx) => {
-              const feeTag = pot.feePct > 0 ? ` · annual fee ${pot.feePct.toFixed(2)}%` : ' · no explicit fee';
-              const reasonTag = dcOrderRule === 'highest-fee-first'
-                ? `Higher fee priority (${pot.feePct.toFixed(2)}% fee)`
-                : dcOrderRule === 'smallest-pot-first'
-                  ? `Smaller pot priority (${fmtGBP(pot.startValue)} today)`
-                  : 'Default pension priority';
-              const lumpNote = pot.lumpUsed > 0
-                ? `<div class="small muted">Taken as one-off at retirement (age ${retireAge}), from the projected pot value including growth to that age</div>`
-                : '';
-              const drawNote = pot.drawdownUsed > 0
-                ? `<div class="small muted">Cumulative amount drawn across all retirement years (age ${retireAge}–${endAge})</div>`
-                : '';
-              return `<tr>
-                <td><strong>${idx + 1}</strong></td>
-                <td><strong>${pot.name}</strong><div class="small muted">Value today: ${fmtGBP(pot.startValue)}${feeTag}</div></td>
-                <td class="small">${reasonTag}</td>
-                <td>${pot.lumpUsed > 0 ? fmtGBP(pot.lumpUsed) : '<span class="muted">—</span>'}${lumpNote}</td>
-                <td>${pot.drawdownUsed > 0 ? fmtGBP(pot.drawdownUsed) : '<span class="muted">—</span>'}${drawNote}</td>
-              </tr>`;
-            })
-            .join('');
+      const incomeChart = renderIncomeBarChart(retYears, minIncome, stateAge);
+      const potChart = renderPotAreaChart(detailYears, retireAge);
 
-          const lumpSourceRows = orderedPots
-            .filter((pot) => Number(pot.lumpUsed || 0) > 0)
-            .map((pot) => `<div class="small muted">${pot.name}: ${fmtGBP(pot.lumpUsed)} (taken at age ${retireAge} — this is the predicted amount based on projected pot growth to retirement)</div>`)
-            .join('');
+      const dbStartAges = [];
+      detailYears.forEach((row, idx, arr) => {
+        if (Number(row.dbIncome || 0) > 0 && (idx === 0 || Number(arr[idx - 1].dbIncome || 0) === 0)) {
+          dbStartAges.push(Number(row.age));
+        }
+      });
+      const keyAgeSet = [...new Set([retireAge, stateAge, ...dbStartAges, 75, endAge]
+        .filter((age) => age >= retireAge && age <= endAge))].sort((a, b) => a - b);
 
-          const incomeChart = renderIncomeBarChart(retYears, minIncome, stateAge);
-          const potChart = renderPotAreaChart(allYears, retireAge);
+      const keyAgeRows = keyAgeSet.map((age) => {
+        const row = detailYears.find((y) => Number(y.age) === age);
+        if (!row) return '';
+        const entry = selectedTimeline.find((e) => Number(e.age) === age);
+        const milestoneItems = (entry?.items || []).filter((i) => ['milestone', 'pcls', 'ufpls'].includes(i.category));
+        const isRetire = age === retireAge;
+        const isSp = age === stateAge && age !== retireAge;
+        const isDb = dbStartAges.includes(age) && !isRetire && !isSp;
+        const defaultLabel = isRetire ? 'Retirement' : isSp ? 'State Pension starts' : isDb ? 'DB income starts' : age === 75 ? 'Age 75 snapshot' : `Age ${age}`;
+        const eventLabel = milestoneItems.length ? milestoneItems.map((mi) => mi.action).join('; ') : defaultLabel;
+        const potLow = Number(row.potEnd || 0) < 50000;
+        const potStyle = potLow ? ' style="color:rgba(248,113,113,.9)"' : '';
+        return `<tr>
+          <td><strong>${age}</strong></td>
+          <td class="small">${eventLabel}</td>
+          <td>${fmtGBP(Number(row.recurringNetIncome || 0))}</td>
+          <td>${fmtGBP(Number(row.guaranteedIncome || 0))}</td>
+          <td><span${potStyle}>${fmtGBP(Number(row.potEnd || 0))}</span></td>
+        </tr>`;
+      }).join('');
 
-          // Key snapshot ages
-          const dbStartAges = [];
-          allYears.forEach((row, idx, arr) => {
-            if (Number(row.dbIncome || 0) > 0 && (idx === 0 || Number(arr[idx - 1].dbIncome || 0) === 0)) {
-              dbStartAges.push(Number(row.age));
-            }
-          });
-          const keyAgeSet = [...new Set([retireAge, stateAge, ...dbStartAges, 75, endAge]
-            .filter((a) => a >= retireAge && a <= endAge))].sort((a, b) => a - b);
+      const condensedTimeline = selectedTimeline
+        .map((entry) => ({ ...entry, items: entry.items.filter((i) => i.category !== 'drawdown') }))
+        .filter((entry) => entry.items.length > 0);
 
-          const keyAgeRows = keyAgeSet.map((age) => {
-            const row = allYears.find((y) => Number(y.age) === age);
-            if (!row) return '';
-            const entry = selectedTimeline.find((e) => Number(e.age) === age);
-            const milestoneItems = (entry?.items || []).filter((i) => ['milestone', 'pcls', 'ufpls'].includes(i.category));
-            const isRetire = age === retireAge;
-            const isSp = age === stateAge && age !== retireAge;
-            const isDb = dbStartAges.includes(age) && !isRetire && !isSp;
-            const defaultLabel = isRetire ? 'Retirement' : isSp ? 'State Pension starts' : isDb ? 'DB income starts' : age === 75 ? 'Age 75 snapshot' : `End age (${age})`;
-            const eventLabel = milestoneItems.length ? milestoneItems.map((mi) => mi.action).join('; ') : defaultLabel;
-            const potLow = Number(row.potEnd || 0) < 50000;
-            const potStyle = potLow ? ' style="color:rgba(248,113,113,.9)"' : '';
-            return `<tr>
-              <td style="white-space:nowrap"><strong>${age}</strong></td>
-              <td class="small">${eventLabel}</td>
-              <td>${fmtGBP(Number(row.recurringNetIncome || 0))}</td>
-              <td>${fmtGBP(Number(row.guaranteedIncome || 0))}</td>
-              <td><span${potStyle}>${fmtGBP(Number(row.potEnd || 0))}</span></td>
-            </tr>`;
-          }).join('');
+      const limitedHint = ranked.length <= 2
+        ? '<div class="strategy-detail-callout strategy-gap-sm"><strong>Tip:</strong> enter your current DC pot balances to unlock more strategy variations.</div>'
+        : '';
 
-          // Condensed timeline — milestone and one-off events only, no routine drawdown
-          const condensedTimeline = selectedTimeline
-            .map((entry) => ({ ...entry, items: entry.items.filter((i) => i.category !== 'drawdown') }))
-            .filter((entry) => entry.items.length > 0);
-
-          return `
-          <div class="strategy-watchouts-shell strategy-block-gap">
-            <div class="small strategy-strong">Selected: <span class="strategy-selected-name">${selected?.strategy?.name || '—'}</span></div>
-            ${explanation
-              ? `<div class="strategy-explainer-shell strategy-top-gap-sm">
-                  <div class="small strategy-strong-lite">Why this ranked ${selected?.scores?.balanced ?? '—'}/100 in ${priorityModeLabel.toLowerCase()} mode</div>
-                  <div class="strategy-explainer-grid strategy-top-gap-sm">
-                    ${(explanation.topDrivers || []).slice(0, 3).map((driver) => `<div class="strategy-explainer-item"><span class="small muted">${dimensionLabel[driver.dimension] || driver.dimension}</span><strong>${Math.round(driver.points)} pts</strong><span class="small muted">(${driver.weightPct}% weight)</span></div>`).join('')}
-                  </div>
-                  ${Array.isArray(explanation.penaltyBreakdown) && explanation.penaltyBreakdown.length > 0
-                    ? `<div class="small muted strategy-top-gap-sm">Deductions: ${explanation.penaltyBreakdown.slice(0, 3).map((p) => `${p.title} (−${Math.round(p.penalty)} pts)`).join(', ')}${explanation.penaltyBreakdown.length > 3 ? '…' : ''}.</div>`
-                    : '<div class="small muted strategy-top-gap-sm">No penalty deductions applied.</div>'}
-                </div>`
-              : ''}
-            ${dims
-              ? `<div class="row strategy-top-card-badges strategy-chip-row">
-                  ${badge('good', `Tax ${dims.taxEfficiency}`, 'Tax efficiency')}
-                  ${badge('good', `Sustainability ${dims.incomeSustainability}`, 'Income sustainability')}
-                  ${badge('good', `Smoothness ${dims.incomeSmoothness}`, 'Income smoothness')}
-                  ${badge('good', `Flexibility ${dims.flexibility}`, 'Flexibility')}
-                  ${badge('good', `Guaranteed ${dims.guaranteedIncomeStrength}`, 'Guaranteed income strength')}
-                  ${badge('good', `Pot eff. ${dims.potEfficiency}`, 'Pot efficiency')}
-                </div>`
-              : ''}
-            ${selectedWatchouts.length === 0
-              ? '<div class="small muted strategy-top-gap-sm">No major watchouts triggered.</div>'
-              : `<div class="strategy-watchout-list strategy-top-gap-sm">${selectedWatchouts.map((w) => `<div class="strategy-watchout-item strategy-watchout-${w.severity}"><strong>${w.title}</strong><div class="small muted">${w.detail}</div></div>`).join('')}</div>`}
-          </div>
-
-          <div class="strategy-watchouts-shell strategy-block-gap">
-            <div class="small strategy-strong strategy-bottom-gap-sm">DC + DB pension plan</div>
-            <div class="small muted strategy-bottom-gap-xs">
-              DC order rule: <strong>${dcOrderRule}</strong>. ${dcOrderReason(dcOrderRule)}
+      const driversHtml = explanation
+        ? `<div class="strategy-explainer-shell">
+            <div class="small strategy-strong-lite">Top drivers</div>
+            <div class="strategy-explainer-grid strategy-top-gap-sm">
+              ${(explanation.topDrivers || []).slice(0, 3).map((driver) => `<div class="strategy-explainer-item"><span class="small muted">${dimensionLabels[driver.dimension] || driver.dimension}</span><strong>${Math.round(driver.points)} pts</strong><span class="small muted">${driver.weightPct}% weight</span></div>`).join('')}
             </div>
-            ${dbTimingNotes ? `<div class="small muted strategy-bottom-gap-sm">DB timing: ${dbTimingNotes}</div>` : ''}
-            ${lumpSourceRows
-              ? `<div class="strategy-bottom-gap-sm"><div class="small strategy-strong-lite">Retirement lump sum source</div>${lumpSourceRows}</div>`
-              : '<div class="small muted strategy-bottom-gap-sm">No one-off lump sum taken under this strategy.</div>'}
-            <div class="strategy-overflow"><table>
-              <thead><tr><th>Order</th><th>DC pot</th><th>Why this order</th><th>One-off lump sum</th><th>Total drawdown taken</th></tr></thead>
-              <tbody>${potUsageRows || '<tr><td colspan="5" class="small muted">No DC pot usage data available.</td></tr>'}</tbody>
-            </table></div>
-          </div>
+            ${Array.isArray(explanation.penaltyBreakdown) && explanation.penaltyBreakdown.length > 0
+              ? `<div class="small muted strategy-top-gap-sm">Deductions: ${explanation.penaltyBreakdown.slice(0, 3).map((p) => `${p.title} (−${Math.round(p.penalty)} pts)`).join(', ')}${explanation.penaltyBreakdown.length > 3 ? '…' : ''}.</div>`
+              : '<div class="small muted strategy-top-gap-sm">No penalty deductions applied.</div>'}
+          </div>`
+        : '<p class="small muted">No ranking explanation available.</p>';
 
-          <div class="kpi strategy-block-gap">
+      const weightsCallout = topWeightsStr ? `<div class="small muted strategy-top-gap-xs">Mode weighting focus: ${topWeightsStr}</div>` : '';
+      const watchoutListHtml = selectedWatchouts.length === 0
+        ? '<div class="small muted">No major watchouts triggered.</div>'
+        : `<div class="strategy-watchout-list">${selectedWatchouts.map((w) => `<div class="strategy-watchout-item strategy-watchout-${w.severity}"><strong>${w.title}</strong><div class="small muted">${w.detail}</div></div>`).join('')}</div>`;
+
+      const diagSection = `
+        <section class="card strategy-detail-card">
+          <div class="strategy-detail-card-head">
+            <div>
+              <p class="strategy-detail-eyebrow">Plan diagnostics</p>
+              <h4>Score breakdown</h4>
+            </div>
+            <span class="strategy-detail-score">${selected?.scores?.balanced ?? 0}</span>
+          </div>
+          ${limitedHint}
+          ${driversHtml}
+          ${weightsCallout}
+          ${dims
+            ? `<div class="row strategy-chip-row strategy-top-gap-sm">
+                ${badge('good', `Tax ${dims.taxEfficiency}`, 'Tax efficiency')}
+                ${badge('good', `Sustainability ${dims.incomeSustainability}`, 'Income sustainability')}
+                ${badge('good', `Smoothness ${dims.incomeSmoothness}`, 'Income smoothness')}
+                ${badge('good', `Flexibility ${dims.flexibility}`, 'Flexibility')}
+                ${badge('good', `Guaranteed ${dims.guaranteedIncomeStrength}`, 'Guaranteed income strength')}
+                ${badge('good', `Pot eff. ${dims.potEfficiency}`, 'Pot efficiency')}
+              </div>`
+            : ''}
+          <div class="strategy-watchout-panel strategy-top-gap-sm">
+            <p class="small muted">Watchouts</p>
+            ${watchoutListHtml}
+          </div>
+        </section>`;
+
+      const dcSection = `
+        <section class="card strategy-detail-card">
+          <div class="strategy-detail-card-head">
+            <div>
+              <p class="strategy-detail-eyebrow">Withdrawal plumbing</p>
+              <h4>DC + DB plan</h4>
+            </div>
+          </div>
+          <p class="small muted">DC order rule: <strong>${dcOrderRule}</strong>. ${dcOrderReason(dcOrderRule)}</p>
+          ${dbTimingNotes ? `<p class="small muted strategy-top-gap-xxs">DB timing: ${dbTimingNotes}</p>` : ''}
+          ${lumpSourceRows ? `<div class="strategy-top-gap-sm"><div class="small strategy-strong-lite">Lump sum sources</div>${lumpSourceRows}</div>` : ''}
+          <div class="strategy-overflow strategy-top-gap-sm"><table>
+            <thead><tr><th>Order</th><th>DC pot</th><th>Why this order</th><th>One-off lump sum</th><th>Total drawdown</th></tr></thead>
+            <tbody>${potUsageRows || '<tr><td colspan="5" class="small muted">No DC pot usage data available.</td></tr>'}</tbody>
+          </table></div>
+        </section>`;
+
+      const incomeSection = `
+        <section class="card strategy-detail-card">
+          <div class="strategy-detail-card-head">
+            <div>
+              <p class="strategy-detail-eyebrow">Retirement income</p>
+              <h4>Trajectory</h4>
+            </div>
+          </div>
+          <div class="kpi strategy-top-gap-sm">
             <div class="item"><div class="label">Total retirement income</div><div class="value">${fmtGBP(totalRetirementIncome)}</div></div>
             <div class="item"><div class="label">Average per year</div><div class="value">${fmtGBP(avgAnnualIncome)}</div></div>
             <div class="item"><div class="label">Years above min income</div><div class="value">${yearsOnMinimum} / ${retYears.length}</div></div>
-            ${targetIncome > 0 ? `<div class="item"><div class="label">Years above retirement target</div><div class="value">${yearsOnTarget} / ${retYears.length}</div></div>` : ''}
+            ${targetIncome > 0 ? `<div class="item"><div class="label">Years above target</div><div class="value">${yearsOnTarget} / ${retYears.length}</div></div>` : ''}
           </div>
-
-          <div class="strategy-mini-charts strategy-block-gap">
+          <div class="strategy-mini-charts strategy-top-gap-sm">
             <div>
-              <div class="small strategy-strong-lite strategy-bottom-gap-xs">Net income in retirement (per year)</div>
-              <div class="small muted strategy-bottom-gap-sm">Blue = pre-State Pension &nbsp;·&nbsp; Green = post-State Pension &nbsp;·&nbsp; Red = below minimum &nbsp;·&nbsp; — = min target</div>
+              <div class="small strategy-strong-lite strategy-bottom-gap-xs">Income (today's £)</div>
+              <div class="small muted strategy-bottom-gap-sm">Blue = before State Pension · Green = after State Pension · Red = below minimum</div>
               ${incomeChart}
               <div class="small muted strategy-axis-row"><span>Age ${retireAge}</span><span>Age ${endAge}</span></div>
             </div>
             <div>
-              <div class="small strategy-strong-lite strategy-bottom-gap-xs">Pension pot over time</div>
-              <div class="small muted strategy-bottom-gap-sm">Purple = DC pot balance each year &nbsp;·&nbsp; Dashed = retirement age</div>
+              <div class="small strategy-strong-lite strategy-bottom-gap-xs">Pot balance</div>
+              <div class="small muted strategy-bottom-gap-sm">Shaded area = pot · dashed line = retirement age</div>
               ${potChart}
               <div class="small muted strategy-axis-row"><span>Age ${currentAge}</span><span>Age ${endAge}</span></div>
             </div>
           </div>
+        </section>`;
 
-          <div class="strategy-block-gap">
-            <div class="small strategy-strong strategy-bottom-gap-sm">Snapshot at key ages</div>
-            <div class="strategy-overflow"><table>
-              <thead><tr><th>Age</th><th>Event</th><th>Net income</th><th>Guaranteed income</th><th>Pot remaining</th></tr></thead>
-              <tbody>${keyAgeRows}</tbody>
-            </table></div>
+      const snapshotSection = `
+        <section class="card strategy-detail-card">
+          <div class="strategy-detail-card-head">
+            <div>
+              <p class="strategy-detail-eyebrow">Milestones</p>
+              <h4>Snapshot at key ages</h4>
+            </div>
           </div>
+          <div class="strategy-overflow strategy-top-gap-sm"><table>
+            <thead><tr><th>Age</th><th>Event</th><th>Net income</th><th>Guaranteed income</th><th>Pot remaining</th></tr></thead>
+            <tbody>${keyAgeRows || '<tr><td colspan="5" class="small muted">No rows available.</td></tr>'}</tbody>
+          </table></div>
+        </section>`;
 
-          <div>
-            <div class="small strategy-strong strategy-bottom-gap-sm">Key events</div>
-            ${condensedTimeline.length === 0
-              ? '<div class="small muted">No notable one-off events — this strategy uses only recurring drawdown.</div>'
-              : `<div class="strategy-timeline-list">${condensedTimeline.map((entry) => `<div class="callout strategy-timeline-card strategy-top-gap-sm"><div class="dot strategy-timeline-dot"></div><div class="strategy-timeline-content"><div class="strategy-timeline-age strategy-strong">Age ${entry.age}</div>${entry.items.map((item) => `<div class="strategy-timeline-block strategy-top-gap-xs"><div><strong>${item.action}</strong></div><div class="small muted strategy-top-gap-xxs">${item.reason}</div></div>`).join('')}</div></div>`).join('')}</div>`}
-          </div>`;
-        })();
+      const eventsSection = `
+        <section class="card strategy-detail-card">
+          <div class="strategy-detail-card-head">
+            <div>
+              <p class="strategy-detail-eyebrow">Key actions</p>
+              <h4>One-off moves</h4>
+            </div>
+          </div>
+          ${condensedTimeline.length === 0
+            ? '<div class="small muted">No one-off milestones — this strategy relies on recurring drawdown only.</div>'
+            : `<div class="strategy-timeline-list strategy-top-gap-sm">${condensedTimeline.map((entry) => `<div class="callout strategy-timeline-card"><div class="dot strategy-timeline-dot"></div><div class="strategy-timeline-content"><div class="strategy-timeline-age strategy-strong">Age ${entry.age}</div>${entry.items.map((item) => `<div class="strategy-timeline-block strategy-top-gap-xs"><div><strong>${item.action}</strong></div><div class="small muted strategy-top-gap-xxs">${item.reason}</div></div>`).join('')}</div></div>`).join('')}</div>`}
+        </section>`;
+        return `${diagSection}${dcSection}${incomeSection}${snapshotSection}${eventsSection}`;
+      })();
+
+      detailWrap.innerHTML = `${heroSection}${detailSections}`;
+      detailWrap.querySelectorAll('[data-strategy-link]').forEach((btn) => {
+        btn.addEventListener('click', () => handleStrategySelect(btn.dataset.strategyLink));
+      });
+    }
+  }
 }
