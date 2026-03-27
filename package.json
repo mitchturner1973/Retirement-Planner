@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "serve": "python3 -m http.server 8000",
+    "build:public": "node scripts/build-public.mjs",
     "test:projection": "node scripts/test-projection.mjs",
     "test:rules": "node scripts/test-rules.mjs",
     "test:household": "node scripts/test-household.mjs",

@@ -69,6 +69,16 @@ npm run test:household
 
 Manual regression notes live in [test-cases.md](test-cases.md).
 
+## Deploying to Cloudflare Pages
+
+Cloudflare Pages expects a dedicated output directory. Generate the static bundle with:
+
+```bash
+npm run build:public
+```
+
+This copies `index.html`, `styles/`, `src/` and any optional asset folders into `/public`. In the Cloudflare Pages settings, use `npm run build:public` as the build command and `public` as the output directory.
+
 ## Notes
 
 - all values are modelled in today's money unless noted otherwise
