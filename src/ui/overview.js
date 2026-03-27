@@ -87,33 +87,63 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
       const sources = comp.items.filter(i => !['tax', 'net', 'lump'].includes(i.key) && i.value > 0);
       const grossTotal = sources.reduce((sum, i) => sum + i.value, 0);
       const colors = { dc: '#f59e0b', state: '#22c55e', db: '#6366f1', other: '#60a5fa' };
+      const guaranteedGross = sources
+        .filter((item) => item.key === 'state' || item.key === 'db')
+        .reduce((sum, item) => sum + item.value, 0);
+      const guaranteedPct = grossTotal > 0 ? Math.round((guaranteedGross / grossTotal) * 100) : 0;
+      const flexibleGross = Math.max(0, grossTotal - guaranteedGross);
+      const flexiblePct = Math.max(0, 100 - guaranteedPct);
 
       const legend = sources.map(item => {
         const pct = grossTotal > 0 ? Math.round((item.value / grossTotal) * 100) : 0;
         const shortLabel = item.label.replace(/ \(gross\)/, '');
-        return `<span class="income-donut-legend-item">
-          <span class="income-donut-dot" style="background:${colors[item.key] || '#94a3b8'}"></span>
-          ${shortLabel}&ensp;${pct}%
-        </span>`;
+        return `<li class="income-legend-row">
+          <span class="income-legend-dot" style="background:${colors[item.key] || '#94a3b8'}"></span>
+          <div class="income-legend-text">
+            <span class="income-legend-label">${shortLabel}</span>
+            <span class="income-legend-value">${fmtGBP(item.value)} · ${pct}%</span>
+          </div>
+        </li>`;
       }).join('');
 
       const lumpNote = comp.oneOff > 0
-        ? `<div class="income-donut-extra">Plus ${fmtGBP(comp.oneOff)} in one-off lump sums</div>`
+        ? `<p class="income-hero-note">Includes ${fmtGBP(comp.oneOff)} in one-off lump sums.</p>`
         : '';
 
       income.innerHTML = `
-        <div class="income-donut-wrap">
-          <div class="income-donut-chart">
-            <svg viewBox="0 0 180 180" class="income-donut-svg">${donutSegments(sources, grossTotal)}</svg>
-            <div class="income-donut-center">
-              <div class="income-donut-total">${fmtCompact(comp.recurringNet)}</div>
-              <div class="income-donut-sub">Net of tax</div>
+        <article class="income-hero-card">
+          <div class="income-hero-text">
+            <p class="income-hero-eyebrow">RETIREMENT INCOME MIX</p>
+            <h3>Where your income comes from</h3>
+            <p class="muted">Mix of recurring income in today's money once you reach retirement.</p>
+            <div class="income-hero-total">
+              <span>Recurring net income</span>
+              <strong>${fmtGBP(comp.recurringNet)}</strong>
             </div>
+            <div class="income-pill-grid">
+              <div class="income-pill">
+                <span>Guaranteed sources</span>
+                <strong>${fmtGBP(guaranteedGross)} · ${guaranteedPct}%</strong>
+              </div>
+              <div class="income-pill">
+                <span>Flexible / DC drawdown</span>
+                <strong>${fmtGBP(flexibleGross)} · ${flexiblePct}%</strong>
+              </div>
+            </div>
+            ${lumpNote}
           </div>
-          <div class="income-donut-legend">${legend}</div>
-          <div class="income-donut-footer muted">Recurring annual income at retirement.</div>
-          ${lumpNote}
-        </div>`;
+          <div class="income-hero-visual">
+            <div class="income-donut-chart">
+              <svg viewBox="0 0 180 180" class="income-donut-svg">${donutSegments(sources, grossTotal)}</svg>
+              <div class="income-donut-center">
+                <div class="income-donut-total">${fmtCompact(grossTotal)}</div>
+                <div class="income-donut-sub">Gross mix</div>
+              </div>
+            </div>
+            <ul class="income-legend">${legend}</ul>
+            <div class="income-donut-footer muted">Breakdown of recurring income sources at retirement.</div>
+          </div>
+        </article>`;
     }
 
     if (risksSection) {
@@ -124,36 +154,49 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
         if (!r.key || seen.has(r.key)) return false;
         seen.add(r.key); return true;
       });
+      const riskCards = merged.length === 0
+        ? '<div class="muted">No major risks or watchouts detected from current assumptions.</div>'
+        : merged.map(item => {
+          const tone = item.tone || 'warn';
+          const toneLabel = tone === 'bad' ? 'Critical' : tone === 'warn' ? 'Warning' : 'Info';
+          const actionCopy = item.action || 'See recommended actions above or review this area in detail.';
+          const riskCopy = item.risk || 'If ignored, this risk could impact your plan resilience.';
+          const trigger = item.trigger ? `<div class="risk-watchout-trigger">${item.trigger}</div>` : '';
+          const navButton = item.view
+            ? `<button class="risk-open-link" type="button" data-overview-nav="${item.view}">Open ${item.view}</button>`
+            : '';
+          return `
+            <article class="risk-watchout risk-watchout-${tone}">
+              <div class="risk-watchout-top">
+                <div class="risk-watchout-chips">
+                  <span class="risk-badge risk-badge--${tone}">${toneLabel}</span>
+                  ${item.category ? `<span class="risk-category">${item.category}</span>` : ''}
+                </div>
+                ${navButton}
+              </div>
+              <div class="risk-watchout-title">${item.title}</div>
+              <div class="risk-watchout-detail">${item.text}</div>
+              ${trigger}
+              <ul class="risk-mini-grid">
+                <li class="risk-mini-card">
+                  <span class="risk-mini-label">Action</span>
+                  <span class="risk-mini-text">${actionCopy}</span>
+                </li>
+                <li class="risk-mini-card">
+                  <span class="risk-mini-label">If ignored</span>
+                  <span class="risk-mini-text">${riskCopy}</span>
+                </li>
+              </ul>
+            </article>
+          `;
+        }).join('');
       risksSection.innerHTML = `
         <div class="watchout-header">
           <div class="watchout-eyebrow">PLAN RISKS</div>
           <h4>Risks & Watchouts</h4>
           <p class="watchout-subtitle">Review these critical risks and watchouts. Addressing them can improve your plan’s resilience.</p>
         </div>
-        ${merged.length === 0
-          ? '<div class="muted">No major risks or watchouts detected from current assumptions.</div>'
-          : merged.map(item => `
-            <div class="risk-watchout risk-watchout-${item.tone || 'warn'}">
-              <div class="risk-watchout-head">
-                <span class="risk-badge risk-badge--${item.tone || 'warn'}">${item.tone === 'bad' ? 'Critical' : item.tone === 'warn' ? 'Warning' : 'Info'}</span>
-                ${item.category ? `<span class="risk-category">${item.category}</span>` : ''}
-              </div>
-              <div class="risk-watchout-title">${item.title}</div>
-              <div class="risk-watchout-detail">${item.text}</div>
-              ${item.trigger ? `<blockquote class="risk-watchout-reason">${item.trigger}</blockquote>` : ''}
-              <div class="risk-watchout-columns">
-                <div class="risk-col risk-col--action">
-                  <div class="risk-col-title">WHAT TO DO</div>
-                  <div class="risk-col-text">${item.action || 'See recommended actions above or review this area in detail.'}</div>
-                </div>
-                <div class="risk-col risk-col--risk">
-                  <div class="risk-col-title">WHAT COULD GO WRONG</div>
-                  <div class="risk-col-text">${item.risk || 'If ignored, this risk could impact your plan resilience.'}</div>
-                </div>
-              </div>
-              <button class="btn btn--mini" type="button" data-overview-nav="${item.view}">Open ${item.view}</button>
-            </div>
-          `).join('')}
+        ${riskCards}
       `;
     }
 
