@@ -19,6 +19,7 @@ export function createNavigationController({ getEl, document, window, onOpenMont
   const VIEW_TITLES = {
     overview: 'Overview',
     inputs: 'Inputs',
+    assumptions: 'Assumptions',
     projection: 'Projection',
     strategy: 'Strategy',
     bridge: 'Early Retirement Bridge',
@@ -28,6 +29,8 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     scenarios: 'Scenarios',
     help: 'Help',
   };
+
+  const viewButtons = () => document.querySelectorAll('[data-view-nav]');
 
   function setNavState(view, state = 'na', hint = null){
     const btn = document.querySelector(`.nav button[data-view="${view}"]`);
@@ -74,6 +77,7 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     setNavState('household', 'na', 'Joint');
     setNavState('scenarios', 'na', 'Compare');
     setNavState('help', 'na', 'Guide');
+    setNavState('assumptions', 'na', 'Global');
   }
 
   function setCmdOpen(open){
@@ -107,9 +111,10 @@ export function createNavigationController({ getEl, document, window, onOpenMont
 
   function setView(name){
     document.querySelectorAll('.view').forEach(v=>v.style.display='none');
-    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-    getEl('view-'+name).style.display='block';
-    document.querySelector(`.nav button[data-view="${name}"]`)?.classList.add('active');
+    viewButtons().forEach(b=>b.classList.toggle('active', b.dataset.view === name));
+    const viewHost = getEl('view-'+name);
+    if (viewHost) viewHost.style.display='block';
+    syncBottomNav(name);
     getEl('viewTitle').textContent = VIEW_TITLES[name] || 'Overview';
     updateNavHints();
   }
@@ -148,6 +153,7 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     cmdCommands = [
       { id:'go-overview', label:'Go to Dashboard', hint:'Overview', run:()=>setView('overview') },
       { id:'go-inputs', label:'Go to Inputs', hint:'Setup assumptions', run:()=>setView('inputs') },
+      { id:'go-assumptions', label:'Go to Assumptions', hint:'Global settings', run:()=>setView('assumptions') },
       { id:'go-proj', label:'Go to Projection', hint:'Timeline path', run:()=>setView('projection') },
       { id:'go-strategy', label:'Go to Strategy', hint:'Improve outcomes', run:()=>setView('strategy') },
       { id:'go-bridge', label:'Go to Bridge', hint:'Early retirement gap', run:()=>setView('bridge') },
@@ -215,10 +221,9 @@ export function createNavigationController({ getEl, document, window, onOpenMont
       }));
     }
 
-    document.querySelectorAll('.nav button').forEach(btn=>btn.addEventListener('click', ()=>{
+    viewButtons().forEach(btn=>btn.addEventListener('click', ()=>{
       setView(btn.dataset.view);
       setNavOpen(false);
-      syncBottomNav(btn.dataset.view);
       if(btn.dataset.view==='monte') onOpenMonte?.();
     }));
 
@@ -228,6 +233,23 @@ export function createNavigationController({ getEl, document, window, onOpenMont
       document.querySelectorAll('.tab').forEach(t=>t.style.display='none');
       getEl('tab-'+btn.dataset.tab).style.display='block';
     }));
+
+    const subnavContainers = document.querySelectorAll('.view-subnav[data-subnav]');
+    if(subnavContainers.length){
+      subnavContainers.forEach(container=>{
+        const group = container.dataset.subnav;
+        const buttons = container.querySelectorAll('[data-subnav-target]');
+        const panels = document.querySelectorAll(`.view-subpanel[data-subnav="${group}"]`);
+        if(!buttons.length || !panels.length) return;
+        const show = (target)=>{
+          buttons.forEach(btn=>btn.classList.toggle('active', btn.dataset.subnavTarget === target));
+          panels.forEach(panel=>panel.toggleAttribute('hidden', panel.dataset.subnavPanel !== target));
+        };
+        buttons.forEach(btn=>btn.addEventListener('click', ()=>show(btn.dataset.subnavTarget)));
+        const initial = container.querySelector('.active')?.dataset.subnavTarget || buttons[0].dataset.subnavTarget;
+        show(initial);
+      });
+    }
 
     ['overallBadge','bridgeOverallBadge','stressBadge','stressCombinedBadge','monteBadge','validationSummary']
       .map((id)=>getEl(id))

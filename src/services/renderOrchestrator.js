@@ -206,7 +206,11 @@ export function createRenderOrchestrator(deps){
       renderScenariosUI(s, {base, stress: stressRes, bridge: bridgeStatus, monte: monteStatus});
     }
 
-    renderMonte(s, false);
+    const monteView = getEl('view-monte');
+    const monteComputed = monteView && monteView.ownerDocument?.defaultView ? monteView.ownerDocument.defaultView.getComputedStyle(monteView) : null;
+    const monteVisible = !!(monteView && ((monteComputed && monteComputed.display !== 'none') || (!monteComputed && monteView.style.display !== 'none')));
+    const shouldForceMonte = monteVisible || !app.mc?.result;
+    renderMonte(s, shouldForceMonte);
 
     window.__RP_STATE = {s, base};
     return {s, base, projectionView, overview, stress: stressRes.status, bridge: bridgeStatus, monte: monteStatus, overall: computeOverall(stressRes.status, bridgeStatus.base, bridgeStatus.life, monteStatus)};

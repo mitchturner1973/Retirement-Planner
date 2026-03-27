@@ -5,6 +5,7 @@ export function bindAppEvents({
   setView,
   bindNavigation,
   renderAll,
+  runMonteManual,
   syncDerivedAgeInputs,
   setInputsFromState,
   readState,
@@ -290,6 +291,9 @@ export function bindAppEvents({
   getEl('btnNewScenario')?.addEventListener('click', ()=>saveCurrentScenario(true));
   getEl('btnClearScenarios')?.addEventListener('click', clearScenarios);
   getEl('btnExportReport')?.addEventListener('click', exportReport);
+  getEl('btnRunMonte')?.addEventListener('click', ()=>{
+    if (typeof runMonteManual === 'function') runMonteManual();
+  });
 
   setView('overview');
 }

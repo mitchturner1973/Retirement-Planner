@@ -1,5 +1,12 @@
 export function createMonteRenderer(deps){
-  const {document, app, getEl, fmtNum, fmtPct, fmtGBP, runMonteCarloAsync, statusFromScore, drawBands, toast, updateFreshness, badge, buildMonteInterpretation} = deps;
+  const {app, getEl, fmtNum, fmtPct, fmtGBP, runMonteCarloAsync, statusFromScore, drawBands, toast, updateFreshness, badge, buildMonteInterpretation} = deps;
+
+  function setRunButtonState(running){
+    const btn = getEl('btnRunMonte');
+    if(!btn) return;
+    btn.disabled = running;
+    btn.textContent = running ? 'Running…' : 'Run Monte';
+  }
   function renderMonteUI(s, res){
     const mcStatus = statusFromScore(res.successProb);
     const interpretation = typeof buildMonteInterpretation === 'function' ? buildMonteInterpretation(res, s) : null;
@@ -75,9 +82,6 @@ export function createMonteRenderer(deps){
   }
 
   function renderMonte(s, force=false){
-    const active = document.querySelector('.nav button.active')?.dataset.view;
-    if(active!=='monte' && !force) return;
-
     const key = JSON.stringify({
       pot:s.pot, salary:s.salary, empPct:s.empPct, erPct:s.erPct,
       returnNom:s.returnNom, inflation:s.inflation, vol:s.vol,
@@ -86,15 +90,23 @@ export function createMonteRenderer(deps){
       dcPensions:s.dcPensions||[], dbPensions:s.dbPensions||[], contribEvents:s.contribEvents||[], lumpSumEvents:s.lumpSumEvents||[]
     });
 
-    if(app.mc.running) return;
-    if(app.mc.lastKey===key && app.mc.result){
+    const keyMatches = app.mc.lastKey===key && app.mc.result;
+    const shouldSkip = keyMatches && !force;
+    if(shouldSkip){
+      setRunButtonState(false);
       renderMonteUI(s, app.mc.result);
+      return;
+    }
+
+    if(app.mc.running){
+      setRunButtonState(true);
       return;
     }
 
     app.mc.running=true;
     app.mc.cancel=false;
     app.mc.lastKey=key;
+    setRunButtonState(true);
     getEl('mcProgressWrap').style.display='inline-flex';
     getEl('mcProgressText').textContent = `Running 0/${s.sims}…`;
     getEl('mcProgressBar').style.width='0%';
@@ -111,6 +123,7 @@ export function createMonteRenderer(deps){
       getEl('btnRecalc').disabled = false;
       if(res.cancelled){
         toast('warn','Monte Carlo cancelled','');
+        setRunButtonState(false);
         return;
       }
       app.mc.prevResult = app.mc.result;
@@ -119,6 +132,7 @@ export function createMonteRenderer(deps){
       updateFreshness('Monte Carlo updated');
       toast('good','Monte Carlo updated ✓', `Seed ${res.seed} • ${fmtPct(res.successProb)} success`);
       renderMonteUI(s, res);
+      setRunButtonState(false);
     });
   }
 

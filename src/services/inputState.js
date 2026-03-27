@@ -50,6 +50,9 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
     getEl('in_badPenalty').value = state.badPenalty;
     getEl('in_successAge').value = state.successAge;
     getEl('in_floor70').value = state.floor70;
+    if (getEl('in_floorTaperStartAge')) getEl('in_floorTaperStartAge').value = state.floorTaperStartAge ?? defaults.floorTaperStartAge;
+    if (getEl('in_floorTaperRatePct')) getEl('in_floorTaperRatePct').value = state.floorTaperRatePct ?? defaults.floorTaperRatePct;
+    if (getEl('in_floorTaperMinPct')) getEl('in_floorTaperMinPct').value = state.floorTaperMinPct ?? defaults.floorTaperMinPct;
     if (getEl('in_stressScenarioCrash')) getEl('in_stressScenarioCrash').checked = Number(state.stressScenarioCrash ?? defaults.stressScenarioCrash ?? 1) === 1;
     if (getEl('in_stressScenarioBadSeq')) getEl('in_stressScenarioBadSeq').checked = Number(state.stressScenarioBadSeq ?? defaults.stressScenarioBadSeq ?? 1) === 1;
     if (getEl('in_stressScenarioLowerReturns')) getEl('in_stressScenarioLowerReturns').checked = Number(state.stressScenarioLowerReturns ?? defaults.stressScenarioLowerReturns ?? 1) === 1;
@@ -206,6 +209,9 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
       badPenalty: Number(getEl('in_badPenalty').value || 5),
       successAge: Number(getEl('in_successAge').value || 90),
       floor70: Number(getEl('in_floor70').value || 0),
+      floorTaperStartAge: Number(getEl('in_floorTaperStartAge')?.value || defaults.floorTaperStartAge || 85),
+      floorTaperRatePct: Number(getEl('in_floorTaperRatePct')?.value || defaults.floorTaperRatePct || 0),
+      floorTaperMinPct: Number(getEl('in_floorTaperMinPct')?.value || defaults.floorTaperMinPct || 100),
       stressScenarioCrash: getEl('in_stressScenarioCrash')?.checked ? 1 : 0,
       stressScenarioBadSeq: getEl('in_stressScenarioBadSeq')?.checked ? 1 : 0,
       stressScenarioLowerReturns: getEl('in_stressScenarioLowerReturns')?.checked ? 1 : 0,

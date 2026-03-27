@@ -1,3 +1,5 @@
+import { computeFloorRequirement } from '../services/riskResilienceService.js';
+
 export function createScenariosRenderer(deps){
   const {app, getEl, defaults, loadScenarios, saveScenarios, readState, setInputsFromState, renderAll, toast, calcProjection, calcBridge, computeStressStatus, computeBridgeStatus, statusFromScore, computeOverall, fmtGBP, badge, buildModelSignature, appMc} = deps;
 
@@ -80,7 +82,8 @@ export function createScenariosRenderer(deps){
         const br=calcBridge(s,{crashAtEarly:false,crashAtState:false,badSeqFromEarly:false});
         const crash=calcProjection(s,{crashAtAge:s.retireAge,crashPct:s.crashPct});
         const bad=calcProjection(s,{badYears:s.badYears,badPenalty:s.badPenalty});
-        const pass=(res)=>res.years.filter(y=>y.age<=s.successAge).every(y=>y.potEnd>0) && res.years.filter(y=>y.age>=70 && y.netIncome>0).every(y=>y.netIncome>=s.floor70);
+        const pass=(res)=>res.years.filter(y=>y.age<=s.successAge).every(y=>y.potEnd>0)
+          && res.years.filter(y=>y.age>=70 && y.netIncome>0).every(y=>y.netIncome>=computeFloorRequirement(s, y.age));
         const st=computeStressStatus(pass(base), pass(crash), pass(bad));
         const bridge = (s.earlyAge==='') ? {base:{s:'na', text:'Bridge: Not applicable', reason:'No early retirement age set'}, life:null} : computeBridgeStatus(br.runOut_base, (s.bridgeKeepLifestyle===1? br.runOut_life : undefined), s.endAge, 75, { potAtEnd: br.potEnd_base, bridgeAmount: Number(s.bridgeAmount) || 0 });
         const mc = (appMc.result && appMc.lastKey===buildModelSignature(s, 'monte')) ? statusFromScore(appMc.result.successProb) : {s:'warn', label:(appMc.result?'Out of date':'Not run'), reason:(appMc.result?'Run Monte for this scenario':'Open Monte tab to run')};

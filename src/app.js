@@ -97,6 +97,8 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
     buildMonteInterpretation,
   });
 
+  const runMonteManual = () => renderMonte(inputState.readState(), true);
+
   const renderReport = createReportRenderer({ getEl: $, fmtGBP, badge, app });
 
   /* Forecast Snapshot chart card — mounted once, updated on each render */
@@ -186,6 +188,7 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
     setView: navigation.setView,
     bindNavigation: navigation.bindNavigation,
     renderAll,
+    runMonteManual,
     syncDerivedAgeInputs: inputState.syncDerivedAgeInputs,
     setInputsFromState: inputState.setInputsFromState,
     readState: inputState.readState,

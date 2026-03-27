@@ -1,3 +1,5 @@
+import { computeFloorRequirement } from '../services/riskResilienceService.js';
+
 const SCENARIO_IDS = [
   'in_stressScenarioCrash',
   'in_stressScenarioBadSeq',
@@ -112,7 +114,9 @@ export function createStressRenderer(deps){
 
     const survives = (res) => {
       const okPot = res.years.filter(y => y.age <= s.successAge).every(y => y.potEnd > 0);
-      const okFloor = res.years.filter(y => y.age >= 70 && y.netIncome > 0).every(y => y.netIncome >= s.floor70);
+      const okFloor = res.years
+        .filter(y => y.age >= 70 && y.netIncome > 0)
+        .every(y => y.netIncome >= computeFloorRequirement(s, y.age));
       return okPot && okFloor;
     };
 
@@ -229,7 +233,6 @@ export function createStressRenderer(deps){
           watchWrap.innerHTML = '';
         } else {
           const cc = classifyCombined(compound);
-          const sevClass = cc.sev === 'good' ? 'good' : (cc.sev === 'bad' ? 'bad' : 'warn');
           const upliftLabel = interactionPot75 >= 0 ? 'Amplification @75' : 'Diversification @75';
           const upliftAmount = `${interactionPot75 >= 0 ? '+' : '-'}${fmtGBP(Math.abs(interactionPot75))}`;
           const weakFrom = compound.metrics.weakYears?.[0] ?? 'None';
@@ -237,37 +240,69 @@ export function createStressRenderer(deps){
           const runOut = runOutLabel(compound);
           const recurring75 = compound.result?.years?.find((y) => y.age === 75)?.recurringNetIncome ?? 0;
           const recurring85 = compound.result?.years?.find((y) => y.age === 85)?.recurringNetIncome ?? 0;
-          const weakLabel = (!compound.metrics.pass && compound.metrics.passPot && !compound.metrics.passFloor)
-            ? 'First floor shortfall age'
-            : 'Weak from age';
-          const incomeCardClass = cc.sev === 'bad' ? 'bad' : (cc.sev === 'warn' ? 'warn' : 'good');
-          const floorText = cc.sev === 'warn'
+          const dropPot75 = compound.impact?.dropPot75 ?? 0;
+          const floorTargetLabel = `£${Math.round(s.floor70).toLocaleString()}`;
+          const floorNarrative = cc.sev === 'warn'
             ? `Income target first missed at age ${weakFrom}`
-            : (cc.sev === 'good' ? 'Income target stays on track' : `${weakLabel}: ${weakFrom}`);
+            : (cc.sev === 'good' ? 'Income target stays on track' : `Income pressure starts from age ${weakFrom}`);
+          const floorStatus = cc.sev === 'good'
+            ? `On track vs ${floorTargetLabel}`
+            : (cc.sev === 'warn' ? `Dips at age ${weakFrom}` : `Shortfall from age ${weakFrom}`);
+          const statusChip = cc.sev === 'good'
+            ? 'On track'
+            : (cc.sev === 'warn' ? 'Thin buffer' : 'Needs action');
+          const progressPct = cc.sev === 'good' ? 82 : (cc.sev === 'warn' ? 54 : 24);
+          const progressCopy = cc.sev === 'good'
+            ? 'Buffer looks solid even if stresses stack.'
+            : (cc.sev === 'warn' ? 'Buffer trims down — keep drawdown pace in check.' : 'Buffer breaches quickly under stacked stress.');
+          const metrics = [
+            {label: 'Runway verdict', value: runOut, hint: 'Pot resilience'},
+            {label: 'Income floor', value: floorStatus, hint: `Target ${floorTargetLabel}`},
+            {label: 'Stacked pot @75', value: fmtGBP(potAt75Abs), hint: 'After knock-ons'},
+            {label: 'Net income glide', value: `${fmtGBP(recurring75)} → ${fmtGBP(recurring85)}`, hint: 'Age 75 → 85'},
+          ];
+          const metricsHtml = metrics.map((m) => `
+            <div class="stress-stack-metric">
+              <span class="stress-stack-metric-label">${m.label}</span>
+              <span class="stress-stack-metric-value">${m.value}</span>
+              <span class="stress-stack-metric-hint">${m.hint}</span>
+            </div>`).join('');
+          const insights = [
+            runOut,
+            floorNarrative,
+            `${compound.scenarioCount} linked market scenarios combine in one stacked run.`,
+            `${upliftLabel}: ${upliftAmount}.`,
+          ];
+          const insightList = insights.map((item) => `<li>${item}</li>`).join('');
           compoundWrap.innerHTML = `
-            <div class="stress-outcome-grid">
-              <div class="stress-outcome-card ${compound.metrics.passPot ? 'good' : 'bad'}">
-                <div class="stress-outcome-label">Will pot last?</div>
-                <div class="stress-outcome-value">${runOut}</div>
+            <article class="stress-stack-card stress-stack-${cc.sev}">
+              <header class="stress-stack-head">
+                <div>
+                  <p class="stress-stack-eyebrow">Resilience spotlight</p>
+                  <h3>Will your plan last under stacked stress?</h3>
+                </div>
+                <span class="stress-stack-chip">${statusChip}</span>
+              </header>
+              <div class="stress-stack-progress">
+                <div class="stress-stack-progress-track">
+                  <div class="stress-stack-progress-fill" style="width:${progressPct}%"></div>
+                </div>
+                <p class="stress-stack-progress-copy">${progressCopy}</p>
               </div>
-              <div class="stress-outcome-card ${incomeCardClass}">
-                <div class="stress-outcome-label">Income target after 70 (£${Math.round(s.floor70).toLocaleString()})</div>
-                <div class="stress-outcome-value">${floorText}</div>
-              </div>
-              <div class="stress-outcome-card info">
-                <div class="stress-outcome-label">Estimated recurring net under stacked stress</div>
-                <div class="stress-outcome-value">Age 75: ${fmtGBP(recurring75)} | Age 85: ${fmtGBP(recurring85)}</div>
-              </div>
-            </div>
-            <details class="stress-advanced-details">
-              <summary>Advanced details</summary>
-              <div class="small muted" style="margin-top:8px">${compound.scenarioCount} linked market scenarios are applied in one run. ${cc.reason}.</div>
-              <div class="row" style="gap:8px; margin-top:8px; flex-wrap:wrap">
-                <span class="badge">Pot @75 (stacked): ${fmtGBP(potAt75Abs)}</span>
-                <span class="badge">ΔPot @75 (vs base): -${fmtGBP(compound.impact.dropPot75)}</span>
-                <span class="badge">${upliftLabel}: ${upliftAmount}</span>
-              </div>
-            </details>`;
+              <div class="stress-stack-metrics">${metricsHtml}</div>
+              <section class="stress-stack-panel">
+                <h4>What to know</h4>
+                <ul class="stress-stack-list">${insightList}</ul>
+              </section>
+              <section class="stress-stack-panel stress-stack-panel--secondary">
+                <div class="stress-stack-badges">
+                  <span class="badge">Pot @75: ${fmtGBP(potAt75Abs)}</span>
+                  <span class="badge">ΔPot @75 vs base: -${fmtGBP(dropPot75)}</span>
+                  <span class="badge">${upliftLabel}: ${upliftAmount}</span>
+                </div>
+                <p class="stress-stack-footnote">${cc.reason}.</p>
+              </section>
+            </article>`;
           if (decisionWrap) {
             const isolatedPasses = ranked.filter((x) => x.metrics.pass).length;
             const isolatedCount = ranked.length;

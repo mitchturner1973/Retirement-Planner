@@ -1,3 +1,9 @@
+const FLOOR_TAPER_DEFAULTS = {
+  startAge: 85,
+  perYear: 0.02,
+  minRatio: 0.65,
+};
+
 function safeNumber(value, fallback = 0) {
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
@@ -18,17 +24,54 @@ function getMinRecurringNetAfterAge(result, age) {
   return rows.reduce((min, row) => Math.min(min, safeNumber(row.recurringNetIncome, 0)), Number.POSITIVE_INFINITY);
 }
 
+function requiredFloorAtAge(baseFloor, age, cfg = FLOOR_TAPER_DEFAULTS) {
+  const floor = safeNumber(baseFloor, 0);
+  if (floor <= 0) return 0;
+  if (age < 70) return floor;
+  if (age < cfg.startAge) return floor;
+  const yearsOver = age - cfg.startAge;
+  const reduction = Math.min(1 - cfg.minRatio, yearsOver * cfg.perYear);
+  const ratio = Math.max(cfg.minRatio, 1 - reduction);
+  return floor * ratio;
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getFloorTaperSettings(state) {
+  const startAge = clamp(Math.round(safeNumber(state?.floorTaperStartAge, FLOOR_TAPER_DEFAULTS.startAge)), 70, 110);
+  const perYear = Math.max(0, safeNumber(state?.floorTaperRatePct, FLOOR_TAPER_DEFAULTS.perYear * 100) / 100);
+  const minRatio = clamp(safeNumber(state?.floorTaperMinPct, FLOOR_TAPER_DEFAULTS.minRatio * 100) / 100, 0, 1);
+  return {
+    startAge,
+    perYear,
+    minRatio: minRatio || 0,
+  };
+}
+
+export function computeFloorRequirement(state, age, overrideFloor = null) {
+  const cfg = getFloorTaperSettings(state);
+  const floor = overrideFloor === null ? safeNumber(state?.floor70, 0) : safeNumber(overrideFloor, 0);
+  return requiredFloorAtAge(floor, age, cfg);
+}
+
 function evaluateScenarioResult(state, result, floorAfter70 = null) {
+  const cfg = getFloorTaperSettings(state);
   const floor = floorAfter70 === null ? safeNumber(state.floor70, 0) : safeNumber(floorAfter70, 0);
   const validYears = result?.years || [];
   const passPot = validYears.filter((row) => row.age <= state.successAge).every((row) => safeNumber(row.potEnd, 0) > 0);
   const passFloor = validYears
     .filter((row) => row.age >= 70 && safeNumber(row.recurringNetIncome, 0) > 0)
-    .every((row) => safeNumber(row.recurringNetIncome, 0) >= floor);
+    .every((row) => safeNumber(row.recurringNetIncome, 0) >= requiredFloorAtAge(floor, row.age, cfg));
 
   const weakYears = validYears
     .filter((row) => row.age >= state.retireAge)
-    .filter((row) => safeNumber(row.potEnd, 0) <= 0 || safeNumber(row.recurringNetIncome, 0) < floor)
+    .filter((row) => {
+      const recurring = safeNumber(row.recurringNetIncome, 0);
+      const floorNeed = requiredFloorAtAge(floor, row.age, cfg);
+      return safeNumber(row.potEnd, 0) <= 0 || recurring < floorNeed;
+    })
     .map((row) => row.age);
 
   return {

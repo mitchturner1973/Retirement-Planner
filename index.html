@@ -45,75 +45,37 @@
     <div class="rail-head">
       <button class="rail-toggle" id="btnRailToggle" type="button" aria-label="Collapse sidebar" aria-pressed="false" title="Collapse sidebar">⇤</button>
     </div>
-    <div class="brand-tagline">Bring Your Financial Future into Focus</div>
+
+    <div class="brand-tagline">Bring your financial future into focus</div>
     <div class="brand">
       <div class="logo" aria-hidden="true"></div>
       <div class="brand-copy">
         <h1>Retirement Planner</h1>
-        <p>Web redesign • offline-friendly</p>
+        <p>Plan • stress-test • compare</p>
       </div>
     </div>
 
-    <div class="rail-quick" role="group" aria-label="Quick actions">
-      <button class="btn" id="navQuickRecalc" type="button">Recalculate</button>
-      <button class="btn" id="navQuickScenario" type="button">Save scenario</button>
-      <button class="btn" id="navQuickCompare" type="button">Compare</button>
-    </div>
+    <nav class="nav-panel" aria-label="Workspace navigation">
+      <div class="nav-panel-head">Plan workspace</div>
+      <div class="nav-panel-body">
+        <button class="nav-panel-item" data-view-nav data-view="inputs" data-default-hint="Setup">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 4a4 4 0 110 8 4 4 0 010-8zm-6.5 14c0-2.49 3.58-4 6.5-4s6.5 1.51 6.5 4v2H5.5z"/></svg>
+          </span>
+          <span class="nav-copy">
+            <span class="nav-label">Situation</span>
+            <span class="nav-hint" data-pill>Setup</span>
+          </span>
+        </button>
 
-    <nav class="nav" aria-label="Sections">
-      <div class="nav-group">
-        <div class="nav-group-title">My Current Situation</div>
-        <button class="active" data-view="overview" data-default-hint="Summary">
-          <span class="nav-main"><span class="nav-ico">⊞</span><span class="nav-label">Dashboard</span></span>
-          <span class="nav-meta"><span class="pill" data-pill>Summary</span><span class="nav-dot"></span></span>
-        </button>
-        <button data-view="inputs" data-default-hint="Setup">
-          <span class="nav-main"><span class="nav-ico">⊕</span><span class="nav-label">Situation</span></span>
-          <span class="nav-meta"><span class="pill" data-pill>Setup</span><span class="nav-dot"></span></span>
-        </button>
-        <button data-view="household" data-default-hint="Joint">
-          <span class="nav-main"><span class="nav-ico">⊕</span><span class="nav-label">Household</span></span>
-          <span class="nav-meta"><span class="pill" data-pill>Joint</span><span class="nav-dot"></span></span>
-        </button>
-      </div>
-
-      <div class="nav-group">
-        <div class="nav-group-title">My Future Plans</div>
-        <button data-view="projection" data-default-hint="Timeline">
-          <span class="nav-main"><span class="nav-ico">↗</span><span class="nav-label">Projection</span></span>
-          <span class="nav-meta"><span class="pill" data-pill>Timeline</span><span class="nav-dot"></span></span>
-        </button>
-        <button data-view="strategy" data-default-hint="Levers">
-          <span class="nav-main"><span class="nav-ico">⚙</span><span class="nav-label">Strategy</span></span>
-          <span class="nav-meta"><span class="pill" data-pill>Levers</span><span class="nav-dot"></span></span>
-        </button>
-        <button data-view="bridge" data-default-hint="Early retire">
-          <span class="nav-main"><span class="nav-ico">⊟</span><span class="nav-label">Bridge</span></span>
-          <span class="nav-meta"><span class="pill" data-pill>Early retire</span><span class="nav-dot"></span></span>
-        </button>
-      </div>
-
-      <div class="nav-group">
-        <div class="nav-group-title">Validate</div>
-        <button data-view="stress" data-default-hint="Downside checks">
-          <span class="nav-main"><span class="nav-ico">⚡</span><span class="nav-label">Downside checks</span></span>
-          <span class="nav-meta"><span class="pill" data-pill>Downside checks</span><span class="nav-dot"></span></span>
-        </button>
-        <button data-view="monte" data-default-hint="Probability">
-          <span class="nav-main"><span class="nav-ico">◎</span><span class="nav-label">Probability check</span></span>
-          <span class="nav-meta"><span class="pill" data-pill>Probability</span><span class="nav-dot"></span></span>
-        </button>
-      </div>
-
-      <div class="nav-group">
-        <div class="nav-group-title">Manage</div>
-        <button data-view="scenarios" data-default-hint="Compare">
-          <span class="nav-main"><span class="nav-ico">☰</span><span class="nav-label">Scenarios</span></span>
-          <span class="nav-meta"><span class="pill" data-pill>Compare</span><span class="nav-dot"></span></span>
-        </button>
-        <button data-view="help" data-default-hint="Guide">
-          <span class="nav-main"><span class="nav-ico">?</span><span class="nav-label">Help</span></span>
-          <span class="nav-meta"><span class="pill" data-pill>Guide</span><span class="nav-dot"></span></span>
+        <button class="nav-panel-item" data-view-nav data-view="assumptions" data-default-hint="Global">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3l2.09 4.24L18.9 8l-3.45 3.36.81 4.72L12 14.77l-4.26 2.31.81-4.72L5.1 8l4.81-.76z"/></svg>
+          </span>
+          <span class="nav-copy">
+            <span class="nav-label">Assumptions</span>
+            <span class="nav-hint" data-pill>Global</span>
+          </span>
         </button>
       </div>
     </nav>
@@ -123,35 +85,63 @@
       <p style="margin:0 0 8px"><strong>Important</strong></p>
       <p style="margin:0">This tool is a planning aid, not financial advice. Validate with your pension provider and a qualified adviser.</p>
     </div>
+
+    <div class="rail-quick" role="group" aria-label="Quick actions">
+      <button class="btn" id="navQuickRecalc" type="button">Recalculate</button>
+      <button class="btn" id="navQuickScenario" type="button">Save scenario</button>
+      <button class="btn" id="navQuickCompare" type="button">Compare</button>
+    </div>
   </aside>
 
   <main class="content">
     <div class="topbar">
       <div class="topbar-leading">
         <button class="btn menuBtn" id="btnMenu" aria-label="Open menu" aria-controls="appSidebar" aria-expanded="false">☰</button>
-        <div class="topbar-context">
-          <div class="topbar-eyebrow">Planning workspace</div>
-          <h2 id="viewTitle">Overview</h2>
+        <div class="workspace-switcher">
+          <div class="workspace-eyebrow">Planning workspace</div>
+          <div class="workspace-pill-row">
+            <button class="workspace-pill workspace-pill--primary" type="button">Base workspace ▾</button>
+            <button class="workspace-pill" type="button" disabled>Scenario library ▾</button>
+          </div>
+          <div class="workspace-view-row">
+            <span class="workspace-label">Current view</span>
+            <span class="view-chip" id="viewTitle">Overview</span>
+          </div>
         </div>
       </div>
-      <div class="topbar-trailing">
-        <div class="workspace-status">
-          <span class="workspace-chip workspace-chip--plan">Base workspace</span>
-          <span class="badge" id="freshnessBadge" aria-label="Last updated"><span class="ico">⟳</span><span id="freshnessText">Updated —</span></span>
+      <div class="topbar-status">
+        <span class="badge" id="freshnessBadge" aria-label="Last updated"><span class="ico">⟳</span><span id="freshnessText">Updated —</span></span>
+        <div class="topbar-next">
+          <span class="workspace-label">Next focus</span>
+          <button class="link-btn" type="button" data-overview-nav="strategy" id="topbarNextAction">Review strategy actions</button>
         </div>
-        <div class="actions">
-          <button class="btn" id="btnSave">Export inputs (.json)</button>
-          <button class="btn" id="btnLoad">Import inputs</button>
-          <button class="btn" id="btnResetInputs" type="button">Reset inputs</button>
-          <button class="btn" id="btnSaveScenario">Save scenario</button>
-          <button class="btn" id="btnExportReport">Export report (PDF)</button>
-          <button class="btn primary" id="btnRecalc">Recalculate</button>
-          <button class="btn" id="btnActions" type="button">Actions ▾</button>
-          <button class="btn" onclick="window.print()">Print</button>
+      </div>
+      <div class="topbar-actions">
+        <div class="topbar-quick-actions">
+          <button class="btn topbar-quick-btn" id="btnSave" type="button" title="Export inputs (.json)">Export</button>
+          <button class="btn topbar-quick-btn" id="btnLoad" type="button" title="Import inputs">Import</button>
+          <button class="btn topbar-quick-btn" id="btnSaveScenario" type="button" title="Save scenario">Save scenario</button>
+          <button class="btn topbar-quick-btn" id="btnExportReport" type="button" title="Export report (PDF)">Report</button>
+          <button class="btn topbar-quick-btn" id="btnResetInputs" type="button" title="Reset inputs">Reset</button>
+          <button class="btn topbar-quick-btn" id="btnActions" type="button">Actions ▾</button>
+          <button class="btn topbar-quick-btn" type="button" onclick="window.print()">Print</button>
           <input type="file" id="fileLoad" accept="application/json" style="display:none" />
         </div>
+        <button class="btn primary" id="btnRecalc">Recalculate</button>
       </div>
     </div>
+
+    <nav class="primary-nav" aria-label="Plan views">
+      <button class="active" data-view-nav data-view="overview">Overview</button>
+      <button data-view-nav data-view="projection">Projection</button>
+      <button data-view-nav data-view="strategy">Strategy</button>
+      <button data-view-nav data-view="bridge">Bridge</button>
+      <button data-view-nav data-view="household">Household</button>
+      <button data-view-nav data-view="stress">Stress Tests</button>
+      <button data-view-nav data-view="monte">Monte Carlo</button>
+      <button data-view-nav data-view="scenarios">Scenarios</button>
+      <button data-view-nav data-view="help">Help</button>
+    </nav>
 
     <!-- OVERVIEW -->
     <section class="view" id="view-overview">
@@ -218,19 +208,16 @@
         <h3>Inputs</h3>
         <p class="view-subtitle">Enter your financial details and assumptions</p>
         <div class="tipGrid" data-tips="view-inputs"><div class="tipCard"><div class="ticon">✍️</div><div><div class="ttitle">Keep it realistic</div><div class="ttext">If unsure, use slightly conservative assumptions and compare scenarios rather than guessing perfectly.</div></div></div><div class="tipCard"><div class="ticon">🔁</div><div><div class="ttitle">Change one thing</div><div class="ttext">Adjust one input at a time so you can see what actually caused the change.</div></div></div><div class="tipCard"><div class="ticon">💾</div><div><div class="ttitle">Save a baseline</div><div class="ttext">Once inputs look sensible, save “Baseline”. Then duplicate for “Early”, “Lower spend”, “More contrib”.</div></div></div></div>
-        <div class="inputs-confidence-row">
-          <span class="badge"><span class="ico">✅</span>Autosave is active while you type</span>
-          <span class="badge"><span class="ico">🧪</span>Validation highlights errors before recalc</span>
-          <span class="badge"><span class="ico">🛟</span>Reset restores safe defaults</span>
-        </div>
+        
         <p class="muted" style="margin-top:0">All inputs are assumed to be in today’s money. The model converts nominal return/growth into real (inflation-adjusted) rates. Use date of birth plus values as at date so the app can derive your current age and the first short age-period automatically.</p>
         <div id="validationSummary" class="callout" style="display:none; margin-bottom:12px"></div>
 
         <div class="tabs" role="tablist">
           <button class="active" data-tab="you">You</button>
           <button data-tab="partner">Partner</button>
-          <button class="tab-global" data-tab="assumptions">Assumptions</button>
         </div>
+
+    
 
         <!-- YOU TAB -->
         <div id="tab-you" class="tab">
@@ -453,22 +440,24 @@
             </div>
           </div>
         </div>
-        <!-- ASSUMPTIONS TAB -->
-        <div id="tab-assumptions" class="tab" style="display:none">
-          <div class="inputs-tab-intro">
-            <strong>Assumptions</strong>
-            <span class="muted small">Global inputs shared across both profiles. Leave defaults if unsure.</span>
-          </div>
-          <div class="form">
-            <div class="field"><label>Investment return (nominal %/yr)</label><input type="number" id="in_return" step="0.1" /></div>
-            <div class="field"><label>Inflation (%/yr)</label><input type="number" id="in_inflation" step="0.1" /></div>
-            <div class="field"><label>Return volatility (%/yr) for Monte Carlo</label><input type="number" id="in_vol" step="0.1" /></div>
-            <div class="field"><label>Projection end age</label><input type="number" id="in_endAge" min="70" max="110" /></div>
-            <div class="field"><label>Fees &amp; charges (%/yr)</label><input type="number" id="in_feePct" step="0.01" min="0" /></div>
-            <div class="field w12"><label>Notes</label><input type="text" id="in_notes" placeholder="Optional: scenario notes" /></div>
-          </div>
-        </div>
+      </div>
+    </section>
 
+    <!-- ASSUMPTIONS -->
+    <section class="view" id="view-assumptions" style="display:none">
+      <div class="card assumptions-shell">
+        <div class="view-eyebrow">MY CURRENT SITUATION</div>
+        <h3>Assumptions</h3>
+        <p class="view-subtitle">Global inputs shared across both profiles</p>
+        <p class="muted" style="margin-top:0">These settings power projections, strategy scoring, bridge and Monte Carlo. Leave defaults if unsure, or duplicate scenarios before experimenting.</p>
+        <div class="form">
+          <div class="field"><label>Investment return (nominal %/yr)</label><input type="number" id="in_return" step="0.1" /></div>
+          <div class="field"><label>Inflation (%/yr)</label><input type="number" id="in_inflation" step="0.1" /></div>
+          <div class="field"><label>Return volatility (%/yr) for Monte Carlo</label><input type="number" id="in_vol" step="0.1" /></div>
+          <div class="field"><label>Projection end age</label><input type="number" id="in_endAge" min="70" max="110" /></div>
+          <div class="field"><label>Fees &amp; charges (%/yr)</label><input type="number" id="in_feePct" step="0.01" min="0" /></div>
+          <div class="field w12"><label>Notes</label><input type="text" id="in_notes" placeholder="Optional: scenario notes" /></div>
+        </div>
       </div>
     </section>
 
@@ -537,57 +526,66 @@
         <div class="tipGrid" data-tips="view-bridge"><div class="tipCard"><div class="ticon">🧱</div><div><div class="ttitle">Bridge is the gap</div><div class="ttext">If you retire before SP age, Bridge checks whether the pot can fund the gap safely.</div></div></div><div class="tipCard"><div class="ticon">🏁</div><div><div class="ttitle">Watch run‑out age</div><div class="ttext">If the bridge runs out early, it’s fragile. Check both baseline and lifestyle path if enabled.</div></div></div><div class="tipCard"><div class="ticon">🟣</div><div><div class="ttitle">Read the chart</div><div class="ttext">Markers show Early age, SP age, and any run‑out age. Purple line = maintain lifestyle.</div></div></div></div>
         <p class="muted" style="margin-top:0">This models an early retirement bridge period (early age → State Pension age). Net income figures are <strong>after tax</strong> and <strong>include State Pension once it starts</strong>.</p>
 
-        <div class="form">
-          <div class="field"><label>Early retirement age</label><input type="number" id="br_earlyAge" min="40" max="90" placeholder="e.g. 60" /></div>
-          <div class="field"><label>Bridge input type</label>
-            <select id="br_mode">
-              <option value="net" selected>Net spend target (today’s £/yr)</option>
-              <option value="gross">Gross pension withdrawal (today’s £/yr)</option>
-            </select>
+        <div class="view-subnav" role="tablist" data-subnav="bridge">
+          <button class="active" data-subnav-target="results" type="button">Results</button>
+          <button data-subnav-target="inputs" type="button">Bridge inputs</button>
+        </div>
+
+        <div class="view-subpanel" data-subnav="bridge" data-subnav-panel="results">
+          <div class="kpi" id="bridgeKpis"></div>
+
+          <div class="grid" style="margin-top:12px">
+            <div class="card card-subtle" style="grid-column: span 12">
+              <h3>Pot trajectory with bridge (today’s £)</h3>
+              <div class="svgwrap"><svg id="chartBridge" width="980" height="270" role="img" aria-label="Bridge chart"></svg></div>
+              <div class="footer">Markers: Early retirement, State Pension, and run‑out age (if any).</div>
+            </div>
           </div>
-          <div class="field"><label>Bridge amount (today’s £/yr)</label><input type="number" id="br_amount" step="100" placeholder="e.g. 25000" /></div>
-          <div class="field"><label>Bridge ends at age</label><input type="number" id="br_endAge" min="55" max="90" /></div>
-          <div class="field"><label>After-bridge drawdown rate (%/yr)</label><input type="number" id="br_postDraw" step="0.1" /></div>
-          <div class="field"><label>Maintain lifestyle after bridge?</label>
-            <select id="br_keepLifestyle">
-              <option value="1" selected>Yes (target same net as bridge)</option>
-              <option value="0">No (use drawdown % only)</option>
-            </select>
+
+          <div class="card card-subtle" style="margin-top:12px">
+            <h3>Bridge years breakdown (today’s £)</h3>
+            <div style="overflow:auto">
+              <table id="tblBridge">
+                <thead><tr>
+                  <th>Age</th><th class="right">Gross withdrawal</th><th class="right">Net income</th><th class="right">Pot (start-year)</th><th class="right">Pot (end-year)</th><th>Note</th>
+                </tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="footer">The last row includes the first year with State Pension (bridge end age).</div>
           </div>
         </div>
 
-        <div class="hr"></div>
-
-        <div class="row" style="gap:8px; flex-wrap:wrap">
-          <span class="badge"><span class="ico">🧯</span>Bridge stress overlays</span>
-          <label class="badge" style="cursor:pointer"><input type="checkbox" id="br_crashEarly" style="margin-right:6px"/>Crash at early retirement</label>
-          <label class="badge" style="cursor:pointer"><input type="checkbox" id="br_crashState" style="margin-right:6px"/>Crash at State Pension age</label>
-          <label class="badge" style="cursor:pointer"><input type="checkbox" id="br_badSeq" style="margin-right:6px"/>Bad sequence from early retirement</label>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="kpi" id="bridgeKpis"></div>
-
-        <div class="grid" style="margin-top:12px">
-          <div class="card card-subtle" style="grid-column: span 12">
-            <h3>Pot trajectory with bridge (today’s £)</h3>
-            <div class="svgwrap"><svg id="chartBridge" width="980" height="270" role="img" aria-label="Bridge chart"></svg></div>
-            <div class="footer">Markers: Early retirement, State Pension, and run‑out age (if any).</div>
+        <div class="view-subpanel" data-subnav="bridge" data-subnav-panel="inputs" hidden>
+          <div class="form">
+            <div class="field"><label>Early retirement age</label><input type="number" id="br_earlyAge" min="40" max="90" placeholder="e.g. 60" /></div>
+            <div class="field"><label>Bridge input type</label>
+              <select id="br_mode">
+                <option value="net" selected>Net spend target (today’s £/yr)</option>
+                <option value="gross">Gross pension withdrawal (today’s £/yr)</option>
+              </select>
+            </div>
+            <div class="field"><label>Bridge amount (today’s £/yr)</label><input type="number" id="br_amount" step="100" placeholder="e.g. 25000" /></div>
+            <div class="field"><label>Bridge ends at age</label><input type="number" id="br_endAge" min="55" max="90" /></div>
+            <div class="field"><label>After-bridge drawdown rate (%/yr)</label><input type="number" id="br_postDraw" step="0.1" /></div>
+            <div class="field"><label>Maintain lifestyle after bridge?</label>
+              <select id="br_keepLifestyle">
+                <option value="1" selected>Yes (target same net as bridge)</option>
+                <option value="0">No (use drawdown % only)</option>
+              </select>
+            </div>
           </div>
-        </div>
 
-        <div class="card card-subtle" style="margin-top:12px">
-          <h3>Bridge years breakdown (today’s £)</h3>
-          <div style="overflow:auto">
-            <table id="tblBridge">
-              <thead><tr>
-                <th>Age</th><th class="right">Gross withdrawal</th><th class="right">Net income</th><th class="right">Pot (start-year)</th><th class="right">Pot (end-year)</th><th>Note</th>
-              </tr></thead>
-              <tbody></tbody>
-            </table>
+          <div class="hr"></div>
+
+          <div class="row" style="gap:8px; flex-wrap:wrap">
+            <span class="badge"><span class="ico">🧯</span>Bridge stress overlays</span>
+            <label class="badge" style="cursor:pointer"><input type="checkbox" id="br_crashEarly" style="margin-right:6px"/>Crash at early retirement</label>
+            <label class="badge" style="cursor:pointer"><input type="checkbox" id="br_crashState" style="margin-right:6px"/>Crash at State Pension age</label>
+            <label class="badge" style="cursor:pointer"><input type="checkbox" id="br_badSeq" style="margin-right:6px"/>Bad sequence from early retirement</label>
           </div>
-          <div class="footer">The last row includes the first year with State Pension (bridge end age).</div>
+
+          <div class="hr"></div>
         </div>
       </div>
     </section>
@@ -600,75 +598,87 @@
         <h3>Strategy</h3>
         <p class="view-subtitle">Compare withdrawal approaches and build your action plan</p>
         <p class="muted" style="margin-top:0">This view compares coded withdrawal strategies, scores them for tax, sustainability and balance, then turns the selected plan into a year-by-year action timeline.</p>
-        <div class="row strategy-head-row" style="margin:12px 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
-          <div class="field" style="min-width:320px; margin:0">
-            <label>Select strategy timeline</label>
-            <select id="strategySelect"></select>
-          </div>
-          <div class="field" style="min-width:280px; margin:0">
-            <label>Strategy priority</label>
-            <select id="in_strategyPriorityMode">
-              <option value="balanced">Balanced</option>
-              <option value="minimise-tax">Minimise tax</option>
-              <option value="maximise-stable-income">Maximise stable income</option>
-              <option value="preserve-flexibility">Preserve flexibility</option>
-              <option value="prioritise-guaranteed-income">Prioritise guaranteed income</option>
-            </select>
-          </div>
-          <span class="badge"><span class="ico">🧭</span>Deterministic engine only</span>
-          <span class="badge"><span class="ico">£</span>Strategies scored on tax, stability and remaining pot</span>
+
+        <div class="view-subnav" role="tablist" data-subnav="strategy">
+          <button class="active" data-subnav-target="overview" type="button">Recommendations</button>
+          <button data-subnav-target="settings" type="button">Strategy inputs</button>
         </div>
-        <div class="row strategy-targets-grid" style="margin:0 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
-          <div class="field" style="min-width:260px; margin:0">
-            <label>Minimum desired net income (£/yr)</label>
-            <input type="number" id="in_minimumDesiredNetIncome" min="0" step="100" />
+
+        <div class="view-subpanel" data-subnav="strategy" data-subnav-panel="overview">
+          <p class="muted view-subpanel-hint">Use the Strategy inputs panel to adjust goals and constraints. Recommendations update automatically when you recalculate.</p>
+          <div id="strategyTopCards"></div>
+        </div>
+
+        <div class="view-subpanel" data-subnav="strategy" data-subnav-panel="settings" hidden>
+          <div class="row strategy-head-row" style="margin:12px 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
+            <div class="field" style="min-width:320px; margin:0">
+              <label>Select strategy timeline</label>
+              <select id="strategySelect"></select>
+            </div>
+            <div class="field" style="min-width:280px; margin:0">
+              <label>Strategy priority</label>
+              <select id="in_strategyPriorityMode">
+                <option value="balanced">Balanced</option>
+                <option value="minimise-tax">Minimise tax</option>
+                <option value="maximise-stable-income">Maximise stable income</option>
+                <option value="preserve-flexibility">Preserve flexibility</option>
+                <option value="prioritise-guaranteed-income">Prioritise guaranteed income</option>
+              </select>
+            </div>
+            <span class="badge"><span class="ico">🧭</span>Deterministic engine only</span>
+            <span class="badge"><span class="ico">£</span>Strategies scored on tax, stability and remaining pot</span>
           </div>
-          <div class="field" style="min-width:260px; margin:0">
-            <label>Target net income at retirement (£/yr)</label>
-            <input type="number" id="in_targetRetirementNetIncome" min="0" step="100" />
+          <div class="row strategy-targets-grid" style="margin:0 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
+            <div class="field" style="min-width:260px; margin:0">
+              <label>Minimum desired net income (£/yr)</label>
+              <input type="number" id="in_minimumDesiredNetIncome" min="0" step="100" />
+            </div>
+            <div class="field" style="min-width:260px; margin:0">
+              <label>Target net income at retirement (£/yr)</label>
+              <input type="number" id="in_targetRetirementNetIncome" min="0" step="100" />
+            </div>
+            <div class="field" style="min-width:260px; margin:0">
+              <label>Minimum flexibility buffer at age 75 (£)</label>
+              <input type="number" id="in_minimumFlexibilityBufferAt75" min="0" step="1000" />
+            </div>
+            <div class="field" style="min-width:260px; margin:0">
+              <label>DB early reduction (% per year before NPA)</label>
+              <input type="number" id="in_dbEarlyReductionPct" min="0" max="15" step="0.1" />
+            </div>
+            <div class="field" style="min-width:260px; margin:0">
+              <label>DB deferral increase (% per year after NPA)</label>
+              <input type="number" id="in_dbDeferralIncreasePct" min="0" max="15" step="0.1" />
+            </div>
           </div>
-          <div class="field" style="min-width:260px; margin:0">
-            <label>Minimum flexibility buffer at age 75 (£)</label>
-            <input type="number" id="in_minimumFlexibilityBufferAt75" min="0" step="1000" />
-          </div>
-          <div class="field" style="min-width:260px; margin:0">
-            <label>DB early reduction (% per year before NPA)</label>
-            <input type="number" id="in_dbEarlyReductionPct" min="0" max="15" step="0.1" />
-          </div>
-          <div class="field" style="min-width:260px; margin:0">
-            <label>DB deferral increase (% per year after NPA)</label>
-            <input type="number" id="in_dbDeferralIncreasePct" min="0" max="15" step="0.1" />
+          <div class="row strategy-targets-grid" style="margin:0 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
+            <div class="field" style="min-width:260px; margin:0">
+              <label>Overview income drop threshold (%)</label>
+              <input type="number" id="in_watchoutIncomeDropPct" min="1" max="100" step="1" />
+            </div>
+            <div class="field" style="min-width:260px; margin:0">
+              <label>Overview income drop threshold (£/yr)</label>
+              <input type="number" id="in_watchoutIncomeDropAbs" min="0" step="100" />
+            </div>
+            <div class="field" style="min-width:260px; margin:0">
+              <label>Overview low pot threshold (years of net)</label>
+              <input type="number" id="in_watchoutLateLifePotYears" min="1" max="20" step="0.5" />
+            </div>
+            <div class="field" style="min-width:260px; margin:0">
+              <label>Overview high DC reliance threshold (%)</label>
+              <input type="number" id="in_watchoutDcReliancePct" min="1" max="100" step="1" />
+            </div>
+            <div class="field" style="min-width:260px; margin:0">
+              <label>Overview lump-sum watchout threshold (% of net)</label>
+              <input type="number" id="in_watchoutLumpSumPctNet" min="1" max="300" step="1" />
+            </div>
+            <div class="field" style="min-width:260px; margin:0">
+              <label>Overview low remaining TFLS / LSA threshold (£)</label>
+              <input type="number" id="in_watchoutLowLsa" min="0" step="1000" />
+            </div>
           </div>
         </div>
-        <div class="row strategy-targets-grid" style="margin:0 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
-          <div class="field" style="min-width:260px; margin:0">
-            <label>Overview income drop threshold (%)</label>
-            <input type="number" id="in_watchoutIncomeDropPct" min="1" max="100" step="1" />
-          </div>
-          <div class="field" style="min-width:260px; margin:0">
-            <label>Overview income drop threshold (£/yr)</label>
-            <input type="number" id="in_watchoutIncomeDropAbs" min="0" step="100" />
-          </div>
-          <div class="field" style="min-width:260px; margin:0">
-            <label>Overview low pot threshold (years of net)</label>
-            <input type="number" id="in_watchoutLateLifePotYears" min="1" max="20" step="0.5" />
-          </div>
-          <div class="field" style="min-width:260px; margin:0">
-            <label>Overview high DC reliance threshold (%)</label>
-            <input type="number" id="in_watchoutDcReliancePct" min="1" max="100" step="1" />
-          </div>
-          <div class="field" style="min-width:260px; margin:0">
-            <label>Overview lump-sum watchout threshold (% of net)</label>
-            <input type="number" id="in_watchoutLumpSumPctNet" min="1" max="300" step="1" />
-          </div>
-          <div class="field" style="min-width:260px; margin:0">
-            <label>Overview low remaining TFLS / LSA threshold (£)</label>
-            <input type="number" id="in_watchoutLowLsa" min="0" step="1000" />
-          </div>
-        </div>
-        <div id="strategyTopCards"></div>
       </div>
-      <div class="grid strategy-detail-grid">
+      <div class="grid strategy-detail-grid view-subpanel" data-subnav="strategy" data-subnav-panel="overview">
         <div class="card strategy-compare-card" style="grid-column: span 12;">
           <h3>Strategy comparison</h3>
           <div id="strategyCompareWrap"></div>
@@ -727,92 +737,99 @@
         <p class="view-subtitle">Would your plan survive adverse market conditions?</p>
         <div class="tipGrid" data-tips="view-stress"><div class="tipCard"><div class="ticon">🧯</div><div><div class="ttitle">Gatekeeper test</div><div class="ttext">Stress tests ask: "Would I still be OK if the worst timing happens?"</div></div></div><div class="tipCard"><div class="ticon">⚠️</div><div><div class="ttitle">Baseline can mislead</div><div class="ttext">A plan can look fine in baseline but fail under a crash. Treat failures seriously.</div></div></div><div class="tipCard"><div class="ticon">✅</div><div><div class="ttitle">Green means resilient</div><div class="ttext">Passing stress suggests margin for error — the main goal of planning.</div></div></div></div>
 
-        <div class="stress-status-row">
-          <span id="stressBadge"></span>
-          <span id="stressBaseline"></span>
-          <span id="stressCrash"></span>
-          <span id="stressBadSeq"></span>
-          <span id="stressCombinedBadge"></span>
-          <span id="stressScenarioMeta"></span>
+        <div class="view-subnav" role="tablist" data-subnav="stress">
+          <button class="active" data-subnav-target="results" type="button">Results</button>
+          <button data-subnav-target="inputs" type="button">Stress inputs</button>
         </div>
 
-        <div class="stress-grid">
+        <div class="view-subpanel" data-subnav="stress" data-subnav-panel="results">
+          <div class="stress-status-row">
+            <span id="stressBadge"></span>
+            <span id="stressBaseline"></span>
+            <span id="stressCrash"></span>
+            <span id="stressBadSeq"></span>
+            <span id="stressCombinedBadge"></span>
+            <span id="stressScenarioMeta"></span>
+          </div>
 
-          <!-- Parameters panel -->
-          <article class="stress-panel">
-            <h4>Parameters</h4>
-            <p class="muted small" style="margin:0 0 10px">Inputs for the Core crash and bad-sequence scenarios.</p>
-            <div class="form">
-              <div class="field"><label>Crash size at retirement (%)</label><input type="number" id="in_crashPct" step="1" /></div>
-              <div class="field"><label>Bad-returns years (after retirement)</label><input type="number" id="in_badYears" step="1" /></div>
-              <div class="field"><label>Bad-returns penalty (%/yr)</label><input type="number" id="in_badPenalty" step="0.5" /></div>
-              <div class="field"><label>Success test age</label><input type="number" id="in_successAge" step="1" /></div>
-              <div class="field w12"><label>"Enough" income floor after age 70 (today's £/yr)</label><input type="number" id="in_floor70" step="100" /></div>
-            </div>
-          </article>
-
-          <!-- Scenarios panel -->
-          <article class="stress-panel">
-            <h4>Scenarios</h4>
-            <div class="stress-presets">
-              <button class="stress-preset-btn" data-preset="core">Core only</button>
-              <button class="stress-preset-btn" data-preset="balanced">Balanced</button>
-              <button class="stress-preset-btn" data-preset="all">All on</button>
-              <button class="stress-preset-btn" data-preset="none">Clear all</button>
-            </div>
-            <div class="stress-chip-groups">
-              <div class="stress-chip-group">
-                <span class="stress-chip-group-label">Core</span>
-                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioCrash" checked />Crash at retirement</label>
-                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioBadSeq" checked />Bad sequence</label>
+          <div class="stress-grid">
+            <article class="stress-panel stress-panel--wide">
+              <div class="stress-chart-header">
+                <h4 style="margin:0">Pot trajectory under stress (today's £)</h4>
+                <div class="stress-chart-mode">
+                  <button class="stress-chart-mode-btn active" data-mode="core">Simple view</button>
+                  <button class="stress-chart-mode-btn" data-mode="isolated">Show isolated</button>
+                </div>
               </div>
-              <div class="stress-chip-group">
-                <span class="stress-chip-group-label">Macro</span>
-                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioLowerReturns" checked />Lower returns</label>
-                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioHigherInflation" checked />Higher inflation</label>
-              </div>
-              <div class="stress-chip-group">
-                <span class="stress-chip-group-label">Behaviour</span>
-                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioEarlierRetire" checked />Earlier retirement</label>
-                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioReducedContrib" checked />Reduced contributions</label>
-                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioDrawdownPressure" checked />Drawdown pressure</label>
-              </div>
-              <div class="stress-chip-group">
-                <span class="stress-chip-group-label">Tail risk</span>
-                <label class="stress-chip"><input type="checkbox" id="in_stressScenarioLaterLifeFloor" checked />Later-life shortfall</label>
-                <label class="stress-chip" id="stress-chip-household"><input type="checkbox" id="in_stressScenarioHouseholdStrain" checked />Household strain</label>
-              </div>
-            </div>
-          </article>
+              <div class="svgwrap"><svg id="chartStress" width="980" height="270" role="img" aria-label="Stress chart"></svg></div>
+              <div id="stressChartLegend" class="stress-chart-legend"></div>
+            </article>
 
-          <!-- Chart panel (full width) -->
-          <article class="stress-panel stress-panel--wide">
-            <div class="stress-chart-header">
-              <h4 style="margin:0">Pot trajectory under stress (today's £)</h4>
-              <div class="stress-chart-mode">
-                <button class="stress-chart-mode-btn active" data-mode="core">Simple view</button>
-                <button class="stress-chart-mode-btn" data-mode="isolated">Show isolated</button>
+            <article class="stress-panel">
+              <h4>If one thing goes wrong (isolated)</h4>
+              <div id="stressRankingExplain" class="stress-context-note"></div>
+              <div id="stressScenarioSummary"><p class="muted small">Run a calculation to see scenario ranking.</p></div>
+            </article>
+
+            <article class="stress-panel">
+              <h4>Will your plan last under stacked stress?</h4>
+              <div id="stressDecisionSentence" class="stress-context-note"></div>
+              <div id="stressCompoundSummary"><p class="muted small">Enable at least two scenarios to view compound knock-on effects.</p></div>
+              <div id="stressWatchouts"><p class="muted small">Run a calculation to see stress watchouts.</p></div>
+            </article>
+          </div>
+        </div>
+
+        <div class="view-subpanel" data-subnav="stress" data-subnav-panel="inputs" hidden>
+          <div class="stress-grid">
+            <article class="stress-panel">
+              <h4>Parameters</h4>
+              <p class="muted small" style="margin:0 0 10px">Inputs for the Core crash and bad-sequence scenarios.</p>
+              <div class="form">
+                <div class="field"><label>Crash size at retirement (%)</label><input type="number" id="in_crashPct" step="1" /></div>
+                <div class="field"><label>Bad-returns years (after retirement)</label><input type="number" id="in_badYears" step="1" /></div>
+                <div class="field"><label>Bad-returns penalty (%/yr)</label><input type="number" id="in_badPenalty" step="0.5" /></div>
+                <div class="field"><label>Success test age</label><input type="number" id="in_successAge" step="1" /></div>
+                <div class="field w12"><label>"Enough" income floor after age 70 (today's £/yr)</label><input type="number" id="in_floor70" step="100" /></div>
+                <div class="field w6"><label>Floor easing starts at age</label><input type="number" id="in_floorTaperStartAge" min="70" max="110" /><div class="hint">Floor only begins tapering after this age.</div></div>
+                <div class="field w6"><label>Easing rate (% per year after start)</label><input type="number" id="in_floorTaperRatePct" step="0.1" min="0" max="10" /><div class="hint">How quickly the floor reduces once easing begins.</div></div>
+                <div class="field w6"><label>Minimum floor (% of original)</label><input type="number" id="in_floorTaperMinPct" step="1" min="40" max="100" /><div class="hint">The lowest proportion the floor can reach (e.g. 65 = 65%).</div></div>
               </div>
-            </div>
-            <div class="svgwrap"><svg id="chartStress" width="980" height="270" role="img" aria-label="Stress chart"></svg></div>
-            <div id="stressChartLegend" class="stress-chart-legend"></div>
-          </article>
+            </article>
 
-          <!-- Ranking panel -->
-          <article class="stress-panel">
-            <h4>If one thing goes wrong (isolated)</h4>
-            <div id="stressRankingExplain" class="stress-context-note"></div>
-            <div id="stressScenarioSummary"><p class="muted small">Run a calculation to see scenario ranking.</p></div>
-          </article>
-
-          <!-- Watchouts panel -->
-          <article class="stress-panel">
-            <h4>Will your plan last under stacked stress?</h4>
-            <div id="stressDecisionSentence" class="stress-context-note"></div>
-            <div id="stressCompoundSummary"><p class="muted small">Enable at least two scenarios to view compound knock-on effects.</p></div>
-            <div id="stressWatchouts"><p class="muted small">Run a calculation to see stress watchouts.</p></div>
-          </article>
-
+            <article class="stress-panel">
+              <h4>Scenarios</h4>
+              <div class="stress-presets">
+                <button class="stress-preset-btn" data-preset="core">Core only</button>
+                <button class="stress-preset-btn" data-preset="balanced">Balanced</button>
+                <button class="stress-preset-btn" data-preset="all">All on</button>
+                <button class="stress-preset-btn" data-preset="none">Clear all</button>
+              </div>
+              <div class="stress-chip-groups">
+                <div class="stress-chip-group">
+                  <span class="stress-chip-group-label">Core</span>
+                  <label class="stress-chip"><input type="checkbox" id="in_stressScenarioCrash" checked />Crash at retirement</label>
+                  <label class="stress-chip"><input type="checkbox" id="in_stressScenarioBadSeq" checked />Bad sequence</label>
+                </div>
+                <div class="stress-chip-group">
+                  <span class="stress-chip-group-label">Macro</span>
+                  <label class="stress-chip"><input type="checkbox" id="in_stressScenarioLowerReturns" checked />Lower returns</label>
+                  <label class="stress-chip"><input type="checkbox" id="in_stressScenarioHigherInflation" checked />Higher inflation</label>
+                </div>
+                <div class="stress-chip-group">
+                  <span class="stress-chip-group-label">Behaviour</span>
+                  <label class="stress-chip"><input type="checkbox" id="in_stressScenarioEarlierRetire" checked />Earlier retirement</label>
+                  <label class="stress-chip"><input type="checkbox" id="in_stressScenarioReducedContrib" checked />Reduced contributions</label>
+                  <label class="stress-chip"><input type="checkbox" id="in_stressScenarioDrawdownPressure" checked />Drawdown pressure</label>
+                </div>
+                <div class="stress-chip-group">
+                  <span class="stress-chip-group-label">Tail risk</span>
+                  <label class="stress-chip"><input type="checkbox" id="in_stressScenarioLaterLifeFloor" checked />Later-life shortfall</label>
+                  <label class="stress-chip" id="stress-chip-household"><input type="checkbox" id="in_stressScenarioHouseholdStrain" checked />Household strain</label>
+                </div>
+              </div>
+            </article>
+          </div>
         </div>
       </div>
     </section>
@@ -826,65 +843,78 @@
         <div class="tipGrid" data-tips="view-monte"><div class="tipCard"><div class="ticon">🎲</div><div><div class="ttitle">Many futures</div><div class="ttext">Monte Carlo runs your plan many times with random return paths to show uncertainty.</div></div></div><div class="tipCard"><div class="ticon">📊</div><div><div class="ttitle">Focus on 3 numbers</div><div class="ttext">Success %, Worst‑case depletion age, and P10 pot (downside buffer).</div></div></div><div class="tipCard"><div class="ticon">🟦</div><div><div class="ttitle">Read the bands</div><div class="ttext">White line is “typical”. Shaded ranges are realistic outcomes. Lower band above zero is strong.</div></div></div></div>
         <p class="muted" style="margin-top:0">Simulates many possible return paths using your average return and volatility. Use it for uncertainty context, not certainty.</p>
 
-        <div class="monte-status-row">
-          <span id="monteBadge"></span>
-          <span id="mcDelta"></span>
-          <span class="badge" id="mcProgressWrap" style="display:none"><span class="ico">⏳</span><span id="mcProgressText">Running…</span><span class="progress" style="margin-left:8px"><div id="mcProgressBar"></div></span></span>
+        <div class="view-subnav" role="tablist" data-subnav="monte">
+          <button class="active" data-subnav-target="results" type="button">Results</button>
+          <button data-subnav-target="inputs" type="button">Simulation inputs</button>
         </div>
 
-        <div class="monte-grid">
-          <article class="monte-panel">
-            <h4>Simulation controls</h4>
-            <div class="form">
-              <div class="field"><label>Simulations</label>
-                <select id="in_sims">
-                  <option value="500">500</option>
-                  <option value="1000" selected>1,000</option>
-                  <option value="2000">2,000</option>
-                  <option value="5000">5,000</option>
-                </select>
+        <div class="view-subpanel" data-subnav="monte" data-subnav-panel="results">
+          <div class="monte-status-row">
+            <span id="monteBadge"></span>
+            <span id="mcDelta"></span>
+            <span class="badge" id="mcProgressWrap" style="display:none"><span class="ico">⏳</span><span id="mcProgressText">Running…</span><span class="progress" style="margin-left:8px"><div id="mcProgressBar"></div></span></span>
+            <button class="btn btn-outline" id="btnRunMonte" type="button">Run Monte</button>
+          </div>
+
+          <div class="monte-grid">
+            <article class="monte-panel">
+              <h4>What this means</h4>
+              <div id="monteBottomLine" class="monte-context-note"></div>
+              <div id="monteDecisionCards" class="monte-outcome-grid"></div>
+              <details class="monte-advanced-details" open>
+                <summary>Advanced diagnostics</summary>
+                <div id="mcKpis" class="kpi" style="margin-top:8px"></div>
+              </details>
+            </article>
+
+            <article class="monte-panel monte-panel--wide">
+              <h4>Monte Carlo distribution (pot in today’s £)</h4>
+              <div class="small muted" style="margin-bottom:8px">White line shows the typical path. Shaded range shows uncertainty.</div>
+              <div class="svgwrap"><svg id="chartMC" width="980" height="280" role="img" aria-label="Monte Carlo chart"></svg></div>
+            </article>
+
+            <article class="monte-panel">
+              <h4>Interpretation</h4>
+              <div id="monteInterpretation"></div>
+            </article>
+
+            <article class="monte-panel">
+              <h4>Actionable next steps</h4>
+              <div id="monteActions"></div>
+            </article>
+          </div>
+        </div>
+
+        <div class="view-subpanel" data-subnav="monte" data-subnav-panel="inputs" hidden>
+          <div class="monte-grid">
+            <article class="monte-panel">
+              <h4>Simulation controls</h4>
+              <p class="muted small" style="margin:0 0 10px">Tweak settings, then rerun Monte Carlo to refresh the results.</p>
+              <div class="form">
+                <div class="field"><label>Simulations</label>
+                  <select id="in_sims">
+                    <option value="500">500</option>
+                    <option value="1000" selected>1,000</option>
+                    <option value="2000">2,000</option>
+                    <option value="5000">5,000</option>
+                  </select>
+                </div>
+                <div class="field"><label>Seed (optional)</label><input type="number" id="in_seed" placeholder="Random" /></div>
+                <div class="field"><label>Ruin definition</label>
+                  <select id="in_ruinDef">
+                    <option value="0" selected>Pot hits £0 any time</option>
+                    <option value="1">Pot < £10k (today’s £)</option>
+                  </select>
+                </div>
+                <div class="field"><label>Show percentile bands</label>
+                  <select id="in_bands">
+                    <option value="1" selected>Yes</option>
+                    <option value="0">No</option>
+                  </select>
+                </div>
               </div>
-              <div class="field"><label>Seed (optional)</label><input type="number" id="in_seed" placeholder="Random" /></div>
-              <div class="field"><label>Ruin definition</label>
-                <select id="in_ruinDef">
-                  <option value="0" selected>Pot hits £0 any time</option>
-                  <option value="1">Pot < £10k (today’s £)</option>
-                </select>
-              </div>
-              <div class="field"><label>Show percentile bands</label>
-                <select id="in_bands">
-                  <option value="1" selected>Yes</option>
-                  <option value="0">No</option>
-                </select>
-              </div>
-            </div>
-          </article>
-
-          <article class="monte-panel">
-            <h4>What this means</h4>
-            <div id="monteBottomLine" class="monte-context-note"></div>
-            <div id="monteDecisionCards" class="monte-outcome-grid"></div>
-            <details class="monte-advanced-details" open>
-              <summary>Advanced diagnostics</summary>
-              <div id="mcKpis" class="kpi" style="margin-top:8px"></div>
-            </details>
-          </article>
-
-          <article class="monte-panel monte-panel--wide">
-            <h4>Monte Carlo distribution (pot in today’s £)</h4>
-            <div class="small muted" style="margin-bottom:8px">White line shows the typical path. Shaded range shows uncertainty.</div>
-            <div class="svgwrap"><svg id="chartMC" width="980" height="280" role="img" aria-label="Monte Carlo chart"></svg></div>
-          </article>
-
-          <article class="monte-panel">
-            <h4>Interpretation</h4>
-            <div id="monteInterpretation"></div>
-          </article>
-
-          <article class="monte-panel">
-            <h4>Actionable next steps</h4>
-            <div id="monteActions"></div>
-          </article>
+            </article>
+          </div>
         </div>
       </div>
     </section>
@@ -1020,13 +1050,16 @@
 
   
   <nav class="bottomNav" id="bottomNav" aria-label="Bottom navigation">
-    <button data-view="overview" class="active"><span class="bnav-ico">DS</span><span>Overview</span></button>
+    <button data-view="overview" class="active"><span class="bnav-ico">OV</span><span>Overview</span></button>
     <button data-view="inputs"><span class="bnav-ico">IN</span><span>Inputs</span></button>
+    <button data-view="assumptions"><span class="bnav-ico">AS</span><span>Assumptions</span></button>
+    <button data-view="projection"><span class="bnav-ico">PR</span><span>Projection</span></button>
+    <button data-view="strategy"><span class="bnav-ico">ST</span><span>Strategy</span></button>
     <button data-view="bridge"><span class="bnav-ico">BR</span><span>Bridge</span></button>
     <button data-view="household"><span class="bnav-ico">HH</span><span>Household</span></button>
-    <button data-view="stress"><span class="bnav-ico">RS</span><span>Stress</span></button>
-    <button data-view="monte"><span class="bnav-ico">MC</span><span>Monte</span></button>
-    <button data-view="scenarios"><span class="bnav-ico">SC</span><span>Compare</span></button>
+    <button data-view="stress"><span class="bnav-ico">RS</span><span>Stress Tests</span></button>
+    <button data-view="monte"><span class="bnav-ico">MC</span><span>Monte Carlo</span></button>
+    <button data-view="scenarios"><span class="bnav-ico">SC</span><span>Scenarios</span></button>
     <button data-view="help"><span class="bnav-ico">HP</span><span>Help</span></button>
   </nav>
 </main>

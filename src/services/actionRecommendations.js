@@ -1,3 +1,5 @@
+import { computeFloorRequirement } from './riskResilienceService.js';
+
 export function createActionRecommendationService({ readState, setInputsFromState, renderAll, calcBridge, calcProjection, fmtGBP }) {
   function applyPatch(patch) {
     setInputsFromState({ ...readState(), ...patch });
@@ -6,7 +8,7 @@ export function createActionRecommendationService({ readState, setInputsFromStat
 
   function scenarioPasses(state, result) {
     return result.years.filter((row) => row.age <= state.successAge).every((row) => row.potEnd > 0)
-      && result.years.filter((row) => row.age >= 70 && row.netIncome > 0).every((row) => row.netIncome >= state.floor70);
+      && result.years.filter((row) => row.age >= 70 && row.netIncome > 0).every((row) => row.netIncome >= computeFloorRequirement(state, row.age));
   }
 
   return function suggestLevers(state, status, riskSummary = null) {
