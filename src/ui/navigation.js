@@ -288,12 +288,25 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     setView('inputs');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(()=>{
-      if (tab) {
-        document.querySelector(`#view-inputs .tabs button[data-tab="${tab}"]`)?.click();
-      }
-      if (subtab) {
-        const owner = subtab.startsWith('partner-') ? 'partner' : 'you';
-        document.querySelector(`#subtabs-${owner} button[data-subtab="${subtab}"]`)?.click();
+      // Open drawer if subtab is a drawer id
+      if (subtab && subtab.startsWith('drawer-')) {
+        const drawer = document.getElementById(subtab);
+        const overlay = document.getElementById('inpOverlay');
+        if (drawer) {
+          document.querySelectorAll('.inp-drawer.open').forEach(d => d.classList.remove('open'));
+          drawer.classList.add('open');
+          overlay?.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        }
+      } else {
+        // Legacy tab / subtab support
+        if (tab) {
+          document.querySelector(`#view-inputs .tabs button[data-tab="${tab}"]`)?.click();
+        }
+        if (subtab) {
+          const owner = subtab.startsWith('partner-') ? 'partner' : 'you';
+          document.querySelector(`#subtabs-${owner} button[data-subtab="${subtab}"]`)?.click();
+        }
       }
       if (focusFieldId) {
         const focusTarget = getEl(focusFieldId);
@@ -428,13 +441,13 @@ export function createNavigationController({ getEl, document, window, onOpenMont
       if(firstIssue){
         firstIssue.click();
       } else {
-        goToInputsSection('you','you-personal','in_dob');
+        goToInputsSection('you','drawer-personal','in_dob');
       }
       setNavOpen(false);
     });
 
     inputsAddSalaryBtn?.addEventListener('click', ()=>{
-      goToInputsSection('you','you-earnings','in_salary');
+      goToInputsSection('you','drawer-employment','in_salary');
       setNavOpen(false);
     });
 

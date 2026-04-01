@@ -81,7 +81,10 @@ function ensureProjectionDrilldownHost() {
     host.innerHTML = `
       <div class="projection-drilldown-backdrop" data-drill-close></div>
       <div class="projection-drilldown-card">
-        <button class="projection-drilldown-close" data-drill-close aria-label="Close">×</button>
+        <div class="projection-drilldown-head">
+          <h4 id="drilldownTitle">Calculation Detail</h4>
+          <button class="projection-drilldown-close" data-drill-close aria-label="Close">&times;</button>
+        </div>
         <div class="projection-drilldown-body"></div>
       </div>
     `;
@@ -91,7 +94,15 @@ function ensureProjectionDrilldownHost() {
   host.querySelectorAll('[data-drill-close]').forEach((el) => {
     el.addEventListener('click', () => {
       host.classList.remove('is-visible');
+      document.body.style.overflow = '';
     });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && host.classList.contains('is-visible')) {
+      host.classList.remove('is-visible');
+      document.body.style.overflow = '';
+    }
   });
 
   drilldownHost = host;
@@ -226,6 +237,10 @@ function openProjectionDrilldown(type, row, metrics, fmtGBP) {
   }
 
   const body = host.querySelector('.projection-drilldown-body');
+  const titleEl = host.querySelector('#drilldownTitle');
+  const titles = { income: '📊 Income Breakdown', drawdown: '💰 Drawdown Flow', growth: '📈 Growth Detail', ending: '🏦 Ending Balance' };
+  if (titleEl) titleEl.textContent = titles[type] || 'Calculation Detail';
+
   if (type === 'drawdown') {
     body.innerHTML = renderDrawdownDrilldown(row, metrics, fmtGBP);
   } else if (type === 'growth') {
@@ -237,6 +252,7 @@ function openProjectionDrilldown(type, row, metrics, fmtGBP) {
   }
 
   host.classList.add('is-visible');
+  document.body.style.overflow = 'hidden';
 }
 
 function renderDetailValue(fmtGBP, item) {

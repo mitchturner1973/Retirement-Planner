@@ -235,425 +235,508 @@
     <section class="view" id="view-inputs" style="display:none">
       <div class="card inputs-shell space-y-4">
         <div class="view-eyebrow">YOUR FINANCES</div>
-        <h3>Income &amp; Pensions</h3>
-        <p class="view-subtitle">Click any card to configure — changes update your projection instantly</p>
+        <h3>Income</h3>
+        <p class="view-subtitle">Build your financial picture — the planner does the maths</p>
+        <div class="tipGrid" data-tips="view-inputs"><div class="tipCard"><div class="ticon">✍️</div><div><div class="ttitle">Keep it realistic</div><div class="ttext">If unsure, use slightly conservative assumptions and compare scenarios rather than guessing perfectly.</div></div></div><div class="tipCard"><div class="ticon">🔁</div><div><div class="ttitle">Change one thing</div><div class="ttext">Adjust one input at a time so you can see what actually caused the change.</div></div></div><div class="tipCard"><div class="ticon">💾</div><div><div class="ttitle">Save a baseline</div><div class="ttext">Once inputs look sensible, save “Baseline”. Then duplicate for “Early”, “Lower spend”, “More contrib”.</div></div></div></div>
+        
+        <p class="muted mt-0">All inputs are in today's money. The model converts nominal return/growth into real rates automatically.</p>
         <div id="validationSummary" class="callout mb-3" style="display:none"></div>
 
-        <!-- ═══════════ CATEGORY CARD GRID ═══════════ -->
-        <div class="inp-grid">
-
-          <!-- 1 · Personal -->
-          <button class="inp-card" type="button" data-drawer="drawer-personal">
-            <div class="inp-card-icon">👤</div>
-            <div class="inp-card-body">
-              <h4 class="inp-card-title">Personal</h4>
-              <p class="inp-card-sub">Ages &amp; timeline</p>
-            </div>
-            <div class="inp-card-chips">
-              <span class="inp-chip" id="chipAge">Age —</span>
-              <span class="inp-chip inp-chip--accent" id="chipRetire">Retire —</span>
-            </div>
-            <svg class="inp-card-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-          </button>
-
-          <!-- 2 · Employment -->
-          <button class="inp-card" type="button" data-drawer="drawer-employment">
-            <div class="inp-card-icon">💼</div>
-            <div class="inp-card-body">
-              <h4 class="inp-card-title">Employment</h4>
-              <p class="inp-card-sub">Salary &amp; contributions</p>
-            </div>
-            <div class="inp-card-chips">
-              <span class="inp-chip" id="chipSalary">£0</span>
-              <span class="inp-chip" id="chipContribPct">0%</span>
-            </div>
-            <svg class="inp-card-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-          </button>
-
-          <!-- 3 · Pensions -->
-          <button class="inp-card" type="button" data-drawer="drawer-pensions">
-            <div class="inp-card-icon">🏦</div>
-            <div class="inp-card-body">
-              <h4 class="inp-card-title">Pension Pots</h4>
-              <p class="inp-card-sub">DC, DB &amp; extra pots</p>
-            </div>
-            <div class="inp-card-chips">
-              <span class="inp-chip" id="chipPot">£0</span>
-              <span class="inp-chip" id="chipDcCount">0 extra</span>
-            </div>
-            <svg class="inp-card-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-          </button>
-
-          <!-- 4 · Retirement Income -->
-          <button class="inp-card" type="button" data-drawer="drawer-retirement">
-            <div class="inp-card-icon">🏖️</div>
-            <div class="inp-card-body">
-              <h4 class="inp-card-title">Retirement Income</h4>
-              <p class="inp-card-sub">State pension &amp; drawdown</p>
-            </div>
-            <div class="inp-card-chips">
-              <span class="inp-chip" id="chipSP">£0</span>
-              <span class="inp-chip" id="chipDraw">0%</span>
-            </div>
-            <svg class="inp-card-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-          </button>
-
-          <!-- 5 · Tax -->
-          <button class="inp-card" type="button" data-drawer="drawer-tax">
-            <div class="inp-card-icon">📋</div>
-            <div class="inp-card-body">
-              <h4 class="inp-card-title">Tax Settings</h4>
-              <p class="inp-card-sub">Allowances &amp; rates</p>
-            </div>
-            <div class="inp-card-chips">
-              <span class="inp-chip" id="chipAllowance">£0</span>
-              <span class="inp-chip" id="chipBasicTax">20%</span>
-            </div>
-            <svg class="inp-card-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-          </button>
-
-          <!-- 6 · Other Income -->
-          <button class="inp-card" type="button" data-drawer="drawer-other">
-            <div class="inp-card-icon">💷</div>
-            <div class="inp-card-body">
-              <h4 class="inp-card-title">Other Income</h4>
-              <p class="inp-card-sub">Rental, dividends, freelance</p>
-            </div>
-            <div class="inp-card-chips">
-              <span class="inp-chip" id="chipOther">£0</span>
-            </div>
-            <svg class="inp-card-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-          </button>
-
-          <!-- 7 · Partner -->
-          <button class="inp-card inp-card--wide" type="button" data-drawer="drawer-partner">
-            <div class="inp-card-icon">👫</div>
-            <div class="inp-card-body">
-              <h4 class="inp-card-title">Partner / Household</h4>
-              <p class="inp-card-sub" id="chipPartnerMode">Single person</p>
-            </div>
-            <div class="inp-card-chips">
-              <span class="inp-chip" id="chipPartnerSalary">—</span>
-              <span class="inp-chip" id="chipPartnerPot">—</span>
-            </div>
-            <svg class="inp-card-arrow" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-          </button>
+        <div class="tabs" role="tablist">
+          <button class="active" data-tab="you">You</button>
+          <button data-tab="partner">Partner</button>
         </div>
 
-        <!-- Coach strip -->
-        <aside class="inp-coach" aria-live="polite">
-          <div class="inp-coach-icon">💡</div>
-          <p id="earningsCoachTip">Click a card above to start entering your details. Changes recalculate instantly.</p>
-        </aside>
+    
 
-        <!-- Hidden compat elements for earnings insights -->
-        <div style="display:none" aria-hidden="true">
-          <span id="earningsSalaryHeadline"></span><span id="earningsSalaryNote"></span>
-          <span id="earningsContributionHeadline"></span><span id="earningsContributionNote"></span>
-          <span id="earningsBufferHeadline"></span><span id="earningsBufferNote"></span>
-          <span id="earningsCoachDetail1"></span><span id="earningsCoachDetail2"></span>
-          <span id="incomeKpiSalary"></span><span id="incomeKpiRetirement"></span>
-          <span id="incomeKpiPensions"></span><span id="incomeKpiOther"></span>
-          <span id="incomePersonalAgeBadge"></span><span id="incomePersonalRetireBadge"></span>
-          <span id="incomePartnerAgeBadge"></span><span id="incomePartnerRetireBadge"></span>
-          <span id="partnerKpiSalary"></span><span id="partnerKpiPensions"></span><span id="partnerKpiIncome"></span>
-          <span id="incomeStatSP"></span><span id="incomeStatDraw"></span><span id="incomeStatPot"></span>
-          <span id="incomeStatDcExtra"></span><span id="incomeStatDb"></span>
-        </div>
-      </div>
-
-      <!-- ═══════════ DRAWER OVERLAY ═══════════ -->
-      <div class="inp-overlay" id="inpOverlay"></div>
-
-      <!-- ═══════════ DRAWERS ═══════════ -->
-
-      <!-- PERSONAL drawer -->
-      <div class="inp-drawer" id="drawer-personal">
-        <div class="inp-drawer-head">
-          <h4>👤 Personal Details</h4>
-          <button class="inp-drawer-close" type="button" data-close-drawer>&times;</button>
-        </div>
-        <div class="inp-drawer-body">
-          <div class="inp-field-group">
-            <label>Date of birth</label>
-            <input type="date" id="in_dob" />
-            <div class="inp-hint">Used to derive current age.</div>
-          </div>
-          <div class="inp-field-group">
-            <label>Values as at date</label>
-            <input type="date" id="in_valuationDate" />
-            <div class="inp-hint">Reference date for balances.</div>
-          </div>
-          <div class="inp-field-row">
-            <div class="inp-field-group">
-              <label>Current age</label>
-              <input type="number" id="in_currentAge" min="18" max="90" />
-              <span class="derived-chip">Auto</span>
+        <!-- YOU TAB -->
+        <div id="tab-you" class="tab">
+          <!-- Personal Card — collapsible, always visible -->
+          <div class="income-personal-card open" id="incomePersonalCard">
+            <div class="income-personal-header" data-toggle="incomePersonalCard">
+              <div class="income-personal-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
+              <div class="income-personal-copy">
+                <h4>Personal Details</h4>
+                <p>Date of birth, valuation date and key retirement ages</p>
+              </div>
+              <div class="income-personal-badges">
+                <span class="income-personal-badge" id="incomePersonalAgeBadge">Age —</span>
+                <span class="income-personal-badge" id="incomePersonalRetireBadge">Retire —</span>
+              </div>
+              <button class="income-personal-toggle" type="button" aria-label="Toggle personal details"><svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></button>
             </div>
-            <div class="inp-field-group">
-              <label>Months to birthday</label>
-              <input type="number" id="in_firstYearMonths" min="0.1" max="12" step="0.1" />
-              <span class="derived-chip">Auto</span>
+            <div class="income-personal-body">
+              <div class="form" style="display:grid;grid-template-columns:repeat(12,1fr);gap:16px;">
+                <div class="field" style="grid-column:span 3;display:flex;flex-direction:column;gap:6px;"><label>Date of birth</label><input type="date" id="in_dob" /><div class="hint">Used to derive current age.</div></div>
+                <div class="field" style="grid-column:span 3;display:flex;flex-direction:column;gap:6px;"><label>Values as at date</label><input type="date" id="in_valuationDate" /><div class="hint">Reference date for balances.</div></div>
+                <div class="field" style="grid-column:span 3;display:flex;flex-direction:column;gap:6px;"><label>Current age</label><input type="number" id="in_currentAge" min="18" max="90" /><span class="derived-chip">Auto-derived</span></div>
+                <div class="field" style="grid-column:span 3;display:flex;flex-direction:column;gap:6px;"><label>Months to birthday</label><input type="number" id="in_firstYearMonths" min="0.1" max="12" step="0.1" /><span class="derived-chip">Auto-derived</span></div>
+              </div>
+              <div class="form" style="display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:16px;">
+                <div class="field" style="grid-column:span 4;display:flex;flex-direction:column;gap:6px;"><label>Retirement age</label><input type="number" id="in_retireAge" min="40" max="90" /></div>
+                <div class="field" style="grid-column:span 4;display:flex;flex-direction:column;gap:6px;"><label>Early retirement age</label><input type="number" id="in_earlyAge" min="40" max="90" placeholder="Optional" /></div>
+                <div class="field" style="grid-column:span 4;display:flex;flex-direction:column;gap:6px;"><label>State Pension age</label><input type="number" id="in_stateAge" min="55" max="90" /></div>
+              </div>
             </div>
           </div>
-          <hr class="inp-divider" />
-          <div class="inp-slider-group">
-            <label>Retirement age <strong id="sliderRetireVal">67</strong></label>
-            <input type="range" class="inp-range" id="in_retireAge" min="40" max="90" />
-          </div>
-          <div class="inp-field-group">
-            <label>Early retirement age <span class="inp-optional">(optional)</span></label>
-            <input type="number" id="in_earlyAge" min="40" max="90" placeholder="Optional" />
-          </div>
-          <div class="inp-slider-group">
-            <label>State Pension age <strong id="sliderStateVal">67</strong></label>
-            <input type="range" class="inp-range" id="in_stateAge" min="55" max="90" />
-          </div>
-        </div>
-      </div>
 
-      <!-- EMPLOYMENT drawer -->
-      <div class="inp-drawer" id="drawer-employment">
-        <div class="inp-drawer-head">
-          <h4>💼 Employment</h4>
-          <button class="inp-drawer-close" type="button" data-close-drawer>&times;</button>
-        </div>
-        <div class="inp-drawer-body">
-          <div class="inp-field-group">
-            <label>Annual salary</label>
-            <div class="inp-currency-wrap"><span class="inp-currency-sym">£</span><input type="number" id="in_salary" min="0" step="100" class="inp-currency-input" /></div>
+          <!-- Income KPI Tabs -->
+          <div class="income-kpi-tabs" id="subtabs-you" role="tablist">
+            <button class="income-kpi-tab active" data-subtab="you-employment" type="button">
+              <div class="income-kpi-icon">💼</div>
+              <div class="income-kpi-label">Employment</div>
+              <div class="income-kpi-value" id="incomeKpiSalary">£0</div>
+            </button>
+            <button class="income-kpi-tab" data-subtab="you-retirement" type="button">
+              <div class="income-kpi-icon">🏖️</div>
+              <div class="income-kpi-label">Retirement</div>
+              <div class="income-kpi-value" id="incomeKpiRetirement">£0</div>
+            </button>
+            <button class="income-kpi-tab" data-subtab="you-pensions" type="button">
+              <div class="income-kpi-icon">🏦</div>
+              <div class="income-kpi-label">Pensions</div>
+              <div class="income-kpi-value" id="incomeKpiPensions">£0</div>
+            </button>
+            <button class="income-kpi-tab" data-subtab="you-other" type="button">
+              <div class="income-kpi-icon">📊</div>
+              <div class="income-kpi-label">Other Income</div>
+              <div class="income-kpi-value" id="incomeKpiOther">£0</div>
+            </button>
           </div>
-          <div class="inp-slider-group">
-            <label>Salary growth <strong id="sliderGrowthVal">0%</strong>/yr</label>
-            <input type="range" class="inp-range" id="in_salaryGrowth" min="0" max="10" step="0.1" />
-          </div>
-          <hr class="inp-divider" />
-          <div class="inp-section-label">Pension contributions</div>
-          <div class="inp-slider-group">
-            <label>Your contribution <strong id="sliderEmpVal">0%</strong></label>
-            <input type="range" class="inp-range inp-range--accent" id="in_empPct" min="0" max="40" step="0.5" />
-          </div>
-          <div class="inp-slider-group">
-            <label>Employer contribution <strong id="sliderErVal">0%</strong></label>
-            <input type="range" class="inp-range inp-range--green" id="in_erPct" min="0" max="40" step="0.5" />
-          </div>
-          <div class="inp-kpi-row">
-            <div class="inp-kpi"><div class="inp-kpi-label">Total saving</div><div class="inp-kpi-value" id="kpiTotalContrib">£0/yr</div></div>
-            <div class="inp-kpi"><div class="inp-kpi-label">Monthly</div><div class="inp-kpi-value" id="kpiMonthlyContrib">£0/mo</div></div>
-          </div>
-          <hr class="inp-divider" />
-          <div class="inp-actions">
-            <button type="button" class="inp-action-btn" id="btnEarningsCopyPartner">Copy to partner</button>
-            <button type="button" class="inp-action-btn inp-action-btn--outline" id="btnEarningsScenario">Save scenario</button>
-          </div>
-          <button type="button" class="inp-action-btn inp-action-btn--outline inp-action-btn--full" id="btnEarningsResume" style="margin-top:8px">Finish later</button>
-          <button type="button" style="display:none" id="btnEarningsFocusContrib"></button>
-        </div>
-      </div>
 
-      <!-- PENSIONS drawer -->
-      <div class="inp-drawer" id="drawer-pensions">
-        <div class="inp-drawer-head">
-          <h4>🏦 Pension Pots</h4>
-          <button class="inp-drawer-close" type="button" data-close-drawer>&times;</button>
-        </div>
-        <div class="inp-drawer-body">
-          <div class="inp-field-group">
-            <label>Workplace DC pot</label>
-            <div class="inp-currency-wrap"><span class="inp-currency-sym">£</span><input type="number" id="in_pot" min="0" step="1000" class="inp-currency-input" /></div>
+          <!-- Employment Panel -->
+          <div id="subtab-you-employment" class="subtab-panel">
+            <div class="income-panel-grid">
+              <div class="income-panel-left">
+                <div class="income-stat-row">
+                  <div class="income-stat-card">
+                    <div class="income-stat-label">Salary run-rate</div>
+                    <div class="income-stat-value" id="earningsSalaryHeadline">£0</div>
+                    <div class="income-stat-meta" id="earningsSalaryNote">Add salary to get started.</div>
+                  </div>
+                  <div class="income-stat-card">
+                    <div class="income-stat-label">Pension saving</div>
+                    <div class="income-stat-value" id="earningsContributionHeadline">£0</div>
+                    <div class="income-stat-meta" id="earningsContributionNote">Employee + employer total 0%.</div>
+                  </div>
+                  <div class="income-stat-card">
+                    <div class="income-stat-label">Buffer income</div>
+                    <div class="income-stat-value" id="earningsBufferHeadline">£0</div>
+                    <div class="income-stat-meta" id="earningsBufferNote">Other income + growth.</div>
+                  </div>
+                </div>
+                <div class="income-accordion">
+                  <button class="income-accordion-btn active" type="button" data-accordion="emp-salary">
+                    <div class="income-accordion-icon">💰</div>
+                    <span class="income-accordion-title">Salary Details</span>
+                    <span class="income-accordion-summary" id="accordionSumSalary">—</span>
+                    <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                  </button>
+                  <div class="income-accordion-body active" id="accordion-emp-salary">
+                    <div class="form">
+                      <div class="field"><label>Salary (&#163;/yr)</label><input type="number" id="in_salary" min="0" step="100" /></div>
+                      <div class="field"><label>Salary growth (%/yr, nominal)</label><input type="number" id="in_salaryGrowth" step="0.1" /><div class="hint">Nominal pay growth for projections.</div></div>
+                    </div>
+                  </div>
+                  <button class="income-accordion-btn" type="button" data-accordion="emp-contrib">
+                    <div class="income-accordion-icon">🏗️</div>
+                    <span class="income-accordion-title">Pension Contributions</span>
+                    <span class="income-accordion-summary" id="accordionSumContrib">—</span>
+                    <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                  </button>
+                  <div class="income-accordion-body" id="accordion-emp-contrib">
+                    <div class="form">
+                      <div class="field"><label>Employee pension (% of salary)</label><input type="number" id="in_empPct" step="0.1" /></div>
+                      <div class="field"><label>Employer pension (% of salary)</label><input type="number" id="in_erPct" step="0.1" /></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="income-earnings-actions" role="group">
+                  <button type="button" class="income-earnings-btn" id="btnEarningsResume">Finish later</button>
+                  <button type="button" class="income-earnings-btn income-earnings-btn--primary" id="btnEarningsCopyPartner">Copy to partner</button>
+                  <button type="button" class="income-earnings-btn" id="btnEarningsScenario">Save scenario</button>
+                </div>
+              </div>
+              <div class="income-panel-right">
+                <aside class="inputs-coach-panel" aria-live="polite">
+                  <div class="inputs-coach-eyebrow">Coach</div>
+                  <h5>Next suggestion</h5>
+                  <p id="earningsCoachTip">Add your salary so the planner can size contribution headroom.</p>
+                  <ul class="inputs-coach-list">
+                    <li><span id="earningsCoachDetail1">Employer match not captured.</span></li>
+                    <li><span id="earningsCoachDetail2">Growth set to nominal rate.</span></li>
+                  </ul>
+                  <button type="button" class="inputs-coach-link" id="btnEarningsFocusContrib">Adjust employer match</button>
+                </aside>
+              </div>
+            </div>
           </div>
-          <hr class="inp-divider" />
-          <div class="inp-section-label">Extra DC Pensions</div>
-          <div id="dcPensionsSummary" class="inputs-repeater-summary muted small"></div>
-          <div id="dcPensionsWrap"></div>
-          <div class="repeater-empty-state" id="dcEmptyState">
-            <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14c1.1 0 2 .9 2 2v1h-9a2 2 0 00-2 2v8a2 2 0 002 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
-            <div class="repeater-empty-title">No extra DC pensions</div>
-            <button class="repeater-add-btn" id="btnAddDc" type="button">+ Add DC pension</button>
-          </div>
-          <hr class="inp-divider" />
-          <div class="inp-section-label">DB Pensions</div>
-          <div id="dbPensionsSummary" class="inputs-repeater-summary muted small"></div>
-          <div id="dbPensionsWrap"></div>
-          <div class="repeater-empty-state" id="dbEmptyState">
-            <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.94s4.18 1.36 4.18 3.85c0 1.89-1.44 2.98-3.12 3.19z"/></svg></div>
-            <div class="repeater-empty-title">No DB pensions</div>
-            <button class="repeater-add-btn" id="btnAddDb" type="button">+ Add DB pension</button>
-          </div>
-          <hr class="inp-divider" />
-          <div class="inp-section-label">Extra Contributions</div>
-          <div id="contribEventsSummary" class="inputs-repeater-summary muted small"></div>
-          <div id="contribEventsWrap"></div>
-          <div class="repeater-empty-state" id="contribEmptyState">
-            <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
-            <div class="repeater-empty-title">No extra contributions</div>
-            <button class="repeater-add-btn" id="btnAddContrib" type="button">+ Add contribution</button>
-          </div>
-          <hr class="inp-divider" />
-          <div class="inp-section-label">Lump Sum Withdrawals</div>
-          <div id="lumpSumEventsSummary" class="inputs-repeater-summary muted small"></div>
-          <div id="lumpSumEventsWrap"></div>
-          <div class="repeater-empty-state" id="lumpEmptyState">
-            <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M5 8h14V6H5v2zm0 0h14v2H5V8zm7 11l4-4h-3V9h-2v6H8l4 4z"/></svg></div>
-            <div class="repeater-empty-title">No lump sums</div>
-            <button class="repeater-add-btn" id="btnAddLumpSum" type="button">+ Add lump sum</button>
-          </div>
-        </div>
-      </div>
 
-      <!-- RETIREMENT drawer -->
-      <div class="inp-drawer" id="drawer-retirement">
-        <div class="inp-drawer-head">
-          <h4>🏖️ Retirement Income</h4>
-          <button class="inp-drawer-close" type="button" data-close-drawer>&times;</button>
-        </div>
-        <div class="inp-drawer-body">
-          <div class="inp-field-group">
-            <label>State Pension</label>
-            <div class="inp-currency-wrap"><span class="inp-currency-sym">£</span><input type="number" id="in_statePension" step="100" class="inp-currency-input" /></div>
-            <div class="inp-hint">Annual amount in today's money.</div>
+          <!-- Retirement Panel -->
+          <div id="subtab-you-retirement" class="subtab-panel" style="display:none">
+            <div class="income-panel-grid">
+              <div class="income-panel-left">
+                <div class="income-stat-row">
+                  <div class="income-stat-card">
+                    <div class="income-stat-label">State Pension</div>
+                    <div class="income-stat-value" id="incomeStatSP">£0/yr</div>
+                  </div>
+                  <div class="income-stat-card">
+                    <div class="income-stat-label">Drawdown Rate</div>
+                    <div class="income-stat-value" id="incomeStatDraw">0%</div>
+                  </div>
+                </div>
+                <div class="income-accordion">
+                  <button class="income-accordion-btn active" type="button" data-accordion="ret-sp">
+                    <div class="income-accordion-icon">🏛️</div>
+                    <span class="income-accordion-title">State Pension</span>
+                    <span class="income-accordion-summary" id="accordionSumSP">—</span>
+                    <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                  </button>
+                  <div class="income-accordion-body active" id="accordion-ret-sp">
+                    <div class="form">
+                      <div class="field"><label>State Pension (today's &#163;/yr)</label><input type="number" id="in_statePension" step="100" /></div>
+                    </div>
+                  </div>
+                  <button class="income-accordion-btn" type="button" data-accordion="ret-drawdown">
+                    <div class="income-accordion-icon">📉</div>
+                    <span class="income-accordion-title">Drawdown Rules</span>
+                    <span class="income-accordion-summary" id="accordionSumDraw">—</span>
+                    <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                  </button>
+                  <div class="income-accordion-body" id="accordion-ret-drawdown">
+                    <div class="form">
+                      <div class="field"><label>Drawdown rate (% of pot/yr)</label><input type="number" id="in_draw" step="0.1" /></div>
+                      <div class="field w12"><div class="hint">Recurring drawdown is regular annual withdrawals. One-off withdrawals go in <strong>Pensions &rarr; Lump Sums</strong>.</div></div>
+                      <div class="field"><label>Tax&#8209;free cash per withdrawal (%)</label><input type="number" id="in_tflsPct" step="0.1" /></div>
+                      <div class="field"><label>TFLS cap / LSA (&#163;)</label><input type="number" id="in_tflsCap" step="100" /></div>
+                    </div>
+                  </div>
+                  <button class="income-accordion-btn" type="button" data-accordion="ret-tax">
+                    <div class="income-accordion-icon">📋</div>
+                    <span class="income-accordion-title">Tax Controls</span>
+                    <span class="income-accordion-summary" id="accordionSumTax">UK 2024/25</span>
+                    <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                  </button>
+                  <div class="income-accordion-body" id="accordion-ret-tax">
+                    <div class="form">
+                      <div class="field"><label>Personal Allowance (&#163;)</label><input type="number" id="in_allow" step="10" /></div>
+                      <div class="field"><label>Basic rate tax (%)</label><input type="number" id="in_basicTax" step="0.1" /></div>
+                      <div class="field"><label>Higher-rate tax (%)</label><input type="number" id="in_higherTax" step="0.1" /></div>
+                      <div class="field"><label>Higher-rate threshold (&#163;)</label><input type="number" id="in_higherThreshold" step="100" /></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="income-panel-right">
+                <div class="inputs-coach-panel">
+                  <div class="inputs-coach-eyebrow">Guide</div>
+                  <h5>Retirement income</h5>
+                  <p>State pension starts at your State Pension age. Drawdown applies as a percentage of your DC pot each year.</p>
+                  <ul class="inputs-coach-list">
+                    <li>TFLS (tax-free lump sum) is taken from each drawdown.</li>
+                    <li>Tax controls use UK 2024/25 defaults.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
-          <hr class="inp-divider" />
-          <div class="inp-section-label">Drawdown</div>
-          <div class="inp-slider-group">
-            <label>Drawdown rate <strong id="sliderDrawVal">0%</strong>/yr</label>
-            <input type="range" class="inp-range" id="in_draw" min="0" max="10" step="0.1" />
-            <div class="inp-hint">Percentage of your pot withdrawn annually.</div>
-          </div>
-          <div class="inp-slider-group">
-            <label>Tax-free % per withdrawal <strong id="sliderTflsVal">25%</strong></label>
-            <input type="range" class="inp-range inp-range--green" id="in_tflsPct" min="0" max="100" step="0.5" />
-          </div>
-          <div class="inp-field-group">
-            <label>TFLS cap / LSA</label>
-            <div class="inp-currency-wrap"><span class="inp-currency-sym">£</span><input type="number" id="in_tflsCap" step="100" class="inp-currency-input" /></div>
-          </div>
-        </div>
-      </div>
 
-      <!-- TAX drawer -->
-      <div class="inp-drawer" id="drawer-tax">
-        <div class="inp-drawer-head">
-          <h4>📋 Tax Settings</h4>
-          <button class="inp-drawer-close" type="button" data-close-drawer>&times;</button>
-        </div>
-        <div class="inp-drawer-body">
-          <div class="inp-field-group">
-            <label>Personal Allowance</label>
-            <div class="inp-currency-wrap"><span class="inp-currency-sym">£</span><input type="number" id="in_allow" step="10" class="inp-currency-input" /></div>
+          <!-- Pensions Panel -->
+          <div id="subtab-you-pensions" class="subtab-panel" style="display:none">
+            <div class="income-stat-row">
+              <div class="income-stat-card">
+                <div class="income-stat-label">Workplace Pot</div>
+                <div class="income-stat-value" id="incomeStatPot">£0</div>
+              </div>
+              <div class="income-stat-card">
+                <div class="income-stat-label">Extra DC Pots</div>
+                <div class="income-stat-value" id="incomeStatDcExtra">0</div>
+              </div>
+              <div class="income-stat-card">
+                <div class="income-stat-label">DB Income</div>
+                <div class="income-stat-value" id="incomeStatDb">£0/yr</div>
+              </div>
+            </div>
+            <div class="income-accordion">
+              <button class="income-accordion-btn active" type="button" data-accordion="pen-workplace">
+                <div class="income-accordion-icon">💼</div>
+                <span class="income-accordion-title">Workplace DC Pension</span>
+                <span class="income-accordion-summary" id="accordionSumPot">—</span>
+                <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+              </button>
+              <div class="income-accordion-body active" id="accordion-pen-workplace">
+                <div class="form">
+                  <div class="field"><label>Workplace DC pension pot (&#163;)</label><input type="number" id="in_pot" min="0" step="100" /></div>
+                </div>
+              </div>
+              <button class="income-accordion-btn" type="button" data-accordion="pen-dc">
+                <div class="income-accordion-icon">🏦</div>
+                <span class="income-accordion-title">Extra DC Pensions</span>
+                <span class="income-accordion-summary" id="accordionSumDc">None</span>
+                <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+              </button>
+              <div class="income-accordion-body" id="accordion-pen-dc">
+                <div id="dcPensionsSummary" class="inputs-repeater-summary muted small"></div>
+                <div id="dcPensionsWrap"></div>
+                <div class="repeater-empty-state" id="dcEmptyState">
+                  <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14c1.1 0 2 .9 2 2v1h-9a2 2 0 00-2 2v8a2 2 0 002 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+                  <div class="repeater-empty-title">No extra DC pensions yet</div>
+                  <div class="repeater-empty-text">Each pot can have its own fee and withdrawal priority.</div>
+                  <button class="repeater-add-btn" id="btnAddDc" type="button">+ Add DC pension</button>
+                </div>
+              </div>
+              <button class="income-accordion-btn" type="button" data-accordion="pen-db">
+                <div class="income-accordion-icon">🏛️</div>
+                <span class="income-accordion-title">DB Pensions</span>
+                <span class="income-accordion-summary" id="accordionSumDbPen">None</span>
+                <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+              </button>
+              <div class="income-accordion-body" id="accordion-pen-db">
+                <div id="dbPensionsSummary" class="inputs-repeater-summary muted small"></div>
+                <div id="dbPensionsWrap"></div>
+                <div class="repeater-empty-state" id="dbEmptyState">
+                  <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.94s4.18 1.36 4.18 3.85c0 1.89-1.44 2.98-3.12 3.19z"/></svg></div>
+                  <div class="repeater-empty-title">No DB pensions yet</div>
+                  <div class="repeater-empty-text">Final salary or career average income streams.</div>
+                  <button class="repeater-add-btn" id="btnAddDb" type="button">+ Add DB pension</button>
+                </div>
+              </div>
+              <button class="income-accordion-btn" type="button" data-accordion="pen-contrib">
+                <div class="income-accordion-icon">➕</div>
+                <span class="income-accordion-title">Extra Contributions</span>
+                <span class="income-accordion-summary" id="accordionSumContribEvents">None</span>
+                <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+              </button>
+              <div class="income-accordion-body" id="accordion-pen-contrib">
+                <div id="contribEventsSummary" class="inputs-repeater-summary muted small"></div>
+                <div id="contribEventsWrap"></div>
+                <div class="repeater-empty-state" id="contribEmptyState">
+                  <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+                  <div class="repeater-empty-title">No extra contributions yet</div>
+                  <div class="repeater-empty-text">One-off top-ups, monthly boosts, and bonus-funded payments.</div>
+                  <button class="repeater-add-btn" id="btnAddContrib" type="button">+ Add contribution</button>
+                </div>
+              </div>
+              <button class="income-accordion-btn" type="button" data-accordion="pen-lump">
+                <div class="income-accordion-icon">💎</div>
+                <span class="income-accordion-title">Lump Sum Withdrawals</span>
+                <span class="income-accordion-summary" id="accordionSumLumpEvents">None</span>
+                <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+              </button>
+              <div class="income-accordion-body" id="accordion-pen-lump">
+                <div id="lumpSumEventsSummary" class="inputs-repeater-summary muted small"></div>
+                <div id="lumpSumEventsWrap"></div>
+                <div class="repeater-empty-state" id="lumpEmptyState">
+                  <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M5 8h14V6H5v2zm0 0h14v2H5V8zm7 11l4-4h-3V9h-2v6H8l4 4z"/></svg></div>
+                  <div class="repeater-empty-title">No lump sums yet</div>
+                  <div class="repeater-empty-text">PCLS, UFPLS or taxable lump sums at specific ages.</div>
+                  <button class="repeater-add-btn" id="btnAddLumpSum" type="button">+ Add DC lump sum</button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="inp-slider-group">
-            <label>Basic rate <strong id="sliderBasicVal">20%</strong></label>
-            <input type="range" class="inp-range" id="in_basicTax" min="0" max="50" step="0.5" />
-          </div>
-          <div class="inp-slider-group">
-            <label>Higher rate <strong id="sliderHigherVal">40%</strong></label>
-            <input type="range" class="inp-range inp-range--accent" id="in_higherTax" min="0" max="60" step="0.5" />
-          </div>
-          <div class="inp-field-group">
-            <label>Higher-rate threshold</label>
-            <div class="inp-currency-wrap"><span class="inp-currency-sym">£</span><input type="number" id="in_higherThreshold" step="100" class="inp-currency-input" /></div>
-          </div>
-        </div>
-      </div>
 
-      <!-- OTHER INCOME drawer -->
-      <div class="inp-drawer" id="drawer-other">
-        <div class="inp-drawer-head">
-          <h4>💷 Other Taxable Income</h4>
-          <button class="inp-drawer-close" type="button" data-close-drawer>&times;</button>
-        </div>
-        <div class="inp-drawer-body">
-          <div class="inp-field-group">
-            <label>Other taxable income</label>
-            <div class="inp-currency-wrap"><span class="inp-currency-sym">£</span><input type="number" id="in_otherIncome" min="0" step="100" class="inp-currency-input" /></div>
-            <div class="inp-hint">Rental, dividends, freelance — flat in today's money.</div>
+          <!-- Other Income Panel -->
+          <div id="subtab-you-other" class="subtab-panel" style="display:none">
+            <div class="income-compact-card">
+              <div class="income-compact-header">
+                <div class="income-compact-icon"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
+                <div class="income-compact-copy">
+                  <h4>Other Taxable Income</h4>
+                  <p>Rental income, dividends, freelance earnings or any other taxable income outside your salary and pensions.</p>
+                </div>
+              </div>
+              <div class="form">
+                <div class="field"><label>Other taxable income (&#163;/yr)</label><input type="number" id="in_otherIncome" min="0" step="100" /><div class="hint">This income is flat in today's money every year of the projection.</div></div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+        <!-- PARTNER TAB -->
+        <div id="tab-partner" class="tab" style="display:none">
+          <div class="income-compact-card" style="margin-bottom:24px">
+            <div class="income-compact-header">
+              <div class="income-compact-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+              <div class="income-compact-copy">
+                <h4>Household Mode</h4>
+                <p>Choose single or joint to add your partner's details.</p>
+              </div>
+            </div>
+            <div class="form">
+              <div class="field">
+                <label>Planner mode</label>
+                <select id="in_householdMode">
+                  <option value="single" selected>Single person</option>
+                  <option value="joint">Joint household</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
-      <!-- PARTNER drawer -->
-      <div class="inp-drawer inp-drawer--wide" id="drawer-partner">
-        <div class="inp-drawer-head">
-          <h4>👫 Partner / Household</h4>
-          <button class="inp-drawer-close" type="button" data-close-drawer>&times;</button>
-        </div>
-        <div class="inp-drawer-body">
-          <div class="inp-field-group">
-            <label>Planner mode</label>
-            <select id="in_householdMode">
-              <option value="single" selected>Single person</option>
-              <option value="joint">Joint household</option>
-            </select>
-          </div>
           <div id="spouseFields" style="display:none">
-            <hr class="inp-divider" />
-            <div class="inp-section-label">Partner Personal</div>
-            <div class="inp-field-row">
-              <div class="inp-field-group"><label>Date of birth</label><input type="date" id="in_spouseDob" /></div>
-              <div class="inp-field-group"><label>Values as at</label><input type="date" id="in_spouseValuationDate" /></div>
+            <!-- Partner Personal Card -->
+            <div class="income-personal-card open" id="incomePartnerPersonalCard" style="margin-bottom:24px">
+              <div class="income-personal-header" data-toggle="incomePartnerPersonalCard">
+                <div class="income-personal-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
+                <div class="income-personal-copy">
+                  <h4>Partner Personal Details</h4>
+                  <p>Date of birth, ages and timeline</p>
+                </div>
+                <div class="income-personal-badges">
+                  <span class="income-personal-badge" id="incomePartnerAgeBadge">Age —</span>
+                  <span class="income-personal-badge" id="incomePartnerRetireBadge">Retire —</span>
+                </div>
+                <button class="income-personal-toggle" type="button" aria-label="Toggle partner details"><svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg></button>
+              </div>
+              <div class="income-personal-body">
+                <div class="form" style="display:grid;grid-template-columns:repeat(12,1fr);gap:16px;">
+                  <div class="field" style="grid-column:span 3;display:flex;flex-direction:column;gap:6px;"><label>Date of birth</label><input type="date" id="in_spouseDob" /><div class="hint">Used to derive partner age.</div></div>
+                  <div class="field" style="grid-column:span 3;display:flex;flex-direction:column;gap:6px;"><label>Values as at date</label><input type="date" id="in_spouseValuationDate" /><div class="hint">Reference date for partner balances.</div></div>
+                  <div class="field" style="grid-column:span 3;display:flex;flex-direction:column;gap:6px;"><label>Current age</label><input type="number" id="in_spouseCurrentAge" min="18" max="90" /><span class="derived-chip">Auto-derived</span></div>
+                  <div class="field" style="grid-column:span 3;display:flex;flex-direction:column;gap:6px;"><label>Months to birthday</label><input type="number" id="in_spouseFirstYearMonths" min="0.1" max="12" step="0.1" /><span class="derived-chip">Auto-derived</span></div>
+                </div>
+                <div class="form" style="display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:16px;">
+                  <div class="field" style="grid-column:span 6;display:flex;flex-direction:column;gap:6px;"><label>Retirement age</label><input type="number" id="in_spouseRetireAge" min="40" max="90" /></div>
+                  <div class="field" style="grid-column:span 6;display:flex;flex-direction:column;gap:6px;"><label>State Pension age</label><input type="number" id="in_spouseStateAge" min="55" max="90" /></div>
+                </div>
+              </div>
             </div>
-            <div class="inp-field-row">
-              <div class="inp-field-group"><label>Current age</label><input type="number" id="in_spouseCurrentAge" min="18" max="90" /><span class="derived-chip">Auto</span></div>
-              <div class="inp-field-group"><label>Months to birthday</label><input type="number" id="in_spouseFirstYearMonths" min="0.1" max="12" step="0.1" /><span class="derived-chip">Auto</span></div>
+
+            <!-- Partner KPI Tabs -->
+            <div class="income-kpi-tabs" id="subtabs-partner" role="tablist">
+              <button class="income-kpi-tab active" data-subtab="partner-employment" type="button">
+                <div class="income-kpi-icon">💼</div>
+                <div class="income-kpi-label">Employment</div>
+                <div class="income-kpi-value" id="partnerKpiSalary">£0</div>
+              </button>
+              <button class="income-kpi-tab" data-subtab="partner-pensions" type="button">
+                <div class="income-kpi-icon">🏦</div>
+                <div class="income-kpi-label">Pensions</div>
+                <div class="income-kpi-value" id="partnerKpiPensions">£0</div>
+              </button>
+              <button class="income-kpi-tab" data-subtab="partner-income" type="button">
+                <div class="income-kpi-icon">📊</div>
+                <div class="income-kpi-label">Income</div>
+                <div class="income-kpi-value" id="partnerKpiIncome">£0</div>
+              </button>
             </div>
-            <div class="inp-slider-group">
-              <label>Retirement age <strong id="sliderSpouseRetireVal">67</strong></label>
-              <input type="range" class="inp-range" id="in_spouseRetireAge" min="40" max="90" />
+
+            <!-- Partner Employment Panel -->
+            <div id="subtab-partner-employment" class="subtab-panel">
+              <div class="income-accordion">
+                <button class="income-accordion-btn active" type="button" data-accordion="p-emp-salary">
+                  <div class="income-accordion-icon">💰</div>
+                  <span class="income-accordion-title">Salary &amp; Contributions</span>
+                  <span class="income-accordion-summary" id="partnerAccordionSumSalary">—</span>
+                  <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                </button>
+                <div class="income-accordion-body active" id="accordion-p-emp-salary">
+                  <div class="form">
+                    <div class="field"><label>Salary (&#163;/yr)</label><input type="number" id="in_spouseSalary" min="0" step="100" /></div>
+                    <div class="field"><label>Employee pension (% of salary)</label><input type="number" id="in_spouseEmpPct" step="0.1" /></div>
+                    <div class="field"><label>Employer pension (% of salary)</label><input type="number" id="in_spouseErPct" step="0.1" /></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="inp-slider-group">
-              <label>State Pension age <strong id="sliderSpouseStateVal">67</strong></label>
-              <input type="range" class="inp-range" id="in_spouseStateAge" min="55" max="90" />
+
+            <!-- Partner Pensions Panel -->
+            <div id="subtab-partner-pensions" class="subtab-panel" style="display:none">
+              <div class="income-accordion">
+                <button class="income-accordion-btn active" type="button" data-accordion="p-pen-pot">
+                  <div class="income-accordion-icon">💼</div>
+                  <span class="income-accordion-title">Pension Pot</span>
+                  <span class="income-accordion-summary" id="partnerAccordionSumPot">—</span>
+                  <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                </button>
+                <div class="income-accordion-body active" id="accordion-p-pen-pot">
+                  <div class="form">
+                    <div class="field"><label>Pension pot (&#163;)</label><input type="number" id="in_spousePot" min="0" step="100" /></div>
+                  </div>
+                </div>
+                <button class="income-accordion-btn" type="button" data-accordion="p-pen-dc">
+                  <div class="income-accordion-icon">🏦</div>
+                  <span class="income-accordion-title">Extra DC Pensions</span>
+                  <span class="income-accordion-summary">None</span>
+                  <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                </button>
+                <div class="income-accordion-body" id="accordion-p-pen-dc">
+                  <div id="partnerDcPensionsSummary" class="inputs-repeater-summary muted small"></div>
+                  <div id="partnerDcPensionsWrap"></div>
+                  <div class="repeater-empty-state" id="partnerDcEmptyState">
+                    <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14c1.1 0 2 .9 2 2v1h-9a2 2 0 00-2 2v8a2 2 0 002 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+                    <div class="repeater-empty-title">No extra DC pensions yet</div>
+                    <div class="repeater-empty-text">Partner's main pot is already included.</div>
+                    <button class="repeater-add-btn" id="btnAddPartnerDc" type="button">+ Add DC pension</button>
+                  </div>
+                </div>
+                <button class="income-accordion-btn" type="button" data-accordion="p-pen-db">
+                  <div class="income-accordion-icon">🏛️</div>
+                  <span class="income-accordion-title">DB Pensions</span>
+                  <span class="income-accordion-summary">None</span>
+                  <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                </button>
+                <div class="income-accordion-body" id="accordion-p-pen-db">
+                  <div id="partnerDbPensionsSummary" class="inputs-repeater-summary muted small"></div>
+                  <div id="partnerDbPensionsWrap"></div>
+                  <div class="repeater-empty-state" id="partnerDbEmptyState">
+                    <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.94s4.18 1.36 4.18 3.85c0 1.89-1.44 2.98-3.12 3.19z"/></svg></div>
+                    <div class="repeater-empty-title">No DB pensions yet</div>
+                    <div class="repeater-empty-text">Partner's defined benefit pensions.</div>
+                    <button class="repeater-add-btn" id="btnAddPartnerDb" type="button">+ Add DB pension</button>
+                  </div>
+                </div>
+                <button class="income-accordion-btn" type="button" data-accordion="p-pen-contrib">
+                  <div class="income-accordion-icon">➕</div>
+                  <span class="income-accordion-title">Extra Contributions</span>
+                  <span class="income-accordion-summary">None</span>
+                  <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                </button>
+                <div class="income-accordion-body" id="accordion-p-pen-contrib">
+                  <div id="partnerContribEventsSummary" class="inputs-repeater-summary muted small"></div>
+                  <div id="partnerContribEventsWrap"></div>
+                  <div class="repeater-empty-state" id="partnerContribEmptyState">
+                    <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+                    <div class="repeater-empty-title">No extra contributions yet</div>
+                    <div class="repeater-empty-text">Partner contribution events.</div>
+                    <button class="repeater-add-btn" id="btnAddPartnerContrib" type="button">+ Add contribution</button>
+                  </div>
+                </div>
+                <button class="income-accordion-btn" type="button" data-accordion="p-pen-lump">
+                  <div class="income-accordion-icon">💎</div>
+                  <span class="income-accordion-title">Lump Sum Withdrawals</span>
+                  <span class="income-accordion-summary">None</span>
+                  <svg class="income-accordion-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                </button>
+                <div class="income-accordion-body" id="accordion-p-pen-lump">
+                  <div id="partnerLumpSumEventsSummary" class="inputs-repeater-summary muted small"></div>
+                  <div id="partnerLumpSumEventsWrap"></div>
+                  <div class="repeater-empty-state" id="partnerLumpEmptyState">
+                    <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M5 8h14V6H5v2zm0 0h14v2H5V8zm7 11l4-4h-3V9h-2v6H8l4 4z"/></svg></div>
+                    <div class="repeater-empty-title">No lump sums yet</div>
+                    <div class="repeater-empty-text">Partner's lump sum withdrawals.</div>
+                    <button class="repeater-add-btn" id="btnAddPartnerLumpSum" type="button">+ Add DC lump sum</button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <hr class="inp-divider" />
-            <div class="inp-section-label">Partner Employment</div>
-            <div class="inp-field-group">
-              <label>Salary</label>
-              <div class="inp-currency-wrap"><span class="inp-currency-sym">£</span><input type="number" id="in_spouseSalary" min="0" step="100" class="inp-currency-input" /></div>
-            </div>
-            <div class="inp-slider-group">
-              <label>Employee contribution <strong id="sliderSpouseEmpVal">0%</strong></label>
-              <input type="range" class="inp-range" id="in_spouseEmpPct" min="0" max="40" step="0.5" />
-            </div>
-            <div class="inp-slider-group">
-              <label>Employer contribution <strong id="sliderSpouseErVal">0%</strong></label>
-              <input type="range" class="inp-range inp-range--green" id="in_spouseErPct" min="0" max="40" step="0.5" />
-            </div>
-            <hr class="inp-divider" />
-            <div class="inp-section-label">Partner Pensions</div>
-            <div class="inp-field-group">
-              <label>Pension pot</label>
-              <div class="inp-currency-wrap"><span class="inp-currency-sym">£</span><input type="number" id="in_spousePot" min="0" step="1000" class="inp-currency-input" /></div>
-            </div>
-            <div id="partnerDcPensionsSummary" class="inputs-repeater-summary muted small"></div>
-            <div id="partnerDcPensionsWrap"></div>
-            <div class="repeater-empty-state" id="partnerDcEmptyState">
-              <button class="repeater-add-btn" id="btnAddPartnerDc" type="button">+ Add DC pension</button>
-            </div>
-            <div id="partnerDbPensionsSummary" class="inputs-repeater-summary muted small"></div>
-            <div id="partnerDbPensionsWrap"></div>
-            <div class="repeater-empty-state" id="partnerDbEmptyState">
-              <button class="repeater-add-btn" id="btnAddPartnerDb" type="button">+ Add DB pension</button>
-            </div>
-            <div id="partnerContribEventsSummary" class="inputs-repeater-summary muted small"></div>
-            <div id="partnerContribEventsWrap"></div>
-            <div class="repeater-empty-state" id="partnerContribEmptyState">
-              <button class="repeater-add-btn" id="btnAddPartnerContrib" type="button">+ Add contribution</button>
-            </div>
-            <div id="partnerLumpSumEventsSummary" class="inputs-repeater-summary muted small"></div>
-            <div id="partnerLumpSumEventsWrap"></div>
-            <div class="repeater-empty-state" id="partnerLumpEmptyState">
-              <button class="repeater-add-btn" id="btnAddPartnerLumpSum" type="button">+ Add lump sum</button>
-            </div>
-            <hr class="inp-divider" />
-            <div class="inp-section-label">Partner Income</div>
-            <div class="inp-field-group">
-              <label>State Pension</label>
-              <div class="inp-currency-wrap"><span class="inp-currency-sym">£</span><input type="number" id="in_spouseStatePension" step="100" class="inp-currency-input" /></div>
-            </div>
-            <div class="inp-field-group">
-              <label>Other taxable income</label>
-              <div class="inp-currency-wrap"><span class="inp-currency-sym">£</span><input type="number" id="in_spouseOtherIncome" min="0" step="100" class="inp-currency-input" /></div>
+
+            <!-- Partner Income Panel -->
+            <div id="subtab-partner-income" class="subtab-panel" style="display:none">
+              <div class="income-compact-card">
+                <div class="income-compact-header">
+                  <div class="income-compact-icon"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
+                  <div class="income-compact-copy">
+                    <h4>Partner Income</h4>
+                    <p>State pension and other taxable income for your partner.</p>
+                  </div>
+                </div>
+                <div class="form">
+                  <div class="field"><label>State Pension (&#163;/yr)</label><input type="number" id="in_spouseStatePension" step="100" /></div>
+                  <div class="field"><label>Other taxable income (&#163;/yr)</label><input type="number" id="in_spouseOtherIncome" min="0" step="100" /></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

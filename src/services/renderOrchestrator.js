@@ -38,6 +38,7 @@ export function createRenderOrchestrator(deps){
     buildTaxOptimisationAnalysis,
     renderStrategyTaxOptimisation,
     renderWealth,
+    updateIncomeChips,
   } = deps;
 
   return function renderAll(showToast = false){
@@ -222,6 +223,7 @@ export function createRenderOrchestrator(deps){
     }
 
     try { renderWealth?.(); } catch (e) { console.error('Wealth render failed', e); }
+    try { updateIncomeChips?.(); } catch (e) { console.error('Income chip update failed', e); }
 
     renderOverallAndActions(s, stressRes.status, bridgeStatus, monteStatus);
 

@@ -195,11 +195,21 @@ export function bindAppEvents({
     if (!target) return;
     event.preventDefault();
     const field = String(target.getAttribute('data-focus-field') || '');
-    const tab = String(target.getAttribute('data-focus-tab') || '');
     const subTab = String(target.getAttribute('data-focus-subtab') || '');
 
     setView('inputs');
-    activateInputsTab(tab, subTab);
+
+    // Open the drawer if subtab is a drawer id
+    if (subTab.startsWith('drawer-')) {
+      const drawer = document.getElementById(subTab);
+      const overlay = document.getElementById('inpOverlay');
+      if (drawer) {
+        document.querySelectorAll('.inp-drawer.open').forEach(d => d.classList.remove('open'));
+        drawer.classList.add('open');
+        overlay?.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    }
 
     if (field.startsWith('btnAdd')) {
       getEl(field)?.click();

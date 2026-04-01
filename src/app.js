@@ -28,6 +28,7 @@ import { createStatusPanelRenderer } from './ui/statusPanels.js';
 import { createScenariosRenderer } from './ui/scenarios.js';
 import { createMonteRenderer } from './ui/monte.js';
 import { createReportRenderer } from './ui/report.js';
+import { createIncomePanel } from './ui/incomePanel.js';
 import { badge, createToast } from './ui/feedback.js';
 import { buildModelSignature } from './services/modelSignature.js';
 import { runMonteCarloAsync } from './services/monteCarloService.js';
@@ -62,6 +63,7 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
 
   const navigation = createNavigationController({ getEl: $, document, window, onOpenMonte: () => renderAll(false) });
   const wealthDashboard = createWealthDashboard({ getEl: $, fmtGBP, goToInputs: (...args) => { navigation.goToInputsSection(...args); navigation.setNavOpen(false); } });
+  const incomePanel = createIncomePanel({ getEl: $ });
   const renderBridge = createBridgeRenderer({ getEl: $, calcBridge, fmtGBP });
   const renderStress = createStressRenderer({ getEl: $, calcProjection, computeStressStatus, badge, drawLineChart, fmtGBP });
 
@@ -152,6 +154,7 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
     badge,
     forecastCard,
     renderWealth: () => wealthDashboard.render(),
+    updateIncomeChips: () => incomePanel.updateKPIs(),
   });
 
   const scenariosRenderer = createScenariosRenderer({
@@ -224,6 +227,7 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
   if (!autoRestore.restored) {
     inputState.setInputsFromState(defaults);
   }
+  incomePanel.init();
   inputState.syncDerivedAgeInputs($, 'main');
   inputState.syncDerivedAgeInputs($, 'spouse');
   renderAll(false);

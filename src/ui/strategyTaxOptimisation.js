@@ -1,219 +1,353 @@
-const formatMoney = (fmtGBP, value) => fmtGBP(Math.round(Number(value || 0)));
+/* ──────────────────────────────────────────────
+   strategyTaxOptimisation.js — Premium 2026 renderer
+   ────────────────────────────────────────────── */
+const esc = (s) => String(s ?? '').replace(/</g, '&lt;');
 
+/* ── 1. Hero gauge ── */
 function renderSummary(getEl, fmtGBP, cards) {
-  const summaryEl = getEl('strategyTaxSummary');
-  if (!summaryEl) return;
+  const el = getEl('strategyTaxSummary');
+  if (!el) return;
   if (!cards || cards.length === 0) {
-    summaryEl.innerHTML = '<div class="card strategy-detail-placeholder">Recalculate to populate tax optimisation insights.</div>';
+    el.innerHTML = '<div class="card strategy-detail-placeholder">Recalculate to populate tax optimisation insights.</div>';
     return;
   }
-  summaryEl.innerHTML = `
-    <div class="strategy-tax-summary-grid">
-      ${cards.map((card) => `
-        <article class="strategy-tax-summary-card strategy-tax-summary-card--${card.tone || 'info'}">
-          <p class="strategy-tax-summary-label">${card.title}</p>
-          <div class="strategy-tax-summary-value">${card.value}</div>
-          <p class="small muted">${card.detail}</p>
-        </article>
-      `).join('')}
+  const strategy = cards.find((c) => c.title.includes('strategy'));
+  const score    = cards.find((c) => c.title.includes('efficiency'));
+  const rest     = cards.filter((c) => c !== strategy && c !== score);
+
+  const scoreNum = parseInt(score?.value, 10) || 0;
+  const tone = scoreNum >= 80 ? 'good' : scoreNum >= 60 ? 'warn' : 'bad';
+  const r = 56; // radius
+  const circ = 2 * Math.PI * r;
+  const dashOff = circ * (1 - scoreNum / 100);
+
+  el.innerHTML = `
+    <div class="tax-hero">
+      <div class="tax-hero-gauge">
+        <svg viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="${r}" class="tax-hero-gauge-track" />
+          <circle cx="70" cy="70" r="${r}" class="tax-hero-gauge-fill tax-hero-gauge-fill--${tone}"
+            stroke-dasharray="${circ}" stroke-dashoffset="${dashOff}" />
+        </svg>
+        <div class="tax-hero-score">
+          <span class="tax-hero-score-value">${scoreNum}</span>
+          <span class="tax-hero-score-label">of 100</span>
+        </div>
+      </div>
+      <div class="tax-hero-metrics">
+        <div>
+          <p class="tax-hero-strategy">${esc(strategy?.value || 'No strategy selected')}</p>
+          <p class="tax-hero-strategy-sub">${esc(strategy?.detail || '')}</p>
+        </div>
+        <div class="tax-hero-pills">
+          ${rest.map((c) => `
+            <span class="tax-hero-pill tax-hero-pill--${c.tone || 'info'}">
+              <span class="tax-hero-pill-dot"></span>
+              ${esc(c.value)}
+            </span>
+          `).join('')}
+        </div>
+      </div>
     </div>`;
 }
 
+/* ── 2. Waterfall (withdrawal order) ── */
 function renderOrder(getEl, fmtGBP, order) {
-  const orderEl = getEl('strategyTaxOrder');
-  if (!orderEl) return;
+  const el = getEl('strategyTaxOrder');
+  if (!el) return;
   if (!order || order.length === 0) {
-    orderEl.innerHTML = '<div class="strategy-detail-placeholder">No withdrawal order available yet.</div>';
+    el.innerHTML = '<div class="strategy-detail-placeholder">No withdrawal order available yet.</div>';
     return;
   }
-  orderEl.innerHTML = `
+  el.innerHTML = `
     <div class="strategy-detail-card-head">
       <div>
-        <p class="strategy-detail-eyebrow">Withdrawal order analysis</p>
-        <h4>Likely stacking sequence</h4>
+        <p class="strategy-detail-eyebrow">Withdrawal waterfall</p>
+        <h4>Recommended stacking sequence</h4>
       </div>
     </div>
-    <ol class="strategy-tax-order">
+    <ol class="tax-waterfall">
       ${order.map((item, idx) => `
-        <li class="strategy-tax-order-row strategy-tax-order-row--${item.tone || 'info'}">
-          <div class="strategy-tax-order-index">${idx + 1}</div>
-          <div>
-            <strong>${item.label}</strong>
-            <div class="small muted">${item.source}</div>
-            <p>${item.reason}</p>
-            <div class="strategy-tax-order-meta">
-              <span><strong>Tax:</strong> ${item.taxTreatment}</span>
-              <span><strong>Flexibility:</strong> ${item.flexibility}</span>
-              <span><strong>Trade-off:</strong> ${item.tradeOff}</span>
-            </div>
+        <li class="tax-waterfall-row tax-waterfall-row--${item.tone || 'info'}">
+          <div class="tax-waterfall-idx">${idx + 1}</div>
+          <div class="tax-waterfall-body">
+            <h5>${esc(item.label)}</h5>
+            <p class="tax-waterfall-source">${esc(item.source)}</p>
+            <p class="tax-waterfall-reason">${esc(item.reason)}</p>
+          </div>
+          <div class="tax-waterfall-tags">
+            <span class="tax-waterfall-tag">${esc(item.taxTreatment).slice(0, 50)}${item.taxTreatment.length > 50 ? '…' : ''}</span>
+            <span class="tax-waterfall-tag">${esc(item.flexibility)}</span>
           </div>
         </li>
       `).join('')}
     </ol>`;
 }
 
-function renderComparisonCards(getEl, fmtGBP, cards) {
-  const compEl = getEl('strategyTaxComparisons');
-  if (!compEl) return;
-  if (!cards || cards.length === 0) {
-    compEl.innerHTML = '<div class="strategy-detail-placeholder">No comparison cards to show yet.</div>';
-    return;
-  }
-  compEl.innerHTML = `
-    <div class="strategy-detail-card-head">
-      <div>
-        <p class="strategy-detail-eyebrow">Strategy comparison</p>
-        <h4>Tax-focused approaches</h4>
-      </div>
-    </div>
-    <div class="strategy-tax-comparison-grid">
-      ${cards.map((card) => `
-        <article class="strategy-tax-comparison-card strategy-tax-comparison-card--${card.tone}">
-          <div class="strategy-tax-comparison-head">
-            <div>
-              <p class="strategy-tax-chip">${card.status.replace(/-/g, ' ')}</p>
-              <h5>${card.title}</h5>
-            </div>
-          </div>
-          <p class="strategy-tax-comparison-desc">${card.description}</p>
-          <div class="strategy-tax-comparison-cols">
-            <div>
-              <p class="strategy-tax-chip strategy-tax-chip--light">Pros</p>
-              <ul>${card.pros.map((pro) => `<li>${pro}</li>`).join('')}</ul>
-            </div>
-            <div>
-              <p class="strategy-tax-chip strategy-tax-chip--light">Risks</p>
-              <ul>${card.risks.map((risk) => `<li>${risk}</li>`).join('')}</ul>
-            </div>
-          </div>
-          <div class="strategy-tax-comparison-meta">
-            <span><strong>Tax impact:</strong> ${card.taxImpact}</span>
-            <span><strong>Flexibility:</strong> ${card.flexibility}</span>
-            <span><strong>MPAA:</strong> ${card.mpaa}</span>
-          </div>
-        </article>
-      `).join('')}
-    </div>`;
-}
-
+/* ── 3. Alert-style findings ── */
 function renderFindings(getEl, findings) {
-  const findingsEl = getEl('strategyTaxFindings');
-  if (!findingsEl) return;
+  const el = getEl('strategyTaxFindings');
+  if (!el) return;
   if (!findings || findings.length === 0) {
-    findingsEl.innerHTML = '<div class="strategy-detail-placeholder">No plan-specific findings yet.</div>';
+    el.innerHTML = '<div class="strategy-detail-placeholder">No plan-specific findings yet.</div>';
     return;
   }
-  findingsEl.innerHTML = `
+  const icons = { info: 'ℹ️', warn: '⚠️', good: '✅' };
+  el.innerHTML = `
     <div class="strategy-detail-card-head">
       <div>
         <p class="strategy-detail-eyebrow">Plan-specific findings</p>
         <h4>What stands out</h4>
       </div>
     </div>
-    <ul class="strategy-tax-finding-list">
-      ${findings.map((finding) => `<li>${finding}</li>`).join('')}
+    <ul class="tax-findings">
+      ${findings.map((f) => {
+        const tone = typeof f === 'object' ? (f.tone || 'info') : 'info';
+        const text = typeof f === 'object' ? f.text : f;
+        const icon = icons[tone] || icons.info;
+        return `
+          <li class="tax-finding tax-finding--${tone}">
+            <div class="tax-finding-icon">${icon}</div>
+            <p>${esc(text)}</p>
+          </li>`;
+      }).join('')}
     </ul>`;
 }
 
-function renderExplainer(getEl, explainer) {
-  const explainerEl = getEl('strategyTaxExplainer');
-  if (!explainerEl) return;
-  if (!explainer) {
-    explainerEl.innerHTML = '<div class="strategy-detail-placeholder">Select a strategy to compare PCLS and UFPLS.</div>';
+/* ── 4. Spotlight comparisons ── */
+let _spotlightCards = [];
+let _spotlightDeps = null;
+
+function renderSpotlightHero(el, card) {
+  if (!el || !card) return;
+  const heroEl = el.querySelector('.tax-spotlight-hero') || el;
+  const target = el.querySelector('.tax-spotlight-hero') ? heroEl : el;
+
+  const heroHTML = `
+    <div class="tax-spotlight-hero tax-spotlight-hero--${card.tone}">
+      <div class="tax-spotlight-head">
+        <span class="tax-spotlight-badge tax-spotlight-badge--${card.tone}">${esc(card.status?.replace(/-/g, ' ') || card.tone)}</span>
+        <h5>${esc(card.title)}</h5>
+      </div>
+      <p class="tax-spotlight-desc">${esc(card.description)}</p>
+      <div class="tax-spotlight-cols">
+        <div class="tax-spotlight-col">
+          <p class="tax-spotlight-col-title">Advantages</p>
+          <ul>${(card.pros || []).map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
+        </div>
+        <div class="tax-spotlight-col">
+          <p class="tax-spotlight-col-title">Risks</p>
+          <ul>${(card.risks || []).map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
+        </div>
+      </div>
+      <div class="tax-spotlight-meta">
+        <span><strong>Tax impact:</strong> ${esc(card.taxImpact)}</span>
+        <span><strong>Flexibility:</strong> ${esc(card.flexibility)}</span>
+        <span><strong>MPAA:</strong> ${esc(card.mpaa)}</span>
+      </div>
+    </div>`;
+
+  if (el.querySelector('.tax-spotlight-hero')) {
+    el.querySelector('.tax-spotlight-hero').outerHTML = heroHTML;
+  } else {
+    // first render — insert before chips
+    const chipsEl = el.querySelector('.tax-spotlight-chips');
+    if (chipsEl) chipsEl.insertAdjacentHTML('beforebegin', heroHTML);
+  }
+}
+
+function renderComparisonCards(getEl, fmtGBP, cards) {
+  const el = getEl('strategyTaxComparisons');
+  if (!el) return;
+  if (!cards || cards.length === 0) {
+    el.innerHTML = '<div class="strategy-detail-placeholder">No comparison cards to show yet.</div>';
     return;
   }
-  explainerEl.innerHTML = `
+
+  _spotlightCards = cards;
+  _spotlightDeps = { getEl };
+
+  // Sort: best-fit first
+  const sorted = [...cards].sort((a, b) => {
+    const rank = { good: 0, info: 1, warn: 2, bad: 3 };
+    return (rank[a.tone] ?? 1) - (rank[b.tone] ?? 1);
+  });
+  const active = sorted[0];
+
+  el.innerHTML = `
+    <div class="strategy-detail-card-head">
+      <div>
+        <p class="strategy-detail-eyebrow">Strategy comparison</p>
+        <h4>Tax-focused approaches</h4>
+      </div>
+    </div>
+    <div class="tax-spotlight">
+      <div class="tax-spotlight-hero tax-spotlight-hero--${active.tone}">
+        <div class="tax-spotlight-head">
+          <span class="tax-spotlight-badge tax-spotlight-badge--${active.tone}">${esc(active.status?.replace(/-/g, ' ') || active.tone)}</span>
+          <h5>${esc(active.title)}</h5>
+        </div>
+        <p class="tax-spotlight-desc">${esc(active.description)}</p>
+        <div class="tax-spotlight-cols">
+          <div class="tax-spotlight-col">
+            <p class="tax-spotlight-col-title">Advantages</p>
+            <ul>${active.pros.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
+          </div>
+          <div class="tax-spotlight-col">
+            <p class="tax-spotlight-col-title">Risks</p>
+            <ul>${active.risks.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
+          </div>
+        </div>
+        <div class="tax-spotlight-meta">
+          <span><strong>Tax impact:</strong> ${esc(active.taxImpact)}</span>
+          <span><strong>Flexibility:</strong> ${esc(active.flexibility)}</span>
+          <span><strong>MPAA:</strong> ${esc(active.mpaa)}</span>
+        </div>
+      </div>
+      <div class="tax-spotlight-chips" role="tablist">
+        ${sorted.map((c, i) => `
+          <button type="button" class="tax-spotlight-chip${i === 0 ? ' active' : ''}" data-spotlight-idx="${i}">${esc(c.title)}</button>
+        `).join('')}
+      </div>
+    </div>`;
+
+  // Wire chip clicks
+  el.querySelectorAll('.tax-spotlight-chip').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.dataset.spotlightIdx);
+      const card = sorted[idx];
+      if (!card) return;
+      el.querySelectorAll('.tax-spotlight-chip').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderSpotlightHero(el.querySelector('.tax-spotlight'), card);
+    });
+  });
+}
+
+/* ── 5. PCLS vs UFPLS explainer ── */
+function renderExplainer(getEl, explainer) {
+  const el = getEl('strategyTaxExplainer');
+  if (!el) return;
+  if (!explainer) {
+    el.innerHTML = '<div class="strategy-detail-placeholder">Select a strategy to compare PCLS and UFPLS.</div>';
+    return;
+  }
+  el.innerHTML = `
     <div class="strategy-detail-card-head">
       <div>
         <p class="strategy-detail-eyebrow">PCLS vs UFPLS</p>
         <h4>Understand the difference</h4>
       </div>
     </div>
-    <div class="strategy-tax-explainer">
-      <div>
-        <p class="strategy-tax-chip">${explainer.pcls.title}</p>
-        <ul>${explainer.pcls.bullets.map((item) => `<li>${item}</li>`).join('')}</ul>
+    <div class="tax-explainer-cols">
+      <div class="tax-explainer-col">
+        <span class="tax-explainer-col-badge">${esc(explainer.pcls.title)}</span>
+        <ul>${explainer.pcls.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
       </div>
-      <div>
-        <p class="strategy-tax-chip">${explainer.ufpls.title}</p>
-        <ul>${explainer.ufpls.bullets.map((item) => `<li>${item}</li>`).join('')}</ul>
+      <div class="tax-explainer-col">
+        <span class="tax-explainer-col-badge">${esc(explainer.ufpls.title)}</span>
+        <ul>${explainer.ufpls.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
       </div>
     </div>
-    <div class="strategy-tax-callout">
-      <strong>${explainer.highlight}</strong>
-      <p class="small muted">${explainer.mpaaNote}</p>
+    <div class="tax-explainer-callout">
+      <strong>${esc(explainer.highlight)}</strong>
+      <p>${esc(explainer.mpaaNote)}</p>
     </div>`;
 }
 
+/* ── 6. Premium tax band bar ── */
 function renderTaxBands(getEl, fmtGBP, usage) {
-  const bandsEl = getEl('strategyTaxBands');
-  if (!bandsEl) return;
+  const el = getEl('strategyTaxBands');
+  if (!el) return;
   if (!usage) {
-    bandsEl.innerHTML = '<div class="strategy-detail-placeholder">No tax band data yet.</div>';
+    el.innerHTML = '<div class="strategy-detail-placeholder">No tax band data yet.</div>';
     return;
   }
+
   const segments = [
-    { label: 'Personal allowance used', value: usage.allowanceFill, tone: 'good' },
-    { label: 'Basic-rate band used', value: usage.basicFill, tone: 'info' },
-    { label: 'Higher-rate exposure', value: usage.higherFill, tone: usage.higherFill > 0 ? 'warn' : 'info' },
+    { label: 'Personal allowance', value: usage.allowanceFill, cls: 'allowance' },
+    { label: 'Basic-rate band', value: usage.basicFill, cls: 'basic' },
+    { label: 'Higher-rate', value: usage.higherFill, cls: 'higher' },
   ];
-  const total = segments.reduce((sum, seg) => sum + seg.value, 0) || 1;
-  bandsEl.innerHTML = `
+  const total = segments.reduce((s, seg) => s + seg.value, 0) || 1;
+
+  const annotation = usage.higherFill > 0
+    ? `<strong>Higher-rate exposure detected.</strong> Guaranteed income fills the allowance; DC drawdown pushes ${fmtGBP(Math.round(usage.higherFill))} into the higher-rate band.`
+    : `<strong>All within basic-rate.</strong> Guaranteed income of ${fmtGBP(Math.round(usage.guaranteedIncome || 0))} plus DC drawdown stays below the higher-rate threshold.`;
+
+  el.innerHTML = `
     <div class="strategy-detail-card-head">
       <div>
         <p class="strategy-detail-eyebrow">Tax band usage</p>
         <h4>Retirement income layering</h4>
       </div>
     </div>
-    <div class="strategy-tax-band-bar">
-      ${segments.map((seg) => {
-        const pct = Math.max(2, Math.round((seg.value / total) * 100));
-        return `<span class="strategy-tax-band-segment strategy-tax-band-segment--${seg.tone}" style="width:${pct}%">
-          <small>${seg.label}</small>
-          <strong>${fmtGBP(Math.round(seg.value))}</strong>
-        </span>`;
-      }).join('')}
-    </div>
-    <div class="strategy-tax-band-breakdown">
-      <div>
-        <p class="small muted">Guaranteed income</p>
-        <strong>${fmtGBP(Math.round(usage.guaranteedIncome || 0))}</strong>
+    <div class="tax-band-viz">
+      <div class="tax-band-bar">
+        ${segments.map((seg) => {
+          const pct = Math.max(5, Math.round((seg.value / total) * 100));
+          return `<div class="tax-band-seg tax-band-seg--${seg.cls}" style="flex:${pct}">
+            <span class="tax-band-seg-label">${seg.label}</span>
+            <span class="tax-band-seg-value">${fmtGBP(Math.round(seg.value))}</span>
+          </div>`;
+        }).join('')}
       </div>
-      <div>
-        <p class="small muted">Taxable DC drawdown</p>
-        <strong>${fmtGBP(Math.round(usage.dcTaxable || 0))}</strong>
+      <div class="tax-band-markers">
+        <div class="tax-band-marker"><div class="tax-band-marker-line"></div>£0</div>
+        <div class="tax-band-marker"><div class="tax-band-marker-line"></div>PA: ${fmtGBP(usage.personalAllowance || 0)}</div>
+        <div class="tax-band-marker"><div class="tax-band-marker-line"></div>HR: ${fmtGBP(usage.personalAllowance + usage.basicBandLimit || 0)}</div>
       </div>
-      <div>
-        <p class="small muted">Tax-free cash in year one</p>
-        <strong>${fmtGBP(Math.round(usage.taxFreeCashAtRet || 0))}</strong>
+      <div class="tax-band-breakdown">
+        <div class="tax-band-stat">
+          <p class="tax-band-stat-label">Guaranteed income</p>
+          <div class="tax-band-stat-value">${fmtGBP(Math.round(usage.guaranteedIncome || 0))}</div>
+        </div>
+        <div class="tax-band-stat">
+          <p class="tax-band-stat-label">Taxable DC drawdown</p>
+          <div class="tax-band-stat-value">${fmtGBP(Math.round(usage.dcTaxable || 0))}</div>
+        </div>
+        <div class="tax-band-stat">
+          <p class="tax-band-stat-label">Tax-free cash year 1</p>
+          <div class="tax-band-stat-value">${fmtGBP(Math.round(usage.taxFreeCashAtRet || 0))}</div>
+        </div>
       </div>
+      <div class="tax-band-annotation">${annotation}</div>
     </div>`;
 }
 
+/* ── 7. Action checklist ── */
 function renderActions(getEl, actions) {
-  const actionsEl = getEl('strategyTaxActions');
-  if (!actionsEl) return;
+  const el = getEl('strategyTaxActions');
+  if (!el) return;
   if (!actions || actions.length === 0) {
-    actionsEl.innerHTML = '<div class="strategy-detail-placeholder">No recommended actions yet.</div>';
+    el.innerHTML = '<div class="strategy-detail-placeholder">No recommended actions yet.</div>';
     return;
   }
-  actionsEl.innerHTML = `
+  const priorityLabel = { bad: 'Urgent', warn: 'Important', good: 'Positive', info: 'Review' };
+  el.innerHTML = `
     <div class="strategy-detail-card-head">
       <div>
         <p class="strategy-detail-eyebrow">Recommended actions</p>
-        <h4>Plain-English next steps</h4>
+        <h4>Your tax-efficiency checklist</h4>
       </div>
     </div>
-    <ul class="strategy-tax-actions">
-      ${actions.map((action) => `
-        <li class="strategy-tax-action strategy-tax-action--${action.tone || 'info'}">
-          <strong>${action.title}</strong>
-          <p>${action.detail}</p>
-        </li>
-      `).join('')}
+    <ul class="tax-actions">
+      ${actions.map((a) => {
+        const tone = a.tone || 'info';
+        return `
+          <li class="tax-action">
+            <div class="tax-action-accent tax-action-accent--${tone}"></div>
+            <span class="tax-action-priority tax-action-priority--${tone}">${priorityLabel[tone] || 'Review'}</span>
+            <div class="tax-action-body">
+              <h5>${esc(a.title)}</h5>
+              <p>${esc(a.detail)}</p>
+            </div>
+          </li>`;
+      }).join('')}
     </ul>`;
 }
 
+/* ── Export ── */
 export function renderStrategyTaxOptimisation(deps, analysis) {
   const { getEl, fmtGBP } = deps;
   renderSummary(getEl, fmtGBP, analysis?.summaryCards);
