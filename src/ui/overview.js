@@ -33,18 +33,45 @@ function donutSegments(sources, total) {
   }).join('');
 }
 
-function sparklinePath(values, width = 130, height = 34) {
+function sparklinePath(values, width = 130, height = 38) {
   const series = Array.isArray(values) && values.length ? values.map((value) => Number(value || 0)) : [0, 0, 0];
   const min = Math.min(...series);
   const max = Math.max(...series);
   const range = max - min || 1;
-  return series
-    .map((value, index) => {
-      const x = (index / Math.max(1, series.length - 1)) * width;
-      const y = height - ((value - min) / range) * height;
-      return `${index === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`;
-    })
-    .join(' ');
+  const pad = 2;
+  const pts = series.map((value, index) => {
+    const x = (index / Math.max(1, series.length - 1)) * width;
+    const y = pad + (height - pad * 2) * (1 - (value - min) / range);
+    return [x, y];
+  });
+  /* Monotone cubic Hermite (Fritsch-Carlson) for smooth curve */
+  const n = pts.length;
+  if (n < 2) return { line: `M0,${height / 2}`, area: `M0,${height} L0,${height / 2} L0,${height}` };
+  const dx = [], slope = [];
+  for (let i = 0; i < n - 1; i++) {
+    dx[i] = pts[i + 1][0] - pts[i][0];
+    slope[i] = dx[i] ? (pts[i + 1][1] - pts[i][1]) / dx[i] : 0;
+  }
+  const tan = new Array(n);
+  tan[0] = slope[0];
+  for (let i = 1; i < n - 1; i++) tan[i] = (slope[i - 1] * slope[i] <= 0) ? 0 : (slope[i - 1] + slope[i]) / 2;
+  tan[n - 1] = slope[n - 2];
+  for (let i = 0; i < n - 1; i++) {
+    if (Math.abs(slope[i]) < 1e-10) { tan[i] = 0; tan[i + 1] = 0; continue; }
+    const a = tan[i] / slope[i], b = tan[i + 1] / slope[i];
+    if (a < 0) tan[i] = 0; if (b < 0) tan[i + 1] = 0;
+    const mag = a * a + b * b;
+    if (mag > 9) { const s = 3 / Math.sqrt(mag); tan[i] = s * a * slope[i]; tan[i + 1] = s * b * slope[i]; }
+  }
+  let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+  for (let i = 0; i < n - 1; i++) {
+    const seg = dx[i] / 3;
+    d += ` C${(pts[i][0] + seg).toFixed(1)},${(pts[i][1] + tan[i] * seg).toFixed(1)} ` +
+      `${(pts[i + 1][0] - seg).toFixed(1)},${(pts[i + 1][1] - tan[i + 1] * seg).toFixed(1)} ` +
+      `${pts[i + 1][0].toFixed(1)},${pts[i + 1][1].toFixed(1)}`;
+  }
+  const area = `${d} L${pts[n - 1][0].toFixed(1)},${height} L${pts[0][0].toFixed(1)},${height} Z`;
+  return { line: d, area };
 }
 
 export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
@@ -70,16 +97,20 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
     }
 
     if (headline) {
-      headline.innerHTML = model.headlineCards.map((card) => `
+      headline.innerHTML = model.headlineCards.map((card) => {
+        const spark = sparklinePath(card.sparkline);
+        return `
         <article class="overview-summary-card overview-summary-card--${card.tone}">
           <div class="overview-summary-label">${card.title}</div>
           <div class="overview-summary-value">${fmtGBP(card.value)}</div>
-          <svg class="overview-sparkline" viewBox="0 0 130 34" preserveAspectRatio="none" aria-hidden="true">
-            <path d="${sparklinePath(card.sparkline)}" />
+          <svg class="overview-sparkline" viewBox="0 0 130 38" preserveAspectRatio="none" aria-hidden="true">
+            <path class="spark-area" d="${spark.area}" />
+            <path class="spark-line" d="${spark.line}" />
           </svg>
           <div class="overview-summary-detail muted">${card.detail}</div>
         </article>
-      `).join('');
+      `;
+      }).join('');
     }
 
     if (income) {
@@ -206,7 +237,7 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
         planSummary.innerHTML = '<div class="muted">Run a projection to see the plan summary.</div>';
       } else {
         const sparkW = 280, sparkH = 50;
-        const psSparkD = sparklinePath(ps.sparkline, sparkW, sparkH);
+        const psSparkD = sparklinePath(ps.sparkline, sparkW, sparkH).line;
         planSummary.innerHTML = `
           <div class="proof-card proof-card--${ps.overallStatus}">
             <div class="proof-header">
@@ -269,7 +300,7 @@ export function renderOverviewDashboard({ getEl, fmtGBP }, model) {
       } else {
         const bridgeAmountLabel = panel.bridgeMode === 'gross' ? 'Gross withdrawal target' : 'Net spend target';
         const sparkW = 280, sparkH = 50;
-        const sparkD = sparklinePath(panel.sparkline, sparkW, sparkH);
+        const sparkD = sparklinePath(panel.sparkline, sparkW, sparkH).line;
 
         earlyBridge.innerHTML = `
           <div class="proof-card proof-card--${panel.baseStatus}">

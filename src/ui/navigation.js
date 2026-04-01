@@ -42,7 +42,9 @@ export function createNavigationController({ getEl, document, window, onOpenMont
 
   const VIEW_TITLES = {
     overview: 'Overview',
-    inputs: 'Inputs',
+    wealth: 'Current Wealth',
+    inputs: 'Income',
+    expenses: 'Expenses',
     assumptions: 'Assumptions',
     projection: 'Projection',
     strategy: 'Strategy',
@@ -336,7 +338,9 @@ export function createNavigationController({ getEl, document, window, onOpenMont
   function bindNavigation(actionHandlers = {}){
     cmdCommands = [
       { id:'go-overview', label:'Go to Dashboard', hint:'Overview', run:()=>setView('overview') },
-      { id:'go-inputs', label:'Go to Inputs', hint:'Setup assumptions', run:()=>setView('inputs') },
+      { id:'go-wealth', label:'Go to Current Wealth', hint:'Financial snapshot', run:()=>setView('wealth') },
+      { id:'go-inputs', label:'Go to Income', hint:'Setup earnings & pensions', run:()=>setView('inputs') },
+      { id:'go-expenses', label:'Go to Expenses', hint:'Spending tracker', run:()=>setView('expenses') },
       { id:'go-assumptions', label:'Go to Assumptions', hint:'Global settings', run:()=>setView('assumptions') },
       { id:'go-proj', label:'Go to Projection', hint:'Timeline path', run:()=>setView('projection') },
       { id:'go-strategy', label:'Go to Strategy', hint:'Improve outcomes', run:()=>setView('strategy') },
@@ -489,5 +493,5 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     });
   }
 
-  return { setView, setNavOpen, setRailCollapsed, syncBottomNav, setSheet, bindNavigation, updateNavHints };
+  return { setView, setNavOpen, setRailCollapsed, syncBottomNav, setSheet, bindNavigation, updateNavHints, goToInputsSection };
 }

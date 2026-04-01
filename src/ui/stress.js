@@ -19,17 +19,21 @@ const PRESETS = {
   none:     [],
 };
 
-const PALETTE = [
-  'rgba(190,18,60,.80)',   // danger (red)
-  'rgba(180,83,9,.80)',    // warning (amber)
-  'rgba(21,128,61,.80)',   // success (green)
-  'rgba(100,116,139,.80)', // muted (slate)
-  'rgba(37,99,235,.60)',   // accent-light
-  'rgba(15,23,42,.50)',    // text-muted
-  'rgba(190,18,60,.55)',   // danger-light
-  'rgba(180,83,9,.55)',    // warning-light
-  'rgba(21,128,61,.55)',   // success-light
-];
+function readStressPalette() {
+  const s = getComputedStyle(document.documentElement);
+  const v = name => s.getPropertyValue(name).trim();
+  return [
+    v('--danger')  || '#fb7185',
+    v('--warning') || '#fbbf24',
+    v('--success') || '#4ade80',
+    v('--text-3')  || '#94a3b8',
+    v('--accent')  || '#818cf8',
+    v('--text-2')  || '#cbd5e1',
+    v('--danger')  || '#fb7185',
+    v('--warning') || '#fbbf24',
+    v('--success') || '#4ade80',
+  ];
+}
 
 export function createStressRenderer(deps){
   const {getEl, calcProjection, computeStressStatus, badge, drawLineChart, fmtGBP = (v) => `£${Math.round(v || 0).toLocaleString()}`} = deps;
@@ -66,7 +70,7 @@ export function createStressRenderer(deps){
     const seriesToDraw = stressChartMode === 'core'
       ? (combined ? [baseline, combined] : [baseline, ...(isolated.slice(0, 1))])
       : [baseline, ...(combined ? [combined] : []), ...isolated];
-    drawLineChart(el, seriesToDraw, lastMarkers, {theme: 'light', emphasizeBaseline: true, showLegend: false});
+    drawLineChart(el, seriesToDraw, lastMarkers, {emphasizeBaseline: true, showLegend: false});
     renderStressLegend(seriesToDraw);
   }
 
@@ -262,11 +266,11 @@ export function createStressRenderer(deps){
             {label: 'Net income glide', value: `${fmtGBP(recurring75)} → ${fmtGBP(recurring85)}`, hint: 'Age 75 → 85'},
           ];
           const metricsHtml = metrics.map((m) => `
-            <div class="stress-stack-metric">
-              <span class="stress-stack-metric-label">${m.label}</span>
-              <span class="stress-stack-metric-value">${m.value}</span>
-              <span class="stress-stack-metric-hint">${m.hint}</span>
-            </div>`).join('');
+              <div class="proof-kpi">
+                <div class="proof-kpi-label">${m.label}</div>
+                <div class="proof-kpi-value">${m.value}</div>
+                <div class="proof-kpi-hint">${m.hint}</div>
+              </div>`).join('');
           const insights = [
             runOut,
             floorNarrative,
@@ -275,34 +279,35 @@ export function createStressRenderer(deps){
           ];
           const insightList = insights.map((item) => `<li>${item}</li>`).join('');
           compoundWrap.innerHTML = `
-            <article class="stress-stack-card stress-stack-${cc.sev}">
-              <header class="stress-stack-head">
-                <div>
-                  <p class="stress-stack-eyebrow">Resilience spotlight</p>
-                  <h3>Will your plan last under stacked stress?</h3>
-                </div>
-                <span class="stress-stack-chip">${statusChip}</span>
-              </header>
+            <div class="proof-card proof-card--${cc.sev}">
+              <div class="proof-header">
+                <span class="proof-title">Resilience Spotlight</span>
+                <span class="proof-badge proof-badge--${cc.sev}">${statusChip}</span>
+              </div>
+              <p class="proof-narrative">${progressCopy}</p>
+
               <div class="stress-stack-progress">
                 <div class="stress-stack-progress-track">
-                  <div class="stress-stack-progress-fill" style="width:${progressPct}%"></div>
+                  <div class="stress-stack-progress-fill stress-stack-progress-fill--${cc.sev}" style="width:${progressPct}%"></div>
                 </div>
-                <p class="stress-stack-progress-copy">${progressCopy}</p>
               </div>
-              <div class="stress-stack-metrics">${metricsHtml}</div>
-              <section class="stress-stack-panel">
-                <h4>What to know</h4>
+
+              <div class="proof-kpis proof-kpis--4">${metricsHtml}</div>
+
+              <div class="proof-guidance">
+                <strong>What to know</strong>
                 <ul class="stress-stack-list">${insightList}</ul>
-              </section>
-              <section class="stress-stack-panel stress-stack-panel--secondary">
+              </div>
+
+              <div class="stress-stack-panel stress-stack-panel--secondary">
                 <div class="stress-stack-badges">
                   <span class="badge">Pot @75: ${fmtGBP(potAt75Abs)}</span>
                   <span class="badge">ΔPot @75 vs base: -${fmtGBP(dropPot75)}</span>
                   <span class="badge">${upliftLabel}: ${upliftAmount}</span>
                 </div>
                 <p class="stress-stack-footnote">${cc.reason}.</p>
-              </section>
-            </article>`;
+              </div>
+            </div>`;
           if (decisionWrap) {
             const isolatedPasses = ranked.filter((x) => x.metrics.pass).length;
             const isolatedCount = ranked.length;
@@ -318,14 +323,19 @@ export function createStressRenderer(deps){
     }
 
     // Build chart series — use token-derived colours
+    const cs = getComputedStyle(document.documentElement);
+    const cv = name => cs.getPropertyValue(name).trim();
+    const accentColor = cv('--accent') || '#818cf8';
+    const text1Color  = cv('--text-1') || '#f1f5f9';
+    const pal = readStressPalette();
     const series = [
-      {key: 'baseline', name: 'Baseline', color: '#2563eb', dashed: false, data: base.years.map(y => ({x: y.age, y: y.potEnd}))},
+      {key: 'baseline', name: 'Baseline', color: accentColor, dashed: false, data: base.years.map(y => ({x: y.age, y: y.potEnd}))},
     ];
     if (stressSummary?.compound?.result?.years?.length) {
       series.push({
         key: 'combined',
         name: 'Combined (market stack)',
-        color: '#0f172a',
+        color: text1Color,
         dashed: false,
         data: stressSummary.compound.result.years.map((y) => ({x: y.age, y: y.potEnd})),
       });
@@ -334,14 +344,14 @@ export function createStressRenderer(deps){
       series.push({
         key: `isolated:${item.key}`,
         name:  `${item.label} (isolated)`,
-        color: PALETTE[idx % PALETTE.length],
+        color: pal[idx % pal.length],
         dashed: true,
         data:  item.result.years.map((y) => ({x: y.age, y: y.potEnd})),
       });
     });
 
     lastSeries  = series;
-    lastMarkers = [{x: s.retireAge, label: 'Retire', color: 'rgba(203,213,225,.55)'}];
+    lastMarkers = [{x: s.retireAge, label: 'Retire', color: cv('--border-2') || 'rgba(203,213,225,.55)'}];
     redrawChart();
 
     // Wire interactive controls (idempotent after first render)

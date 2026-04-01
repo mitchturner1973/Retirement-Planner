@@ -4,11 +4,18 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "tw": "npx @tailwindcss/cli -i styles/tailwind.css -o styles/tw.css",
+    "tw:watch": "npx @tailwindcss/cli -i styles/tailwind.css -o styles/tw.css --watch",
+    "tw:min": "npx @tailwindcss/cli -i styles/tailwind.css -o styles/tw.css --minify",
     "serve": "python3 -m http.server 8000",
     "build:public": "node scripts/build-public.mjs",
     "test:projection": "node scripts/test-projection.mjs",
     "test:rules": "node scripts/test-rules.mjs",
     "test:household": "node scripts/test-household.mjs",
     "test:logic": "node scripts/run-all-tests.mjs"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.2",
+    "tailwindcss": "^4.2.2"
   }
 }

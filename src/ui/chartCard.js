@@ -13,23 +13,54 @@
 
 import { fmtGBP } from './dom.js';
 
-/* ── Palette ── */
-const P = {
-  accumulation: '#2563eb',
-  drawdown:     '#b45309',
-  depleting:    '#be123c',
-  safe:         '#15803d',
-  text1: '#0f172a', text2: '#334155', text3: '#64748b',
-  bgMuted:  '#f8fafc',
-  grid:     'rgba(226,232,240,.55)',
-  axis:     'rgba(203,213,225,.70)',
-  label:    'rgba(100,116,139,.72)',
-  font:     'system-ui,-apple-system,sans-serif',
-  bandWork:    'rgba(37,99,235,.04)',
-  bandEarly:   'rgba(180,83,9,.04)',
-  bandRetired: 'rgba(21,128,61,.03)',
-  bandDanger:  'rgba(190,18,60,.05)',
-};
+/* ── Dynamic palette — reads CSS custom properties so the chart
+   adapts automatically to light / dark / any future theme ── */
+function readPalette(el) {
+  const s = getComputedStyle(el || document.documentElement);
+  const v = name => s.getPropertyValue(name).trim();
+
+  /* Parse an rgb/hex colour into [r,g,b] so we can build rgba bands */
+  function parseRGB(raw) {
+    if (!raw) return [99, 102, 241]; // fallback indigo
+    const hex = raw.match(/^#([\da-f]{6})$/i);
+    if (hex) {
+      const n = parseInt(hex[1], 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    }
+    const rgb = raw.match(/rgba?\(([^)]+)\)/);
+    if (rgb) {
+      const parts = rgb[1].split(',').map(Number);
+      return [parts[0], parts[1], parts[2]];
+    }
+    return [99, 102, 241];
+  }
+
+  const accumulation = v('--accent')        || '#4f46e5';
+  const drawdown     = v('--warning')       || '#d97706';
+  const depleting    = v('--danger')        || '#e11d48';
+  const safe         = v('--success')       || '#16a34a';
+
+  const [ar, ag, ab] = parseRGB(accumulation);
+  const [dr, dg, db] = parseRGB(drawdown);
+  const [sr, sg, sb] = parseRGB(safe);
+  const [xr, xg, xb] = parseRGB(depleting);
+
+  return {
+    accumulation, drawdown, depleting, safe,
+    text1:    v('--text-1')           || '#111827',
+    text2:    v('--text-2')           || '#4b5563',
+    text3:    v('--text-3')           || '#6b7280',
+    bgMuted:  v('--bg-surface-muted') || '#f8f9fb',
+    grid:     v('--border-1')         || 'rgba(226,232,240,.55)',
+    axis:     v('--border-2')         || 'rgba(203,213,225,.70)',
+    label:    v('--text-3')           || 'rgba(100,116,139,.72)',
+    font:     'system-ui,-apple-system,sans-serif',
+    bandWork:    `rgba(${ar},${ag},${ab},.05)`,
+    bandEarly:   `rgba(${dr},${dg},${db},.05)`,
+    bandRetired: `rgba(${sr},${sg},${sb},.04)`,
+    bandDanger:  `rgba(${xr},${xg},${xb},.06)`,
+  };
+}
 
 /* ── Helpers ── */
 const esc = s => String(s).replace(/[&<>"']/g, c =>
@@ -170,6 +201,9 @@ export function createChartCard(container, cfg = {}) {
   const $phaseLeg    = el.querySelector('.fc-phase-legend');
   const $rangeSelect = el.querySelector('.fc-range-select');
 
+  /* Palette — refreshed each render() to pick up light/dark changes */
+  let P = readPalette(el);
+
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.setAttribute('role', 'img');
@@ -274,6 +308,7 @@ export function createChartCard(container, cfg = {}) {
 
   /* ── Main render ── */
   function render() {
+    P = readPalette(el);
     const vis = visibleYears();
     const hasData = vis.length > 0;
 
@@ -571,7 +606,16 @@ export function createChartCard(container, cfg = {}) {
   }
 
   function setLoading(v) { update({ loading: !!v }); }
-  function destroy() { el.remove(); }
+
+  /* Re-render when OS theme changes so palette adapts */
+  const mql = window.matchMedia('(prefers-color-scheme: dark)');
+  const onThemeChange = () => render();
+  mql.addEventListener('change', onThemeChange);
+
+  function destroy() {
+    mql.removeEventListener('change', onThemeChange);
+    el.remove();
+  }
 
   return { update, setLoading, destroy, el };
 }

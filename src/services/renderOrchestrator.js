@@ -37,6 +37,7 @@ export function createRenderOrchestrator(deps){
     forecastCard,
     buildTaxOptimisationAnalysis,
     renderStrategyTaxOptimisation,
+    renderWealth,
   } = deps;
 
   return function renderAll(showToast = false){
@@ -219,6 +220,8 @@ export function createRenderOrchestrator(deps){
     } catch (error) {
       console.error('Overview render failed', error);
     }
+
+    try { renderWealth?.(); } catch (e) { console.error('Wealth render failed', e); }
 
     renderOverallAndActions(s, stressRes.status, bridgeStatus, monteStatus);
 

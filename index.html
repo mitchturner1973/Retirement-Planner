@@ -4,9 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Retirement Planner — Web Version</title>
-    <link rel="stylesheet" href="./styles/main.css?v=coach-rail-2" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="./styles/tw.css" />
+    <link rel="stylesheet" href="./styles/main.css" />
 </head>
-<body class="coach-theme-ready">
+<body class="coach-theme-ready bg-app text-text-1 antialiased">
 <div id="toastWrap" aria-live="polite" aria-atomic="true"></div>
 <div id="sideOverlay" aria-hidden="true"></div>
 
@@ -15,27 +19,27 @@
   <h1>Retirement Planner — Report</h1>
   <div class="small" id="reportMeta"></div>
   <div class="section">
-    <h2 style="margin:0 0 8px">Summary</h2>
+    <h2 class="mb-2">Summary</h2>
     <div id="reportSummary"></div>
-    <div style="margin-top:10px" id="reportStatus"></div>
+    <div class="mt-2.5" id="reportStatus"></div>
   </div>
   <div class="section">
-    <h2 style="margin:0 0 8px">Stress tests</h2>
+    <h2 class="mb-2">Stress tests</h2>
     <div id="reportStress"></div>
-    <div class="svgwrap" style="margin-top:10px"><div id="reportStressChart"></div></div>
+    <div class="svgwrap mt-2.5"><div id="reportStressChart"></div></div>
   </div>
   <div class="section">
-    <h2 style="margin:0 0 8px">Bridge</h2>
+    <h2 class="mb-2">Bridge</h2>
     <div id="reportBridge"></div>
-    <div class="svgwrap" style="margin-top:10px"><div id="reportBridgeChart"></div></div>
+    <div class="svgwrap mt-2.5"><div id="reportBridgeChart"></div></div>
   </div>
   <div class="section">
-    <h2 style="margin:0 0 8px">Monte Carlo</h2>
+    <h2 class="mb-2">Monte Carlo</h2>
     <div id="reportMonte"></div>
-    <div class="svgwrap" style="margin-top:10px"><div id="reportMonteChart"></div></div>
+    <div class="svgwrap mt-2.5"><div id="reportMonteChart"></div></div>
   </div>
   <div class="section">
-    <h2 style="margin:0 0 8px">Assumptions & limitations</h2>
+    <h2 class="mb-2">Assumptions & limitations</h2>
     <div id="reportAssumptions"></div>
   </div>
 </section>
@@ -46,7 +50,6 @@
       <button class="rail-toggle" id="btnRailToggle" type="button" aria-label="Collapse sidebar" aria-pressed="false" title="Collapse sidebar">⇤</button>
     </div>
 
-    <div class="brand-tagline">Bring your financial future into focus</div>
     <div class="brand">
       <div class="logo" aria-hidden="true"></div>
       <div class="brand-copy">
@@ -55,85 +58,42 @@
       </div>
     </div>
 
-    <nav class="nav-panel" aria-label="Workspace navigation">
-      <div class="nav-panel-head">Plan workspace</div>
+    <nav class="nav-panel" aria-label="Your finances">
+      <div class="nav-panel-head">Your finances</div>
       <div class="nav-panel-body">
-        <div class="nav-inputs-stack">
-          <button class="nav-panel-item" data-view-nav data-view="inputs" data-default-hint="Setup">
-            <span class="nav-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" focusable="false"><path d="M12 4a4 4 0 110 8 4 4 0 010-8zm-6.5 14c0-2.49 3.58-4 6.5-4s6.5 1.51 6.5 4v2H5.5z"/></svg>
-            </span>
-            <span class="nav-copy">
-              <span class="nav-label">Situation</span>
-              <span class="nav-hint" data-pill>Setup</span>
-            </span>
-          </button>
+        <button class="nav-panel-item" data-view-nav data-view="wealth" data-default-hint="Snapshot">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zM12 1L2 6v2h20V6z"/></svg>
+          </span>
+          <span class="nav-copy">
+            <span class="nav-label">Current Wealth</span>
+            <span class="nav-hint" data-pill>Snapshot</span>
+          </span>
+        </button>
 
-          <section class="nav-inputs-details" id="navInputsDetails" aria-label="Inputs quick navigator">
-            <div class="nav-inputs-progress">
-              <div class="nav-inputs-progress-head">
-                <div>
-                  <div class="nav-inputs-eyebrow">Input progress</div>
-                  <div class="nav-inputs-progress-text" id="inputsNavProgressText">Gather essentials</div>
-                </div>
-                <span class="nav-inputs-pill" id="inputsNavStatusPill" data-state="start">Start here</span>
-              </div>
-              <div class="nav-inputs-progress-bar" id="inputsNavProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                <span class="nav-inputs-progress-fill" id="inputsNavProgressFill" style="width:0%"></span>
-              </div>
-            </div>
-            <div class="nav-inputs-actions">
-              <button type="button" class="nav-inputs-action nav-inputs-action--primary" id="inputsNavResumeBtn">Resume checks</button>
-              <button type="button" class="nav-inputs-action nav-inputs-action--ghost" id="inputsNavAddSalaryBtn">Add salary</button>
-            </div>
-            <div class="nav-inputs-grid" role="list">
-              <button type="button" class="nav-inputs-card" role="listitem" data-input-nav data-tab="you" data-subtab="you-personal" data-input-focus="in_dob">
-                <div class="nav-inputs-card-head">
-                  <span>Personal profile</span>
-                  <span class="nav-inputs-chip" data-section-status="personal" data-state="todo">To do</span>
-                </div>
-                <div class="nav-inputs-card-body">
-                  <p class="nav-inputs-card-summary" id="inputsNavSummaryPersonal">Add DOB &amp; valuation date</p>
-                  <p class="nav-inputs-card-hint">Age, valuation, retirement ages</p>
-                </div>
-              </button>
-              <button type="button" class="nav-inputs-card" role="listitem" data-input-nav data-tab="you" data-subtab="you-earnings" data-input-focus="in_salary">
-                <div class="nav-inputs-card-head">
-                  <span>Earnings &amp; buffers</span>
-                  <span class="nav-inputs-chip" data-section-status="income" data-state="todo">To do</span>
-                </div>
-                <div class="nav-inputs-card-body">
-                  <p class="nav-inputs-card-summary" id="inputsNavSummaryIncome">Add salary and contribution rates</p>
-                  <p class="nav-inputs-card-hint">Salary, contributions, other income</p>
-                </div>
-              </button>
-              <button type="button" class="nav-inputs-card" role="listitem" data-input-nav data-tab="you" data-subtab="you-dc" data-input-focus="btnAddDc">
-                <div class="nav-inputs-card-head">
-                  <span>Pensions &amp; lump sums</span>
-                  <span class="nav-inputs-chip" data-section-status="pensions" data-state="todo">To do</span>
-                </div>
-                <div class="nav-inputs-card-body">
-                  <p class="nav-inputs-card-summary" id="inputsNavSummaryPensions">No DC or DB pensions yet</p>
-                  <p class="nav-inputs-card-hint">DC pots, DB income, contributions, lump sums</p>
-                </div>
-              </button>
-              <button type="button" class="nav-inputs-card" role="listitem" data-input-nav data-tab="partner" data-subtab="partner-personal" data-input-focus="in_householdMode">
-                <div class="nav-inputs-card-head">
-                  <span>Partner &amp; household</span>
-                  <span class="nav-inputs-chip" data-section-status="household" data-state="todo">To do</span>
-                </div>
-                <div class="nav-inputs-card-body">
-                  <p class="nav-inputs-card-summary" id="inputsNavSummaryHousehold">Single plan (partner optional)</p>
-                  <p class="nav-inputs-card-hint">Household mode, partner basics</p>
-                </div>
-              </button>
-            </div>
-          </section>
-        </div>
+        <button class="nav-panel-item" data-view-nav data-view="inputs" data-default-hint="Setup">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2V7h2v8z"/></svg>
+          </span>
+          <span class="nav-copy">
+            <span class="nav-label">Income</span>
+            <span class="nav-hint" data-pill>Setup</span>
+          </span>
+        </button>
+
+        <button class="nav-panel-item" data-view-nav data-view="expenses" data-default-hint="New">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M19.5 3.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3a3 3 0 003 3h12a3 3 0 003-3V2l-1.5 1.5zM19 19a1 1 0 01-2 0v-3H8V5h11v14zM9 7h6v2H9zm0 4h6v2H9z"/></svg>
+          </span>
+          <span class="nav-copy">
+            <span class="nav-label">Expenses</span>
+            <span class="nav-hint" data-pill>New</span>
+          </span>
+        </button>
 
         <button class="nav-panel-item" data-view-nav data-view="assumptions" data-default-hint="Global">
           <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3l2.09 4.24L18.9 8l-3.45 3.36.81 4.72L12 14.77l-4.26 2.31.81-4.72L5.1 8l4.81-.76z"/></svg>
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
           </span>
           <span class="nav-copy">
             <span class="nav-label">Assumptions</span>
@@ -143,20 +103,12 @@
       </div>
     </nav>
 
-    <div class="hr"></div>
-    <div class="small muted">
-      <p style="margin:0 0 8px"><strong>Important</strong></p>
-      <p style="margin:0">This tool is a planning aid, not financial advice. Validate with your pension provider and a qualified adviser.</p>
-    </div>
-
-    <div class="rail-quick" role="group" aria-label="Quick actions">
-      <button class="btn" id="navQuickRecalc" type="button">Recalculate</button>
-      <button class="btn" id="navQuickScenario" type="button">Save scenario</button>
-      <button class="btn" id="navQuickCompare" type="button">Compare</button>
+    <div class="rail-quick rail-quick--cta" role="group" aria-label="Quick actions">
+      <button class="btn rail-cta" id="navQuickRecalc" type="button">Recalculate</button>
     </div>
   </aside>
 
-  <main class="content">
+  <main class="content min-h-screen">
     <div class="topbar">
       <div class="topbar-leading">
         <button class="btn menuBtn" id="btnMenu" aria-label="Open menu" aria-controls="appSidebar" aria-expanded="false">☰</button>
@@ -196,6 +148,9 @@
 
     <nav class="primary-nav" aria-label="Plan views">
       <button class="active" data-view-nav data-view="overview">Overview</button>
+      <button data-view-nav data-view="wealth">Wealth</button>
+      <button data-view-nav data-view="inputs">Income</button>
+      <button data-view-nav data-view="expenses">Expenses</button>
       <button data-view-nav data-view="projection">Projection</button>
       <button data-view-nav data-view="strategy">Strategy</button>
       <button data-view-nav data-view="bridge">Bridge</button>
@@ -208,7 +163,7 @@
 
     <!-- OVERVIEW -->
     <section class="view" id="view-overview">
-      <div class="card overview-shell">
+      <div class="card overview-shell space-y-5">
         <div class="overview-eyebrow">MY CURRENT SITUATION</div>
         <h3>Dashboard</h3>
         <p class="overview-subtitle">Your retirement position at today’s values</p>
@@ -264,16 +219,28 @@
       </div>
     </section>
 
+    <!-- CURRENT WEALTH -->
+    <section class="view" id="view-wealth" style="display:none">
+      <div class="card wealth-shell space-y-5">
+        <div class="view-eyebrow">YOUR FINANCES</div>
+        <h3>Current Wealth</h3>
+        <p class="view-subtitle">Your financial position and input progress at a glance</p>
+        <div class="tipGrid" data-tips="view-wealth"><div class="tipCard"><div class="ticon">💎</div><div><div class="ttitle">Your snapshot</div><div class="ttext">See your total pension wealth, income, and input completeness in one place.</div></div></div><div class="tipCard"><div class="ticon">✏️</div><div><div class="ttitle">Quick edits</div><div class="ttext">Click any card to jump straight to the relevant input section and make changes.</div></div></div><div class="tipCard"><div class="ticon">📊</div><div><div class="ttitle">Track progress</div><div class="ttext">Watch the progress bar fill as you complete your financial picture.</div></div></div></div>
+        <div id="wealthHeadline"></div>
+        <div class="wealth-grid" id="wealthGrid"></div>
+      </div>
+    </section>
+
     <!-- INPUTS -->
     <section class="view" id="view-inputs" style="display:none">
-      <div class="card inputs-shell">
-        <div class="view-eyebrow">MY CURRENT SITUATION</div>
-        <h3>Inputs</h3>
-        <p class="view-subtitle">Enter your financial details and assumptions</p>
+      <div class="card inputs-shell space-y-4">
+        <div class="view-eyebrow">YOUR FINANCES</div>
+        <h3>Income</h3>
+        <p class="view-subtitle">Build your financial picture — the planner does the maths</p>
         <div class="tipGrid" data-tips="view-inputs"><div class="tipCard"><div class="ticon">✍️</div><div><div class="ttitle">Keep it realistic</div><div class="ttext">If unsure, use slightly conservative assumptions and compare scenarios rather than guessing perfectly.</div></div></div><div class="tipCard"><div class="ticon">🔁</div><div><div class="ttitle">Change one thing</div><div class="ttext">Adjust one input at a time so you can see what actually caused the change.</div></div></div><div class="tipCard"><div class="ticon">💾</div><div><div class="ttitle">Save a baseline</div><div class="ttext">Once inputs look sensible, save “Baseline”. Then duplicate for “Early”, “Lower spend”, “More contrib”.</div></div></div></div>
         
-        <p class="muted" style="margin-top:0">All inputs are assumed to be in today’s money. The model converts nominal return/growth into real (inflation-adjusted) rates. Use date of birth plus values as at date so the app can derive your current age and the first short age-period automatically.</p>
-        <div id="validationSummary" class="callout" style="display:none; margin-bottom:12px"></div>
+        <p class="muted mt-0">All inputs are in today's money. The model converts nominal return/growth into real rates automatically.</p>
+        <div id="validationSummary" class="callout mb-3" style="display:none"></div>
 
         <div class="tabs" role="tablist">
           <button class="active" data-tab="you">You</button>
@@ -295,25 +262,64 @@
           </div>
 
           <div id="subtab-you-personal" class="subtab-panel">
-            <div class="person-section">
-              <div class="person-section-title">Personal details</div>
+            <!-- Card 1: Identity & Timeline -->
+            <div class="input-card">
+              <div class="input-card-header">
+                <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
+                <div class="input-card-copy">
+                  <h4>Identity &amp; timeline</h4>
+                  <p>Your date of birth and valuation date let the planner derive your current age and the first stub period automatically.</p>
+                </div>
+              </div>
               <div class="form">
-                <div class="field"><label>Date of birth</label><input type="date" id="in_dob" /><div class="hint">Used with values as at date to derive your current age row and months until the next birthday automatically.</div></div>
-                <div class="field"><label>Values as at date</label><input type="date" id="in_valuationDate" /><div class="hint">Reference date for the balances and income you enter.</div></div>
-                <div class="field"><label>Current age (derived)</label><input type="number" id="in_currentAge" min="18" max="90" /><div class="hint">Auto-filled from date of birth. Leave blank to enter manually.</div></div>
-                <div class="field"><label>First projection period (months to next birthday)</label><input type="number" id="in_firstYearMonths" min="0.1" max="12" step="0.1" /><div class="hint">Auto-filled from DOB and valuation date. Applied to all pension sources in the first short age-period.</div></div>
+                <div class="field w6"><label>Date of birth</label><input type="date" id="in_dob" /><div class="hint">Used with valuation date to derive current age and months to next birthday.</div></div>
+                <div class="field w6"><label>Values as at date</label><input type="date" id="in_valuationDate" /><div class="hint">Reference date for the balances and income you enter.</div></div>
+                <div class="field"><label>Current age</label><input type="number" id="in_currentAge" min="18" max="90" /><span class="derived-chip">Auto-derived</span></div>
+                <div class="field"><label>Months to next birthday</label><input type="number" id="in_firstYearMonths" min="0.1" max="12" step="0.1" /><span class="derived-chip">Auto-derived</span></div>
+              </div>
+            </div>
+
+            <!-- Card 2: Retirement Ages -->
+            <div class="input-card">
+              <div class="input-card-header">
+                <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div>
+                <div class="input-card-copy">
+                  <h4>Retirement ages</h4>
+                  <p>Set the ages that define when income starts, state pension kicks in, and any early-retirement bridge window.</p>
+                </div>
+              </div>
+              <div class="form">
                 <div class="field"><label>Retirement age</label><input type="number" id="in_retireAge" min="40" max="90" /></div>
-                <div class="field"><label>Early retirement age (optional)</label><input type="number" id="in_earlyAge" min="40" max="90" placeholder="Used by Bridge" /></div>
+                <div class="field"><label>Early retirement age</label><input type="number" id="in_earlyAge" min="40" max="90" placeholder="Optional — enables Bridge" /></div>
                 <div class="field"><label>State Pension age</label><input type="number" id="in_stateAge" min="55" max="90" /></div>
-                <div class="field w6"><label>Current workplace DC pension pot (&#163;)</label><input type="number" id="in_pot" min="0" step="100" /></div>
+              </div>
+            </div>
+
+            <!-- Card 3: Current Wealth -->
+            <div class="input-card">
+              <div class="input-card-header">
+                <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
+                <div class="input-card-copy">
+                  <h4>Current wealth</h4>
+                  <p>Your main workplace DC pot and any other taxable income outside pensions.</p>
+                </div>
+              </div>
+              <div class="form">
+                <div class="field w6"><label>Workplace DC pension pot (&#163;)</label><input type="number" id="in_pot" min="0" step="100" /></div>
                 <div class="field w6"><label>Other taxable income (&#163;/yr)</label><input type="number" id="in_otherIncome" min="0" step="100" /></div>
               </div>
             </div>
           </div>
 
           <div id="subtab-you-earnings" class="subtab-panel" style="display:none">
-            <div class="person-section">
-              <div class="person-section-title">Earnings &amp; contributions</div>
+            <div class="input-card">
+              <div class="input-card-header">
+                <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div>
+                <div class="input-card-copy">
+                  <h4>Earnings &amp; contributions</h4>
+                  <p>Your salary, pay growth and pension contribution rates drive the accumulation model.</p>
+                </div>
+              </div>
               <div class="inputs-guided-grid">
                 <div>
                   <div class="inputs-insight-row">
@@ -360,80 +366,132 @@
           </div>
 
           <div id="subtab-you-retirement" class="subtab-panel" style="display:none">
-            <div class="person-section">
-              <div class="person-section-title">Retirement &amp; tax</div>
+            <!-- Card: Income in Retirement -->
+            <div class="input-card">
+              <div class="input-card-header">
+                <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg></div>
+                <div class="input-card-copy">
+                  <h4>Retirement income</h4>
+                  <p>State pension, drawdown rate and tax-free cash rules that shape your retirement income.</p>
+                </div>
+              </div>
               <div class="form">
                 <div class="field"><label>State Pension (today's &#163;/yr)</label><input type="number" id="in_statePension" step="100" /></div>
                 <div class="field"><label>Drawdown rate (% of pot/yr)</label><input type="number" id="in_draw" step="0.1" /></div>
-                <div class="field w12"><div class="hint">Recurring drawdown is regular annual withdrawals. PCLS / UFPLS / taxable one-off withdrawals should be added in <strong>DC lump sums</strong> below.</div></div>
+                <div class="field w12"><div class="hint">Recurring drawdown is regular annual withdrawals. PCLS / UFPLS / taxable one-off withdrawals should be added in <strong>DC lump sums</strong>.</div></div>
                 <div class="field"><label>Tax&#8209;free cash per withdrawal (TFLS %)</label><input type="number" id="in_tflsPct" step="0.1" /></div>
                 <div class="field"><label>TFLS cap / Lump Sum Allowance (&#163;)</label><input type="number" id="in_tflsCap" step="100" /></div>
               </div>
-              <details class="helpAcc" style="margin-top:12px">
-                <summary><span class="q">Advanced tax controls</span><span class="chev">&#9660;</span></summary>
-                <div class="a">
-                  <div class="form" style="margin-top:8px">
-                    <div class="field"><label>Personal Allowance (&#163;)</label><input type="number" id="in_allow" step="10" /></div>
-                    <div class="field"><label>Basic rate tax (%)</label><input type="number" id="in_basicTax" step="0.1" /></div>
-                    <div class="field"><label>Higher-rate tax (%)</label><input type="number" id="in_higherTax" step="0.1" /></div>
-                    <div class="field"><label>Higher-rate threshold (&#163; taxable)</label><input type="number" id="in_higherThreshold" step="100" /></div>
-                  </div>
+            </div>
+
+            <!-- Card: Tax Controls -->
+            <div class="input-card">
+              <div class="input-card-header">
+                <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
+                <div class="input-card-copy">
+                  <h4>Tax controls</h4>
+                  <p>Personal allowance, basic and higher-rate thresholds. Defaults are UK 2024/25 values.</p>
                 </div>
-              </details>
+              </div>
+              <div class="form">
+                <div class="field"><label>Personal Allowance (&#163;)</label><input type="number" id="in_allow" step="10" /></div>
+                <div class="field"><label>Basic rate tax (%)</label><input type="number" id="in_basicTax" step="0.1" /></div>
+                <div class="field"><label>Higher-rate tax (%)</label><input type="number" id="in_higherTax" step="0.1" /></div>
+                <div class="field"><label>Higher-rate threshold (&#163;)</label><input type="number" id="in_higherThreshold" step="100" /></div>
+              </div>
             </div>
           </div>
 
           <div id="subtab-you-dc" class="subtab-panel" style="display:none">
-            <div class="person-section">
-              <div class="person-section-title">DC pensions <span class="person-section-subtitle">Extra pots, SIPPs and old workplace pensions beyond the main balance above</span></div>
-              <p class="muted small" style="margin:0 0 10px">Each pot can have its own fee and withdrawal priority. The main workplace pot above is already included automatically.</p>
-              <div class="row" style="margin-bottom:10px">
-                <button class="btn" id="btnAddDc" type="button">+ Add DC pension</button>
+            <div class="input-card">
+              <div class="input-card-header">
+                <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14c1.1 0 2 .9 2 2v1h-9a2 2 0 00-2 2v8a2 2 0 002 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+                <div class="input-card-copy">
+                  <h4>DC pensions</h4>
+                  <p>Extra pots, SIPPs and old workplace pensions beyond the main balance above.</p>
+                </div>
               </div>
               <div id="dcPensionsSummary" class="inputs-repeater-summary muted small"></div>
               <div id="dcPensionsWrap"></div>
+              <div class="repeater-empty-state" id="dcEmptyState">
+                <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14c1.1 0 2 .9 2 2v1h-9a2 2 0 00-2 2v8a2 2 0 002 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+                <div class="repeater-empty-title">No extra DC pensions yet</div>
+                <div class="repeater-empty-text">Each pot can have its own fee and withdrawal priority. Your main workplace pot is already included.</div>
+                <button class="repeater-add-btn" id="btnAddDc" type="button">+ Add DC pension</button>
+              </div>
             </div>
           </div>
 
           <div id="subtab-you-db" class="subtab-panel" style="display:none">
-            <div class="person-section">
-              <div class="person-section-title">DB pensions <span class="person-section-subtitle">Defined benefit / final salary pensions</span></div>
-              <p class="muted small" style="margin:0 0 10px">Add final salary or career average pensions as future income streams. They start at a chosen age and lift retirement income automatically.</p>
-              <div class="row" style="margin-bottom:10px">
-                <button class="btn" id="btnAddDb" type="button">+ Add DB pension</button>
+            <div class="input-card">
+              <div class="input-card-header">
+                <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.94s4.18 1.36 4.18 3.85c0 1.89-1.44 2.98-3.12 3.19z"/></svg></div>
+                <div class="input-card-copy">
+                  <h4>DB pensions</h4>
+                  <p>Defined benefit / final salary pensions as future guaranteed income streams.</p>
+                </div>
               </div>
               <div id="dbPensionsSummary" class="inputs-repeater-summary muted small"></div>
               <div id="dbPensionsWrap"></div>
+              <div class="repeater-empty-state" id="dbEmptyState">
+                <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.94s4.18 1.36 4.18 3.85c0 1.89-1.44 2.98-3.12 3.19z"/></svg></div>
+                <div class="repeater-empty-title">No DB pensions yet</div>
+                <div class="repeater-empty-text">Add final salary or career average pensions. They start at a chosen age and lift retirement income automatically.</div>
+                <button class="repeater-add-btn" id="btnAddDb" type="button">+ Add DB pension</button>
+              </div>
             </div>
           </div>
 
           <div id="subtab-you-contrib" class="subtab-panel" style="display:none">
-            <div class="person-section">
-              <div class="person-section-title">Extra contributions <span class="person-section-subtitle">One-off top-ups, monthly boosts and bonus payments</span></div>
-              <p class="muted small" style="margin:0 0 10px">Model one-off top-ups, regular extra monthly/annual payments, and bonus-funded contributions. Earlier contributions have longer to grow.</p>
-              <div class="row" style="margin-bottom:10px">
-                <button class="btn" id="btnAddContrib" type="button">+ Add contribution</button>
+            <div class="input-card">
+              <div class="input-card-header">
+                <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+                <div class="input-card-copy">
+                  <h4>Extra contributions</h4>
+                  <p>One-off top-ups, monthly boosts and bonus payments into your pensions.</p>
+                </div>
               </div>
               <div id="contribEventsSummary" class="inputs-repeater-summary muted small"></div>
               <div id="contribEventsWrap"></div>
+              <div class="repeater-empty-state" id="contribEmptyState">
+                <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+                <div class="repeater-empty-title">No extra contributions yet</div>
+                <div class="repeater-empty-text">Model one-off top-ups, regular extra payments, and bonus-funded contributions. Earlier contributions have longer to grow.</div>
+                <button class="repeater-add-btn" id="btnAddContrib" type="button">+ Add contribution</button>
+              </div>
             </div>
           </div>
 
           <div id="subtab-you-lump" class="subtab-panel" style="display:none">
-            <div class="person-section">
-              <div class="person-section-title">DC lump sums <span class="person-section-subtitle">PCLS, UFPLS and one-off withdrawals at specific ages</span></div>
-              <p class="muted small" style="margin:0 0 10px">Add one-off lump sums from any DC pension. These sit separately from regular drawdown so you can model PCLS, UFPLS or taxable lump sums without mixing them into annual income.</p>
-              <div class="row" style="margin-bottom:10px">
-                <button class="btn" id="btnAddLumpSum" type="button">+ Add DC lump sum</button>
+            <div class="input-card">
+              <div class="input-card-header">
+                <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M5 8h14V6H5v2zm0 0h14v2H5V8zm7 11l4-4h-3V9h-2v6H8l4 4z"/></svg></div>
+                <div class="input-card-copy">
+                  <h4>DC lump sums</h4>
+                  <p>PCLS, UFPLS and one-off withdrawals at specific ages, separate from regular drawdown.</p>
+                </div>
               </div>
               <div id="lumpSumEventsSummary" class="inputs-repeater-summary muted small"></div>
               <div id="lumpSumEventsWrap"></div>
+              <div class="repeater-empty-state" id="lumpEmptyState">
+                <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M5 8h14V6H5v2zm0 0h14v2H5V8zm7 11l4-4h-3V9h-2v6H8l4 4z"/></svg></div>
+                <div class="repeater-empty-title">No lump sums yet</div>
+                <div class="repeater-empty-text">Model one-off PCLS, UFPLS or taxable lump sums from any DC pension at specific ages.</div>
+                <button class="repeater-add-btn" id="btnAddLumpSum" type="button">+ Add DC lump sum</button>
+              </div>
             </div>
           </div>
         </div>
         <!-- PARTNER TAB -->
         <div id="tab-partner" class="tab" style="display:none">
-          <div class="person-section">
+          <div class="input-card">
+            <div class="input-card-header">
+              <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+              <div class="input-card-copy">
+                <h4>Household mode</h4>
+                <p>Choose single or joint to add your partner's details. Both projected separately and combined in Household view.</p>
+              </div>
+            </div>
             <div class="form">
               <div class="field w6">
                 <label>Planner mode</label>
@@ -441,13 +499,6 @@
                   <option value="single" selected>Single person</option>
                   <option value="joint">Joint household</option>
                 </select>
-              </div>
-            </div>
-            <div class="callout" style="margin-top:10px">
-              <div>&#128101;</div>
-              <div>
-                <div style="font-weight:700">Partner profile</div>
-                <div class="muted small">Select <strong>Joint household</strong> above to add your partner's details. Both of you are projected separately, then combined in Household view.</div>
               </div>
             </div>
           </div>
@@ -463,78 +514,122 @@
             </div>
 
             <div id="subtab-partner-personal" class="subtab-panel">
-              <div class="person-section">
-                <div class="person-section-title">Partner personal details</div>
+              <div class="input-card">
+                <div class="input-card-header">
+                  <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
+                  <div class="input-card-copy">
+                    <h4>Partner personal details</h4>
+                    <p>Date of birth, ages and timeline for your partner.</p>
+                  </div>
+                </div>
                 <div class="form household-grid">
-                  <div class="field"><label>Partner date of birth</label><input type="date" id="in_spouseDob" /><div class="hint">Used with partner values-as-at date to derive current age and months to next birthday.</div></div>
-                  <div class="field"><label>Partner values as at date</label><input type="date" id="in_spouseValuationDate" /><div class="hint">Reference date for partner balances and income inputs.</div></div>
-                  <div class="field"><label>Partner current age (derived)</label><input type="number" id="in_spouseCurrentAge" min="18" max="90" /></div>
-                  <div class="field"><label>Partner first projection period (months)</label><input type="number" id="in_spouseFirstYearMonths" min="0.1" max="12" step="0.1" /></div>
-                  <div class="field"><label>Partner retirement age</label><input type="number" id="in_spouseRetireAge" min="40" max="90" /></div>
-                  <div class="field"><label>Partner State Pension age</label><input type="number" id="in_spouseStateAge" min="55" max="90" /></div>
+                  <div class="field"><label>Date of birth</label><input type="date" id="in_spouseDob" /><div class="hint">Used to derive partner current age and months to next birthday.</div></div>
+                  <div class="field"><label>Values as at date</label><input type="date" id="in_spouseValuationDate" /><div class="hint">Reference date for partner balances and income.</div></div>
+                  <div class="field"><label>Current age</label><input type="number" id="in_spouseCurrentAge" min="18" max="90" /><span class="derived-chip">Auto-derived</span></div>
+                  <div class="field"><label>Months to next birthday</label><input type="number" id="in_spouseFirstYearMonths" min="0.1" max="12" step="0.1" /><span class="derived-chip">Auto-derived</span></div>
+                  <div class="field"><label>Retirement age</label><input type="number" id="in_spouseRetireAge" min="40" max="90" /></div>
+                  <div class="field"><label>State Pension age</label><input type="number" id="in_spouseStateAge" min="55" max="90" /></div>
                 </div>
               </div>
             </div>
 
             <div id="subtab-partner-earnings" class="subtab-panel" style="display:none">
-              <div class="person-section">
-                <div class="person-section-title">Partner earnings &amp; contributions</div>
+              <div class="input-card">
+                <div class="input-card-header">
+                  <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg></div>
+                  <div class="input-card-copy">
+                    <h4>Partner earnings &amp; contributions</h4>
+                    <p>Income, pension pot and contribution rates for your partner.</p>
+                  </div>
+                </div>
                 <div class="form household-grid">
-                  <div class="field"><label>Partner pension pot (&#163;)</label><input type="number" id="in_spousePot" min="0" step="100" /></div>
-                  <div class="field"><label>Partner salary (&#163;/yr)</label><input type="number" id="in_spouseSalary" min="0" step="100" /></div>
-                  <div class="field"><label>Partner other taxable income (&#163;/yr)</label><input type="number" id="in_spouseOtherIncome" min="0" step="100" /></div>
-                  <div class="field"><label>Partner State Pension (&#163;/yr)</label><input type="number" id="in_spouseStatePension" step="100" /></div>
-                  <div class="field"><label>Partner employee pension (% of salary)</label><input type="number" id="in_spouseEmpPct" step="0.1" /></div>
-                  <div class="field"><label>Partner employer pension (% of salary)</label><input type="number" id="in_spouseErPct" step="0.1" /></div>
+                  <div class="field"><label>Pension pot (&#163;)</label><input type="number" id="in_spousePot" min="0" step="100" /></div>
+                  <div class="field"><label>Salary (&#163;/yr)</label><input type="number" id="in_spouseSalary" min="0" step="100" /></div>
+                  <div class="field"><label>Other taxable income (&#163;/yr)</label><input type="number" id="in_spouseOtherIncome" min="0" step="100" /></div>
+                  <div class="field"><label>State Pension (&#163;/yr)</label><input type="number" id="in_spouseStatePension" step="100" /></div>
+                  <div class="field"><label>Employee pension (% of salary)</label><input type="number" id="in_spouseEmpPct" step="0.1" /></div>
+                  <div class="field"><label>Employer pension (% of salary)</label><input type="number" id="in_spouseErPct" step="0.1" /></div>
                 </div>
               </div>
             </div>
 
             <div id="subtab-partner-dc" class="subtab-panel" style="display:none">
-              <div class="person-section">
-                <div class="person-section-title">Partner DC pensions <span class="person-section-subtitle">Extra pots, SIPPs and old workplace pensions</span></div>
-                <p class="muted small" style="margin:0 0 10px">Partner's extra DC pots. The main partner pension pot above is already included automatically.</p>
-                <div class="row" style="margin-bottom:10px">
-                  <button class="btn" id="btnAddPartnerDc" type="button">+ Add DC pension</button>
+              <div class="input-card">
+                <div class="input-card-header">
+                  <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14c1.1 0 2 .9 2 2v1h-9a2 2 0 00-2 2v8a2 2 0 002 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+                  <div class="input-card-copy">
+                    <h4>Partner DC pensions</h4>
+                    <p>Extra pots, SIPPs and old workplace pensions for your partner.</p>
+                  </div>
                 </div>
                 <div id="partnerDcPensionsSummary" class="inputs-repeater-summary muted small"></div>
                 <div id="partnerDcPensionsWrap"></div>
+                <div class="repeater-empty-state" id="partnerDcEmptyState">
+                  <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14c1.1 0 2 .9 2 2v1h-9a2 2 0 00-2 2v8a2 2 0 002 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+                  <div class="repeater-empty-title">No extra DC pensions yet</div>
+                  <div class="repeater-empty-text">Partner's main pension pot is already included.</div>
+                  <button class="repeater-add-btn" id="btnAddPartnerDc" type="button">+ Add DC pension</button>
+                </div>
               </div>
             </div>
 
             <div id="subtab-partner-db" class="subtab-panel" style="display:none">
-              <div class="person-section">
-                <div class="person-section-title">Partner DB pensions <span class="person-section-subtitle">Defined benefit / final salary pensions</span></div>
-                <p class="muted small" style="margin:0 0 10px">Partner's defined benefit or final salary pensions as future income streams.</p>
-                <div class="row" style="margin-bottom:10px">
-                  <button class="btn" id="btnAddPartnerDb" type="button">+ Add DB pension</button>
+              <div class="input-card">
+                <div class="input-card-header">
+                  <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.94s4.18 1.36 4.18 3.85c0 1.89-1.44 2.98-3.12 3.19z"/></svg></div>
+                  <div class="input-card-copy">
+                    <h4>Partner DB pensions</h4>
+                    <p>Defined benefit / final salary pensions for your partner.</p>
+                  </div>
                 </div>
                 <div id="partnerDbPensionsSummary" class="inputs-repeater-summary muted small"></div>
                 <div id="partnerDbPensionsWrap"></div>
+                <div class="repeater-empty-state" id="partnerDbEmptyState">
+                  <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.94s4.18 1.36 4.18 3.85c0 1.89-1.44 2.98-3.12 3.19z"/></svg></div>
+                  <div class="repeater-empty-title">No DB pensions yet</div>
+                  <div class="repeater-empty-text">Partner's defined benefit or final salary pensions.</div>
+                  <button class="repeater-add-btn" id="btnAddPartnerDb" type="button">+ Add DB pension</button>
+                </div>
               </div>
             </div>
 
             <div id="subtab-partner-contrib" class="subtab-panel" style="display:none">
-              <div class="person-section">
-                <div class="person-section-title">Partner extra contributions <span class="person-section-subtitle">One-off top-ups and regular boosts</span></div>
-                <p class="muted small" style="margin:0 0 10px">Partner's one-off top-ups, regular extra monthly or annual payments, and bonus-funded contributions.</p>
-                <div class="row" style="margin-bottom:10px">
-                  <button class="btn" id="btnAddPartnerContrib" type="button">+ Add contribution</button>
+              <div class="input-card">
+                <div class="input-card-header">
+                  <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+                  <div class="input-card-copy">
+                    <h4>Partner extra contributions</h4>
+                    <p>One-off top-ups and regular boosts for your partner.</p>
+                  </div>
                 </div>
                 <div id="partnerContribEventsSummary" class="inputs-repeater-summary muted small"></div>
                 <div id="partnerContribEventsWrap"></div>
+                <div class="repeater-empty-state" id="partnerContribEmptyState">
+                  <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+                  <div class="repeater-empty-title">No extra contributions yet</div>
+                  <div class="repeater-empty-text">Partner's one-off top-ups, regular extra payments, and bonus-funded contributions.</div>
+                  <button class="repeater-add-btn" id="btnAddPartnerContrib" type="button">+ Add contribution</button>
+                </div>
               </div>
             </div>
 
             <div id="subtab-partner-lump" class="subtab-panel" style="display:none">
-              <div class="person-section">
-                <div class="person-section-title">Partner DC lump sums <span class="person-section-subtitle">PCLS, UFPLS and one-off withdrawals</span></div>
-                <p class="muted small" style="margin:0 0 10px">Partner's one-off lump sums from DC pensions — PCLS, UFPLS or taxable withdrawals at specific ages.</p>
-                <div class="row" style="margin-bottom:10px">
-                  <button class="btn" id="btnAddPartnerLumpSum" type="button">+ Add DC lump sum</button>
+              <div class="input-card">
+                <div class="input-card-header">
+                  <div class="input-card-icon"><svg viewBox="0 0 24 24"><path d="M5 8h14V6H5v2zm0 0h14v2H5V8zm7 11l4-4h-3V9h-2v6H8l4 4z"/></svg></div>
+                  <div class="input-card-copy">
+                    <h4>Partner DC lump sums</h4>
+                    <p>PCLS, UFPLS and one-off withdrawals for your partner.</p>
+                  </div>
                 </div>
                 <div id="partnerLumpSumEventsSummary" class="inputs-repeater-summary muted small"></div>
                 <div id="partnerLumpSumEventsWrap"></div>
+                <div class="repeater-empty-state" id="partnerLumpEmptyState">
+                  <div class="repeater-empty-icon"><svg viewBox="0 0 24 24"><path d="M5 8h14V6H5v2zm0 0h14v2H5V8zm7 11l4-4h-3V9h-2v6H8l4 4z"/></svg></div>
+                  <div class="repeater-empty-title">No lump sums yet</div>
+                  <div class="repeater-empty-text">Partner's one-off PCLS, UFPLS or taxable withdrawals at specific ages.</div>
+                  <button class="repeater-add-btn" id="btnAddPartnerLumpSum" type="button">+ Add DC lump sum</button>
+                </div>
               </div>
             </div>
           </div>
@@ -542,13 +637,29 @@
       </div>
     </section>
 
+    <!-- EXPENSES -->
+    <section class="view" id="view-expenses" style="display:none">
+      <div class="card expenses-shell space-y-4">
+        <div class="view-eyebrow">YOUR FINANCES</div>
+        <h3>Expenses</h3>
+        <p class="view-subtitle">Track your spending to size your retirement income target</p>
+        <div class="callout">
+          <div>📊</div>
+          <div>
+            <div class="font-bold">Coming soon</div>
+            <div class="muted small">Expense tracking will help you set realistic retirement income targets based on your actual spending patterns. For now, use the Strategy view to set your desired retirement income.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ASSUMPTIONS -->
     <section class="view" id="view-assumptions" style="display:none">
-      <div class="card assumptions-shell">
-        <div class="view-eyebrow">MY CURRENT SITUATION</div>
+      <div class="card assumptions-shell space-y-4">
+        <div class="view-eyebrow">YOUR FINANCES</div>
         <h3>Assumptions</h3>
         <p class="view-subtitle">Global inputs shared across both profiles</p>
-        <p class="muted" style="margin-top:0">These settings power projections, strategy scoring, bridge and Monte Carlo. Leave defaults if unsure, or duplicate scenarios before experimenting.</p>
+        <p class="text-sm text-text-3">These settings power projections, strategy scoring, bridge and Monte Carlo. Leave defaults if unsure, or duplicate scenarios before experimenting.</p>
         <div class="form">
           <div class="field"><label>Investment return (nominal %/yr)</label><input type="number" id="in_return" step="0.1" /></div>
           <div class="field"><label>Inflation (%/yr)</label><input type="number" id="in_inflation" step="0.1" /></div>
@@ -562,7 +673,7 @@
 
     <!-- PROJECTION -->
     <section class="view" id="view-projection" style="display:none">
-      <div class="card projection-shell">
+      <div class="card projection-shell space-y-4">
         <div class="view-eyebrow">MY FUTURE PLANS</div>
         <h3>Projection</h3>
         <p class="view-subtitle">Year-by-year forecast at today’s values</p>
@@ -591,7 +702,7 @@
             <button class="btn btn-outline" id="btnProjectionJumpToRetirement" type="button" title="Scroll to retirement year">⬇ Retirement</button>
           </div>
         </div>
-        <div class="projection-table-shell" style="margin-top:10px; overflow:auto">
+        <div class="projection-table-shell mt-2.5 overflow-auto">
           <table id="tblProjection">
             <thead><tr>
               <th>Age</th>
@@ -618,12 +729,12 @@
 
     <!-- BRIDGE -->
     <section class="view" id="view-bridge" style="display:none">
-      <div class="card bridge-shell">
+      <div class="card bridge-shell space-y-4">
         <div class="view-eyebrow">MY FUTURE PLANS</div>
         <h3>Early Retirement Bridge</h3>
         <p class="view-subtitle">Modelling the gap from early retirement to State Pension</p>
         <div class="tipGrid" data-tips="view-bridge"><div class="tipCard"><div class="ticon">🧱</div><div><div class="ttitle">Bridge is the gap</div><div class="ttext">If you retire before SP age, Bridge checks whether the pot can fund the gap safely.</div></div></div><div class="tipCard"><div class="ticon">🏁</div><div><div class="ttitle">Watch run‑out age</div><div class="ttext">If the bridge runs out early, it’s fragile. Check both baseline and lifestyle path if enabled.</div></div></div><div class="tipCard"><div class="ticon">🟣</div><div><div class="ttitle">Read the chart</div><div class="ttext">Markers show Early age, SP age, and any run‑out age. Purple line = maintain lifestyle.</div></div></div></div>
-        <p class="muted" style="margin-top:0">This models an early retirement bridge period (early age → State Pension age). Net income figures are <strong>after tax</strong> and <strong>include State Pension once it starts</strong>.</p>
+        <p class="text-sm text-text-3">This models an early retirement bridge period (early age → State Pension age). Net income figures are <strong>after tax</strong> and <strong>include State Pension once it starts</strong>.</p>
 
         <div class="view-subnav" role="tablist" data-subnav="bridge">
           <button class="active" data-subnav-target="results" type="button">Results</button>
@@ -631,19 +742,19 @@
         </div>
 
         <div class="view-subpanel" data-subnav="bridge" data-subnav-panel="results">
-          <div class="kpi" id="bridgeKpis"></div>
+          <div class="kpi mt-3" id="bridgeKpis"></div>
 
-          <div class="grid" style="margin-top:12px">
-            <div class="card card-subtle" style="grid-column: span 12">
+          <div class="grid mt-4">
+            <div class="card card-subtle col-span-12">
               <h3>Pot trajectory with bridge (today’s £)</h3>
               <div class="svgwrap"><svg id="chartBridge" width="980" height="270" role="img" aria-label="Bridge chart"></svg></div>
               <div class="footer">Markers: Early retirement, State Pension, and run‑out age (if any).</div>
             </div>
           </div>
 
-          <div class="card card-subtle" style="margin-top:12px">
+          <div class="card card-subtle mt-3">
             <h3>Bridge years breakdown (today’s £)</h3>
-            <div style="overflow:auto">
+            <div class="overflow-auto">
               <table id="tblBridge">
                 <thead><tr>
                   <th>Age</th><th class="right">Gross withdrawal</th><th class="right">Net income</th><th class="right">Pot (start-year)</th><th class="right">Pot (end-year)</th><th>Note</th>
@@ -677,11 +788,11 @@
 
           <div class="hr"></div>
 
-          <div class="row" style="gap:8px; flex-wrap:wrap">
+          <div class="row gap-2 flex-wrap">
             <span class="badge"><span class="ico">🧯</span>Bridge stress overlays</span>
-            <label class="badge" style="cursor:pointer"><input type="checkbox" id="br_crashEarly" style="margin-right:6px"/>Crash at early retirement</label>
-            <label class="badge" style="cursor:pointer"><input type="checkbox" id="br_crashState" style="margin-right:6px"/>Crash at State Pension age</label>
-            <label class="badge" style="cursor:pointer"><input type="checkbox" id="br_badSeq" style="margin-right:6px"/>Bad sequence from early retirement</label>
+            <label class="badge cursor-pointer"><input type="checkbox" id="br_crashEarly" class="mr-1.5"/>Crash at early retirement</label>
+            <label class="badge cursor-pointer"><input type="checkbox" id="br_crashState" class="mr-1.5"/>Crash at State Pension age</label>
+            <label class="badge cursor-pointer"><input type="checkbox" id="br_badSeq" class="mr-1.5"/>Bad sequence from early retirement</label>
           </div>
 
           <div class="hr"></div>
@@ -692,11 +803,11 @@
 
     <!-- STRATEGY -->
     <section class="view strategy-view" id="view-strategy" style="display:none">
-      <div class="card strategy-intro-card">
+      <div class="card strategy-intro-card space-y-4">
         <div class="view-eyebrow">MY FUTURE PLANS</div>
         <h3>Strategy</h3>
         <p class="view-subtitle">Compare withdrawal approaches and build your action plan</p>
-        <p class="muted" style="margin-top:0">This view compares coded withdrawal strategies, scores them for tax, sustainability and balance, then turns the selected plan into a year-by-year action timeline.</p>
+        <p class="text-sm text-text-3">This view compares coded withdrawal strategies, scores them for tax, sustainability and balance, then turns the selected plan into a year-by-year action timeline.</p>
 
         <div class="view-subnav" role="tablist" data-subnav="strategy">
           <button class="active" data-subnav-target="overview" type="button">Recommendations</button>
@@ -738,12 +849,12 @@
         </div>
 
         <div class="view-subpanel" data-subnav="strategy" data-subnav-panel="settings" hidden>
-          <div class="row strategy-head-row" style="margin:12px 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
-            <div class="field" style="min-width:320px; margin:0">
+          <div class="row strategy-head-row">
+            <div class="field">
               <label>Select strategy timeline</label>
               <select id="strategySelect"></select>
             </div>
-            <div class="field" style="min-width:280px; margin:0">
+            <div class="field">
               <label>Strategy priority</label>
               <select id="in_strategyPriorityMode">
                 <option value="balanced">Balanced</option>
@@ -756,50 +867,50 @@
             <span class="badge"><span class="ico">🧭</span>Deterministic engine only</span>
             <span class="badge"><span class="ico">£</span>Strategies scored on tax, stability and remaining pot</span>
           </div>
-          <div class="row strategy-targets-grid" style="margin:0 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
-            <div class="field" style="min-width:260px; margin:0">
+          <div class="row strategy-targets-grid">
+            <div class="field">
               <label>Minimum desired net income (£/yr)</label>
               <input type="number" id="in_minimumDesiredNetIncome" min="0" step="100" />
             </div>
-            <div class="field" style="min-width:260px; margin:0">
+            <div class="field">
               <label>Target net income at retirement (£/yr)</label>
               <input type="number" id="in_targetRetirementNetIncome" min="0" step="100" />
             </div>
-            <div class="field" style="min-width:260px; margin:0">
+            <div class="field">
               <label>Minimum flexibility buffer at age 75 (£)</label>
               <input type="number" id="in_minimumFlexibilityBufferAt75" min="0" step="1000" />
             </div>
-            <div class="field" style="min-width:260px; margin:0">
+            <div class="field">
               <label>DB early reduction (% per year before NPA)</label>
               <input type="number" id="in_dbEarlyReductionPct" min="0" max="15" step="0.1" />
             </div>
-            <div class="field" style="min-width:260px; margin:0">
+            <div class="field">
               <label>DB deferral increase (% per year after NPA)</label>
               <input type="number" id="in_dbDeferralIncreasePct" min="0" max="15" step="0.1" />
             </div>
           </div>
-          <div class="row strategy-targets-grid" style="margin:0 0 12px; gap:12px; align-items:center; flex-wrap:wrap">
-            <div class="field" style="min-width:260px; margin:0">
+          <div class="row strategy-targets-grid">
+            <div class="field">
               <label>Overview income drop threshold (%)</label>
               <input type="number" id="in_watchoutIncomeDropPct" min="1" max="100" step="1" />
             </div>
-            <div class="field" style="min-width:260px; margin:0">
+            <div class="field">
               <label>Overview income drop threshold (£/yr)</label>
               <input type="number" id="in_watchoutIncomeDropAbs" min="0" step="100" />
             </div>
-            <div class="field" style="min-width:260px; margin:0">
+            <div class="field">
               <label>Overview low pot threshold (years of net)</label>
               <input type="number" id="in_watchoutLateLifePotYears" min="1" max="20" step="0.5" />
             </div>
-            <div class="field" style="min-width:260px; margin:0">
+            <div class="field">
               <label>Overview high DC reliance threshold (%)</label>
               <input type="number" id="in_watchoutDcReliancePct" min="1" max="100" step="1" />
             </div>
-            <div class="field" style="min-width:260px; margin:0">
+            <div class="field">
               <label>Overview lump-sum watchout threshold (% of net)</label>
               <input type="number" id="in_watchoutLumpSumPctNet" min="1" max="300" step="1" />
             </div>
-            <div class="field" style="min-width:260px; margin:0">
+            <div class="field">
               <label>Overview low remaining TFLS / LSA threshold (£)</label>
               <input type="number" id="in_watchoutLowLsa" min="0" step="1000" />
             </div>
@@ -810,28 +921,28 @@
 
     <!-- HOUSEHOLD -->
     <section class="view" id="view-household" style="display:none">
-      <div class="card household-view-shell">
+      <div class="card household-view-shell space-y-4">
         <div class="view-eyebrow">MY CURRENT SITUATION</div>
         <h3>Household</h3>
         <p class="view-subtitle">Combined retirement view for you and your partner</p>
         <div class="tipGrid" data-tips="view-household"><div class="tipCard"><div class="ticon">🏠</div><div><div class="ttitle">Combined affordability</div><div class="ttext">This view answers the practical question: what does total household retirement income look like each month?</div></div></div><div class="tipCard"><div class="ticon">👤</div><div><div class="ttitle">See both shares</div><div class="ttext">You can compare your income versus your partner’s income at retirement and after each State Pension starts.</div></div></div><div class="tipCard"><div class="ticon">📅</div><div><div class="ttitle">Watch key ages</div><div class="ttext">The timeline highlights your retirement age, partner retirement age, and both State Pension start ages.</div></div></div></div>
-        <div id="householdIntro" class="callout" style="margin-top:12px; display:none"></div>
-        <div class="kpi" id="householdKpis" style="margin-top:12px"></div>
-        <div class="grid" style="margin-top:12px">
-          <div class="card card-subtle" style="grid-column: span 12">
+        <div id="householdIntro" class="callout mt-3" style="display:none"></div>
+        <div class="kpi mt-3" id="householdKpis"></div>
+        <div class="grid mt-3">
+          <div class="card card-subtle col-span-12">
             <h3>Combined monthly net retirement income</h3>
-            <div class="svgwrap"><svg id="chartHouseholdIncome" width="980" height="270" role="img" aria-label="Household monthly income chart"></svg></div>
+            <div class="svgwrap" style="position:relative"><svg id="chartHouseholdIncome" role="img" aria-label="Household monthly income chart"></svg></div>
             <div class="footer">Shows monthly net income after tax for the household and each person, using the planner assumptions.</div>
           </div>
         </div>
-        <div class="grid" style="margin-top:12px">
-          <div class="card card-subtle" style="grid-column: span 12">
+        <div class="grid mt-3">
+          <div class="card card-subtle col-span-12">
             <h3>Combined household pot</h3>
-            <div class="svgwrap"><svg id="chartHouseholdPot" width="980" height="270" role="img" aria-label="Household pot chart"></svg></div>
+            <div class="svgwrap" style="position:relative"><svg id="chartHouseholdPot" role="img" aria-label="Household pot chart"></svg></div>
             <div class="footer">This combines both pension pots. It helps show whether one pot is depleting much earlier than the other.</div>
           </div>
         </div>
-        <div style="margin-top:10px; overflow:auto">
+        <div class="mt-2.5 overflow-auto">
           <table id="tblHousehold">
             <thead><tr>
               <th>Age</th>
@@ -849,7 +960,7 @@
 
     <!-- STRESS -->
     <section class="view" id="view-stress" style="display:none">
-      <div class="card stress-shell">
+      <div class="card stress-shell space-y-4">
         <div class="view-eyebrow">VALIDATE</div>
         <h3>Stress Tests</h3>
         <p class="view-subtitle">Would your plan survive adverse market conditions?</p>
@@ -873,7 +984,7 @@
           <div class="stress-grid">
             <article class="stress-panel stress-panel--wide">
               <div class="stress-chart-header">
-                <h4 style="margin:0">Pot trajectory under stress (today's £)</h4>
+                <h4 class="m-0">Pot trajectory under stress (today's £)</h4>
                 <div class="stress-chart-mode">
                   <button class="stress-chart-mode-btn active" data-mode="core">Simple view</button>
                   <button class="stress-chart-mode-btn" data-mode="isolated">Show isolated</button>
@@ -902,7 +1013,7 @@
           <div class="stress-grid">
             <article class="stress-panel">
               <h4>Parameters</h4>
-              <p class="muted small" style="margin:0 0 10px">Inputs for the Core crash and bad-sequence scenarios.</p>
+              <p class="muted small mb-2.5">Inputs for the Core crash and bad-sequence scenarios.</p>
               <div class="form">
                 <div class="field"><label>Crash size at retirement (%)</label><input type="number" id="in_crashPct" step="1" /></div>
                 <div class="field"><label>Bad-returns years (after retirement)</label><input type="number" id="in_badYears" step="1" /></div>
@@ -954,12 +1065,12 @@
 
     <!-- MONTE -->
     <section class="view" id="view-monte" style="display:none">
-      <div class="card monte-shell">
+      <div class="card monte-shell space-y-4">
         <div class="view-eyebrow">VALIDATE</div>
         <h3>Monte Carlo</h3>
         <p class="view-subtitle">Probability context across many simulated futures</p>
         <div class="tipGrid" data-tips="view-monte"><div class="tipCard"><div class="ticon">🎲</div><div><div class="ttitle">Many futures</div><div class="ttext">Monte Carlo runs your plan many times with random return paths to show uncertainty.</div></div></div><div class="tipCard"><div class="ticon">📊</div><div><div class="ttitle">Focus on 3 numbers</div><div class="ttext">Success %, Worst‑case depletion age, and P10 pot (downside buffer).</div></div></div><div class="tipCard"><div class="ticon">🟦</div><div><div class="ttitle">Read the bands</div><div class="ttext">White line is “typical”. Shaded ranges are realistic outcomes. Lower band above zero is strong.</div></div></div></div>
-        <p class="muted" style="margin-top:0">Simulates many possible return paths using your average return and volatility. Use it for uncertainty context, not certainty.</p>
+        <p class="text-sm text-text-3">Simulates many possible return paths using your average return and volatility. Use it for uncertainty context, not certainty.</p>
 
         <div class="view-subnav" role="tablist" data-subnav="monte">
           <button class="active" data-subnav-target="results" type="button">Results</button>
@@ -970,7 +1081,7 @@
           <div class="monte-status-row">
             <span id="monteBadge"></span>
             <span id="mcDelta"></span>
-            <span class="badge" id="mcProgressWrap" style="display:none"><span class="ico">⏳</span><span id="mcProgressText">Running…</span><span class="progress" style="margin-left:8px"><div id="mcProgressBar"></div></span></span>
+            <span class="badge" id="mcProgressWrap" style="display:none"><span class="ico">⏳</span><span id="mcProgressText">Running…</span><span class="progress ml-2"><div id="mcProgressBar"></div></span></span>
             <button class="btn btn-outline" id="btnRunMonte" type="button">Run Monte</button>
           </div>
 
@@ -981,13 +1092,13 @@
               <div id="monteDecisionCards" class="monte-outcome-grid"></div>
               <details class="monte-advanced-details" open>
                 <summary>Advanced diagnostics</summary>
-                <div id="mcKpis" class="kpi" style="margin-top:8px"></div>
+                <div id="mcKpis" class="kpi mt-2"></div>
               </details>
             </article>
 
             <article class="monte-panel monte-panel--wide">
               <h4>Monte Carlo distribution (pot in today’s £)</h4>
-              <div class="small muted" style="margin-bottom:8px">White line shows the typical path. Shaded range shows uncertainty.</div>
+              <div class="small muted mb-2">White line shows the typical path. Shaded range shows uncertainty.</div>
               <div class="svgwrap"><svg id="chartMC" width="980" height="280" role="img" aria-label="Monte Carlo chart"></svg></div>
             </article>
 
@@ -1007,7 +1118,7 @@
           <div class="monte-grid">
             <article class="monte-panel">
               <h4>Simulation controls</h4>
-              <p class="muted small" style="margin:0 0 10px">Tweak settings, then rerun Monte Carlo to refresh the results.</p>
+              <p class="muted small mb-2.5">Tweak settings, then rerun Monte Carlo to refresh the results.</p>
               <div class="form">
                 <div class="field"><label>Simulations</label>
                   <select id="in_sims">
@@ -1044,20 +1155,20 @@
         <h3>Scenarios</h3>
         <p class="view-subtitle">Save, compare and contrast different planning assumptions</p>
         <div class="tipGrid" data-tips="view-scenarios"><div class="tipCard"><div class="ticon">🧩</div><div><div class="ttitle">Scenarios are snapshots</div><div class="ttext">A scenario is a saved set of inputs. Compare shows trade‑offs side‑by‑side.</div></div></div><div class="tipCard"><div class="ticon">🔎</div><div><div class="ttitle">Compare the right KPIs</div><div class="ttext">Look at run‑out age, pot left at end age, and MC success % (when run).</div></div></div><div class="tipCard"><div class="ticon">🏷️</div><div><div class="ttitle">Name clearly</div><div class="ttext">Use names like “Retire 60”, “+2% contrib”, “Lower spend” so comparisons are obvious.</div></div></div></div>
-        <p class="muted" style="margin-top:0">Save named scenarios, then compare side-by-side (up to 3).</p>
+        <p class="text-sm text-text-3">Save named scenarios, then compare side-by-side (up to 3).</p>
 
         <div class="grid">
-          <div class="card card-subtle" style="grid-column: span 5">
+          <div class="card card-subtle col-span-5">
             <h3>Saved scenarios</h3>
             <div id="scenarioList" class="muted"></div>
-            <div class="row" style="margin-top:10px">
+            <div class="row mt-2.5">
               <button class="btn" id="btnNewScenario">Save current as new</button>
               <button class="btn" id="btnClearScenarios">Clear all</button>
             </div>
             <div class="footer">Scenarios are stored locally in your browser (offline).</div>
           </div>
 
-          <div class="card card-subtle" style="grid-column: span 7">
+          <div class="card card-subtle col-span-7">
             <h3>Compare</h3>
             <div class="muted small">Select up to 3 scenarios to compare.</div>
             <div id="scenarioCompare"></div>
@@ -1074,7 +1185,7 @@
     <h3>Help</h3>
     <p class="view-subtitle">A gentle guide to retirement planning</p>
 
-    <div class="helpHero" style="margin-top:10px">
+    <div class="helpHero mt-2.5">
       <div class="hicon">🧑‍🏫</div>
       <div>
         <h4>Welcome — you’re in the right place</h4>
@@ -1084,7 +1195,7 @@
 
     <div class="hr"></div>
 
-    <h3 style="margin-top:0">A simple learning path</h3>
+    <h3 class="mt-0">A simple learning path</h3>
     <div class="helpSteps">
       <div class="step"><div class="num">1</div><h5>Set a baseline</h5><p>Enter your best‑estimate inputs. Save this as “Baseline”.</p></div>
       <div class="step"><div class="num">2</div><h5>Check Stress tests</h5><p>If Stress fails, treat the plan as fragile even if the projection looks good.</p></div>
@@ -1097,18 +1208,18 @@
     <div class="hr"></div>
 
     <div class="grid">
-      <div class="card card-subtle" style="grid-column: span 6">
+      <div class="card card-subtle col-span-6">
         <h3>What this tool is (and isn’t)</h3>
-        <ul class="muted" style="margin:0">
+        <ul class="muted m-0">
           <li><strong>It is</strong> a planning tool that tests resilience (margin for error).</li>
           <li><strong>It isn’t</strong> a prediction of the future or financial advice.</li>
           <li>Values are shown in <strong>today’s money</strong> (inflation‑adjusted).</li>
           <li>Focus on <strong>robust plans</strong>, not perfect precision.</li>
         </ul>
       </div>
-      <div class="card card-subtle" style="grid-column: span 6">
+      <div class="card card-subtle col-span-6">
         <h3>The retirement problem (plain words)</h3>
-        <ul class="muted" style="margin:0">
+        <ul class="muted m-0">
           <li><strong>Time</strong>: you may live longer than expected.</li>
           <li><strong>Bad luck</strong>: markets don’t rise smoothly.</li>
           <li><strong>Spending</strong>: drawing too much too early can cause trouble.</li>
@@ -1121,17 +1232,17 @@
 
     <h3>Plain‑English explanations (tap to expand)</h3>
     <div class="grid">
-      <div class="card card-soft" style="grid-column: span 12">
-        <div class="grid" style="margin:0">
-          <div class="card card-ghost" style="grid-column: span 6">
+      <div class="card card-soft col-span-12">
+        <div class="grid m-0">
+          <div class="card card-ghost col-span-6">
             <details class="helpAcc"><summary><span class="q">What is Monte Carlo?</span><span class="chev">▾</span></summary><div class="a">It runs your plan many times using random market return paths. It doesn’t predict the future — it shows how often your plan still works under uncertainty.</div></details>
-            <details class="helpAcc" style="margin-top:10px"><summary><span class="q">What does “Success probability” mean?</span><span class="chev">▾</span></summary><div class="a">The % of simulated futures where your pot does not hit the “ruin” rule (usually £0) before the end age.</div></details>
-            <details class="helpAcc" style="margin-top:10px"><summary><span class="q">What is P10 terminal pot?</span><span class="chev">▾</span></summary><div class="a">A pessimistic outcome. 9 out of 10 futures end with more pot than this. It’s a helpful downside buffer.</div></details>
+            <details class="helpAcc mt-2.5"><summary><span class="q">What does “Success probability” mean?</span><span class="chev">▾</span></summary><div class="a">The % of simulated futures where your pot does not hit the “ruin” rule (usually £0) before the end age.</div></details>
+            <details class="helpAcc mt-2.5"><summary><span class="q">What is P10 terminal pot?</span><span class="chev">▾</span></summary><div class="a">A pessimistic outcome. 9 out of 10 futures end with more pot than this. It’s a helpful downside buffer.</div></details>
           </div>
-          <div class="card card-ghost" style="grid-column: span 6">
+          <div class="card card-ghost col-span-6">
             <details class="helpAcc"><summary><span class="q">What are Stress tests?</span><span class="chev">▾</span></summary><div class="a">Specific “bad timing” checks like a crash at retirement or a run of poor early returns. Passing stress tests means resilience.</div></details>
-            <details class="helpAcc" style="margin-top:10px"><summary><span class="q">What is the Bridge?</span><span class="chev">▾</span></summary><div class="a">If you retire before State Pension age, the Bridge is the gap you must fund yourself. The Bridge tab checks whether the pot can support that period.</div></details>
-            <details class="helpAcc" style="margin-top:10px"><summary><span class="q">What does “today’s money” mean?</span><span class="chev">▾</span></summary><div class="a">Values are inflation‑adjusted. £30k means £30k of buying power today, not future cash. This makes scenarios easier to compare.</div></details>
+            <details class="helpAcc mt-2.5"><summary><span class="q">What is the Bridge?</span><span class="chev">▾</span></summary><div class="a">If you retire before State Pension age, the Bridge is the gap you must fund yourself. The Bridge tab checks whether the pot can support that period.</div></details>
+            <details class="helpAcc mt-2.5"><summary><span class="q">What does “today’s money” mean?</span><span class="chev">▾</span></summary><div class="a">Values are inflation‑adjusted. £30k means £30k of buying power today, not future cash. This makes scenarios easier to compare.</div></details>
           </div>
         </div>
       </div>
@@ -1141,17 +1252,17 @@
 
     <h3>How to make decisions (simple rules)</h3>
     <div class="grid">
-      <div class="card card-subtle" style="grid-column: span 4">
+      <div class="card card-subtle col-span-4">
         <h3>Can I retire earlier?</h3>
-        <p class="muted" style="margin:0">Check Bridge (gap holds), Stress (gatekeeper), and Monte Carlo (uncertainty).</p>
+        <p class="muted m-0">Check Bridge (gap holds), Stress (gatekeeper), and Monte Carlo (uncertainty).</p>
       </div>
-      <div class="card card-subtle" style="grid-column: span 4">
+      <div class="card card-subtle col-span-4">
         <h3>Can I spend more?</h3>
-        <p class="muted" style="margin:0">Watch minimum pot after drawing starts and P10 pot. Avoid “knife‑edge” plans.</p>
+        <p class="muted m-0">Watch minimum pot after drawing starts and P10 pot. Avoid “knife‑edge” plans.</p>
       </div>
-      <div class="card card-subtle" style="grid-column: span 4">
+      <div class="card card-subtle col-span-4">
         <h3>Which scenario is better?</h3>
-        <p class="muted" style="margin:0">Prefer margin for error: higher robustness even if income is slightly lower.</p>
+        <p class="muted m-0">Prefer margin for error: higher robustness even if income is slightly lower.</p>
       </div>
     </div>
 
@@ -1159,8 +1270,8 @@
 
     <h3>Common worries</h3>
     <details class="helpAcc"><summary><span class="q">“What if my assumptions are wrong?”</span><span class="chev">▾</span></summary><div class="a">That’s normal. Use Stress and Monte Carlo to see sensitivity. If tiny changes cause failure, the plan is fragile.</div></details>
-    <details class="helpAcc" style="margin-top:10px"><summary><span class="q">“Why do tabs disagree?”</span><span class="chev">▾</span></summary><div class="a">Projection is an average path. Stress is specific bad timing. Monte Carlo is many random futures. Each answers a different question.</div></details>
-    <details class="helpAcc" style="margin-top:10px"><summary><span class="q">“What should I do if I see Amber?”</span><span class="chev">▾</span></summary><div class="a">Amber means “watch this area”. Use Top 3 levers: adjust retirement age, contributions, or spending. Small changes often move Amber to Green.</div></details>
+    <details class="helpAcc mt-2.5"><summary><span class="q">“Why do tabs disagree?”</span><span class="chev">▾</span></summary><div class="a">Projection is an average path. Stress is specific bad timing. Monte Carlo is many random futures. Each answers a different question.</div></details>
+    <details class="helpAcc mt-2.5"><summary><span class="q">“What should I do if I see Amber?”</span><span class="chev">▾</span></summary><div class="a">Amber means “watch this area”. Use Top 3 levers: adjust retirement age, contributions, or spending. Small changes often move Amber to Green.</div></details>
 
     <div class="footer">Teacher tip: Save 3 scenarios (Baseline, Early retirement, Lower spend). Compare them side‑by‑side to see trade‑offs clearly.</div>
   </div>
@@ -1169,7 +1280,9 @@
   
   <nav class="bottomNav" id="bottomNav" aria-label="Bottom navigation">
     <button data-view="overview" class="active" aria-label="Overview"><span class="bnav-ico">OV</span><span>Overview</span></button>
-    <button data-view="inputs" aria-label="Inputs"><span class="bnav-ico">IN</span><span>Inputs</span></button>
+    <button data-view="wealth" aria-label="Wealth"><span class="bnav-ico">WL</span><span>Wealth</span></button>
+    <button data-view="inputs" aria-label="Income"><span class="bnav-ico">IN</span><span>Income</span></button>
+    <button data-view="expenses" aria-label="Expenses"><span class="bnav-ico">EX</span><span>Expenses</span></button>
     <button data-view="assumptions" aria-label="Assumptions"><span class="bnav-ico">AS</span><span>Assumptions</span></button>
     <button data-view="projection" aria-label="Projection"><span class="bnav-ico">PR</span><span>Projection</span></button>
     <button data-view="strategy" aria-label="Strategy"><span class="bnav-ico">ST</span><span>Strategy</span></button>

@@ -20,6 +20,7 @@ import { renderStrategyTaxOptimisation } from './ui/strategyTaxOptimisation.js';
 import { renderHouseholdSummary, renderHouseholdTab } from './ui/household.js';
 import { createRenderOrchestrator } from './services/renderOrchestrator.js';
 import { createNavigationController } from './ui/navigation.js';
+import { createWealthDashboard } from './ui/wealth.js';
 import { bindAppEvents } from './controllers/appEvents.js';
 import { createBridgeRenderer } from './ui/bridge.js';
 import { createStressRenderer } from './ui/stress.js';
@@ -60,7 +61,8 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
   });
 
   const navigation = createNavigationController({ getEl: $, document, window, onOpenMonte: () => renderAll(false) });
-  const renderBridge = createBridgeRenderer({ getEl: $, calcBridge, drawLineChart, fmtGBP });
+  const wealthDashboard = createWealthDashboard({ getEl: $, fmtGBP, goToInputs: (...args) => { navigation.goToInputsSection(...args); navigation.setNavOpen(false); } });
+  const renderBridge = createBridgeRenderer({ getEl: $, calcBridge, fmtGBP });
   const renderStress = createStressRenderer({ getEl: $, calcProjection, computeStressStatus, badge, drawLineChart, fmtGBP });
 
   const suggestLevers = createActionRecommendationService({
@@ -124,7 +126,7 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
     buildOverviewViewModel,
     renderOverviewDashboard: (model) => renderOverviewDashboard({ getEl: $, fmtGBP }, model),
     renderHouseholdSummary: (state, household) => renderHouseholdSummary({ getEl: $, fmtGBP }, state, household),
-    renderHouseholdTab: (state, household) => renderHouseholdTab({ getEl: $, fmtGBP, drawLineChart }, state, household),
+    renderHouseholdTab: (state, household) => renderHouseholdTab({ getEl: $, fmtGBP }, state, household),
     drawLineChart,
     buildProjectionViewModel,
     renderProjectionTable: (base) => renderProjectionTable({ getEl: $, fmtGBP, app, rerender: () => renderAll(false) }, base),
@@ -149,6 +151,7 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
     fmtGBP,
     badge,
     forecastCard,
+    renderWealth: () => wealthDashboard.render(),
   });
 
   const scenariosRenderer = createScenariosRenderer({
