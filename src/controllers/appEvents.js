@@ -39,6 +39,99 @@ export function bindAppEvents({
     print: () => window.print(),
   });
 
+  const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 });
+
+  const fmtPercent = (value = 0) => {
+    const fixed = Number(value || 0).toFixed(1);
+    return `${fixed.endsWith('.0') ? fixed.slice(0, -2) : fixed}%`;
+  };
+
+  function setText(id, text) {
+    const el = getEl(id);
+    if (el) el.textContent = text;
+  }
+
+  function updateEarningsInsights() {
+    const salary = Number(getEl('in_salary')?.value || 0);
+    const growth = Number(getEl('in_salaryGrowth')?.value || 0);
+    const empPct = Number(getEl('in_empPct')?.value || 0);
+    const erPct = Number(getEl('in_erPct')?.value || 0);
+    const otherIncome = Number(getEl('in_otherIncome')?.value || 0);
+    const totalPct = empPct + erPct;
+    const totalContrib = salary > 0 ? (salary * totalPct) / 100 : 0;
+    const monthlyContrib = totalContrib / 12;
+
+    setText('earningsSalaryHeadline', salary > 0 ? `${gbp.format(salary)}/yr` : '£0');
+    setText('earningsSalaryNote', salary > 0 ? `Growing ${fmtPercent(growth)} nominal per year.` : 'Add your annual salary to get started.');
+
+    setText('earningsContributionHeadline', totalContrib > 0 ? `${gbp.format(Math.round(totalContrib))}/yr` : '£0');
+    setText(
+      'earningsContributionNote',
+      totalContrib > 0
+        ? `${fmtPercent(empPct)} you • ${fmtPercent(erPct)} employer · £${Math.round(monthlyContrib).toLocaleString()} /mo`
+        : 'Employee + employer total 0%.'
+    );
+
+    setText('earningsBufferHeadline', otherIncome > 0 ? `${gbp.format(otherIncome)}/yr` : '£0');
+    setText(
+      'earningsBufferNote',
+      otherIncome > 0 ? 'Other taxable income included in plan.' : 'Other income + growth assumptions.'
+    );
+
+    let coachTip = 'Add your salary so the planner can size contribution headroom.';
+    let detail1 = 'Employer match not captured.';
+    let detail2 = 'Growth set to nominal rate.';
+
+    if (salary > 0 && totalPct === 0) {
+      coachTip = 'Capture how much of your pay you and your employer save.';
+      detail1 = 'Contributions currently set to 0%.';
+    } else if (salary > 0 && totalPct > 0) {
+      coachTip = 'Looks good. Consider increasing contributions if surplus allows.';
+      detail1 = `Total saving ${fmtPercent(totalPct)} (${fmtPercent(empPct)} you / ${fmtPercent(erPct)} employer).`;
+    }
+
+    if (growth > 0) {
+      detail2 = `Salary grows ${fmtPercent(growth)} per year.`;
+    } else if (growth === 0) {
+      detail2 = 'Salary growth is flat (0%).';
+    }
+
+    if (otherIncome > 0) {
+      detail2 = `${detail2} Other income £${Math.round(otherIncome).toLocaleString()} added.`;
+    }
+
+    setText('earningsCoachTip', coachTip);
+    setText('earningsCoachDetail1', detail1);
+    setText('earningsCoachDetail2', detail2);
+  }
+
+  function triggerFieldEvents(el) {
+    if (!el) return;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  function copyEarningsToPartner() {
+    const salary = getEl('in_salary')?.value ?? '';
+    const empPct = getEl('in_empPct')?.value ?? '';
+    const erPct = getEl('in_erPct')?.value ?? '';
+    const targets = [
+      { id: 'in_spouseSalary', value: salary },
+      { id: 'in_spouseEmpPct', value: empPct },
+      { id: 'in_spouseErPct', value: erPct },
+    ];
+    targets.forEach(({ id, value }) => {
+      const el = getEl(id);
+      if (!el) return;
+      el.value = value;
+      triggerFieldEvents(el);
+    });
+    if (typeof toast === 'function') {
+      toast('info', 'Copied earnings to partner inputs');
+    }
+    updateEarningsInsights();
+  }
+
   function activateSubTab(subtabId) {
     if (!subtabId) return;
     const person = subtabId.startsWith('partner-') ? 'partner' : 'you';
@@ -161,6 +254,7 @@ export function bindAppEvents({
       persistDebounce=setTimeout(()=>{
         if (typeof saveAutoInputs === 'function') saveAutoInputs(readState());
       }, 400);
+      updateEarningsInsights();
     };
     el.addEventListener('input', onChange);
     el.addEventListener('change', onChange);
@@ -200,6 +294,23 @@ export function bindAppEvents({
     retirementRow?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 
+  getEl('btnEarningsCopyPartner')?.addEventListener('click', () => {
+    copyEarningsToPartner();
+  });
+  getEl('btnEarningsScenario')?.addEventListener('click', () => {
+    getEl('btnSaveScenario')?.click();
+  });
+  getEl('btnEarningsResume')?.addEventListener('click', () => {
+    document.getElementById('inputsNavResumeBtn')?.click();
+  });
+  getEl('btnEarningsFocusContrib')?.addEventListener('click', () => {
+    const target = getEl('in_erPct');
+    if (target) {
+      target.focus({ preventScroll: true });
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+
   getEl('overviewCompareSource')?.addEventListener('change', (e) => {
     if (window.__RP_APP) window.__RP_APP.overviewCompareSource = String(e.target.value || 'previous');
     renderAll(false);
@@ -223,6 +334,8 @@ export function bindAppEvents({
   getEl('btnResetInputs')?.addEventListener('click', () => {
     if (typeof resetInputsToDefaults === 'function') resetInputsToDefaults();
   });
+
+  updateEarningsInsights();
 
   getEl('btnAddDc')?.addEventListener('click', ()=>{
     const arr=readDcPensionsEditor('primary');

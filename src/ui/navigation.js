@@ -13,6 +13,30 @@ export function createNavigationController({ getEl, document, window, onOpenMont
   const cmdInput = document.getElementById('cmdInput');
   const cmdList = document.getElementById('cmdList');
   const btnCmdClose = document.getElementById('btnCmdClose');
+  const inputsAssistShell = document.getElementById('navInputsDetails');
+  const inputsProgressText = document.getElementById('inputsNavProgressText');
+  const inputsProgressBar = document.getElementById('inputsNavProgressBar');
+  const inputsProgressFill = document.getElementById('inputsNavProgressFill');
+  const inputsStatusPill = document.getElementById('inputsNavStatusPill');
+  const inputsResumeBtn = document.getElementById('inputsNavResumeBtn');
+  const inputsAddSalaryBtn = document.getElementById('inputsNavAddSalaryBtn');
+  const inputSectionSummaries = {
+    personal: document.getElementById('inputsNavSummaryPersonal'),
+    income: document.getElementById('inputsNavSummaryIncome'),
+    pensions: document.getElementById('inputsNavSummaryPensions'),
+    household: document.getElementById('inputsNavSummaryHousehold'),
+  };
+  const repeaterIds = [
+    'dcPensionsWrap',
+    'dbPensionsWrap',
+    'contribEventsWrap',
+    'lumpSumEventsWrap',
+    'partnerDcPensionsWrap',
+    'partnerDbPensionsWrap',
+    'partnerContribEventsWrap',
+    'partnerLumpSumEventsWrap',
+  ];
+  const currencyFormatter = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 });
   let cmdItems = [];
   let cmdCommands = [];
 
@@ -31,6 +55,7 @@ export function createNavigationController({ getEl, document, window, onOpenMont
   };
 
   const viewButtons = () => document.querySelectorAll('[data-view-nav]');
+  const inputSectionButtons = () => document.querySelectorAll('[data-input-nav]');
 
   function setNavState(view, state = 'na', hint = null){
     const btn = document.querySelector(`.nav button[data-view="${view}"]`);
@@ -40,6 +65,143 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     if (pill) {
       const fallback = btn.getAttribute('data-default-hint') || '';
       pill.textContent = hint || fallback;
+    }
+  }
+
+  function formatGBPShort(value) {
+    if (!Number.isFinite(value) || value <= 0) return null;
+    if (value >= 1_000_000) return `£${(value / 1_000_000).toFixed(value >= 10_000_000 ? 0 : 1)}m`;
+    if (value >= 1_000) return `£${Math.round(value / 1_000)}k`;
+    return currencyFormatter.format(value);
+  }
+
+  function setChipState(section, state) {
+    const chip = document.querySelector(`[data-section-status="${section}"]`);
+    if (!chip) return;
+    chip.dataset.state = state;
+    const labels = { ready: 'Ready', attention: 'Review', review: 'Review', todo: 'To do', fix: 'Fix now' };
+    chip.textContent = labels[state] || chip.textContent;
+  }
+
+  function readNumber(id) {
+    const el = getEl(id);
+    if (!el) return null;
+    const value = Number(el.value);
+    return Number.isFinite(value) ? value : null;
+  }
+
+  function hasValue(id, { allowZero = false } = {}) {
+    const el = getEl(id);
+    if (!el) return false;
+    const raw = el.value;
+    if (raw === '' || raw == null) return false;
+    if (el.type === 'number' || el.type === 'range') {
+      const num = Number(raw);
+      if (!Number.isFinite(num)) return false;
+      return allowZero ? true : num > 0;
+    }
+    return raw.toString().trim().length > 0;
+  }
+
+  function countRepeaterCards(id) {
+    const wrap = getEl(id);
+    if (!wrap) return 0;
+    return wrap.querySelectorAll('.repeatCard').length;
+  }
+
+  function updateInputsAssist() {
+    if (!inputsAssistShell) return;
+    const validation = getEl('validationSummary');
+    const errorCount = Number(validation?.dataset?.errorCount || 0);
+    const warningCount = Number(validation?.dataset?.warningCount || 0);
+    const essentialsComplete = [
+      hasValue('in_dob'),
+      hasValue('in_retireAge', { allowZero: true }),
+      hasValue('in_stateAge', { allowZero: true }),
+      readNumber('in_salary') > 0,
+    ].filter(Boolean).length;
+    const essentialsTotal = 4;
+    let progress = Math.round((essentialsComplete / essentialsTotal) * 100);
+    let pillState = 'ready';
+    let pillText = 'Ready to run';
+    let progressCopy = 'All key fields complete';
+
+    if (errorCount > 0) {
+      pillState = 'fix';
+      pillText = 'Fix inputs';
+      progressCopy = 'Resolve outstanding errors';
+      progress = Math.max(20, 70 - errorCount * 6);
+    } else if (warningCount > 0) {
+      pillState = 'review';
+      pillText = 'Review inputs';
+      progressCopy = 'Warnings spotted — review before running';
+      progress = Math.min(90, 80 - warningCount * 3);
+    } else if (essentialsComplete < essentialsTotal) {
+      pillState = progress >= 60 ? 'review' : 'fix';
+      pillText = progress >= 60 ? 'Keep filling' : 'Start here';
+      progressCopy = progress >= 60 ? 'Add the remaining basics' : 'Capture your essentials';
+    }
+
+    if (inputsProgressBar) inputsProgressBar.setAttribute('aria-valuenow', String(progress));
+    if (inputsProgressFill) inputsProgressFill.style.width = `${progress}%`;
+    if (inputsStatusPill) {
+      inputsStatusPill.dataset.state = pillState;
+      inputsStatusPill.textContent = pillText;
+    }
+    if (inputsProgressText) inputsProgressText.textContent = progressCopy;
+
+    const currentAge = readNumber('in_currentAge');
+    const retireAge = readNumber('in_retireAge');
+    const stateAge = readNumber('in_stateAge');
+    if (inputSectionSummaries.personal) {
+      inputSectionSummaries.personal.textContent = currentAge
+        ? `Age ${currentAge} • retire ${retireAge || '—'}`
+        : 'Add DOB & valuation date';
+      const personalState = currentAge && retireAge && stateAge ? 'ready' : (currentAge || retireAge ? 'attention' : 'todo');
+      setChipState('personal', personalState);
+    }
+
+    const salary = readNumber('in_salary') || 0;
+    const otherIncome = readNumber('in_otherIncome') || 0;
+    const empPct = readNumber('in_empPct') || 0;
+    const erPct = readNumber('in_erPct') || 0;
+    if (inputSectionSummaries.income) {
+      const parts = [];
+      parts.push(salary > 0 ? `${formatGBPShort(salary)}/yr salary` : 'No salary yet');
+      if (otherIncome > 0) parts.push(`+ ${formatGBPShort(otherIncome)} other`);
+      if (empPct + erPct > 0) parts.push(`${(empPct + erPct).toFixed(1).replace(/\.0$/, '')}% saved`);
+      inputSectionSummaries.income.textContent = parts.join(' • ');
+      const incomeState = salary > 0 ? ((empPct + erPct) > 0 ? 'ready' : 'attention') : 'todo';
+      setChipState('income', incomeState);
+    }
+
+    const dcCount = countRepeaterCards('dcPensionsWrap');
+    const dbCount = countRepeaterCards('dbPensionsWrap');
+    const contribCount = countRepeaterCards('contribEventsWrap');
+    const lumpCount = countRepeaterCards('lumpSumEventsWrap');
+    if (inputSectionSummaries.pensions) {
+      const parts = [`${dcCount} DC`, `${dbCount} DB`];
+      if (contribCount) parts.push(`${contribCount} contrib`);
+      if (lumpCount) parts.push(`${lumpCount} lump`);
+      inputSectionSummaries.pensions.textContent = parts.join(' • ') || 'No DC or DB pensions yet';
+      const pensionState = (dcCount + dbCount) > 0 ? 'ready' : (contribCount + lumpCount) > 0 ? 'attention' : 'todo';
+      setChipState('pensions', pensionState);
+    }
+
+    const householdMode = getEl('in_householdMode')?.value || 'single';
+    const spouseAge = readNumber('in_spouseCurrentAge');
+    const spouseRetire = readNumber('in_spouseRetireAge');
+    if (inputSectionSummaries.household) {
+      if (householdMode === 'single') {
+        inputSectionSummaries.household.textContent = 'Single plan • add partner if needed';
+        setChipState('household', 'todo');
+      } else {
+        inputSectionSummaries.household.textContent = spouseAge
+          ? `Partner age ${spouseAge} • retire ${spouseRetire || '—'}`
+          : 'Add partner basics';
+        const householdState = spouseAge && spouseRetire ? 'ready' : 'attention';
+        setChipState('household', householdState);
+      }
     }
   }
 
@@ -78,6 +240,7 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     setNavState('scenarios', 'na', 'Compare');
     setNavState('help', 'na', 'Guide');
     setNavState('assumptions', 'na', 'Global');
+    updateInputsAssist();
   }
 
   function setCmdOpen(open){
@@ -117,6 +280,27 @@ export function createNavigationController({ getEl, document, window, onOpenMont
     syncBottomNav(name);
     getEl('viewTitle').textContent = VIEW_TITLES[name] || 'Overview';
     updateNavHints();
+  }
+
+  function goToInputsSection(tab, subtab, focusFieldId){
+    setView('inputs');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(()=>{
+      if (tab) {
+        document.querySelector(`#view-inputs .tabs button[data-tab="${tab}"]`)?.click();
+      }
+      if (subtab) {
+        const owner = subtab.startsWith('partner-') ? 'partner' : 'you';
+        document.querySelector(`#subtabs-${owner} button[data-subtab="${subtab}"]`)?.click();
+      }
+      if (focusFieldId) {
+        const focusTarget = getEl(focusFieldId);
+        if (focusTarget && typeof focusTarget.focus === 'function') {
+          focusTarget.focus({ preventScroll: true });
+          focusTarget.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+      }
+    }, 60);
   }
 
   function setNavOpen(open){
@@ -227,6 +411,29 @@ export function createNavigationController({ getEl, document, window, onOpenMont
       if(btn.dataset.view==='monte') onOpenMonte?.();
     }));
 
+    inputSectionButtons().forEach(btn=>btn.addEventListener('click', ()=>{
+      const tab = btn.getAttribute('data-tab') || 'you';
+      const subtab = btn.getAttribute('data-subtab') || '';
+      const focusField = btn.getAttribute('data-input-focus') || '';
+      goToInputsSection(tab, subtab, focusField);
+      setNavOpen(false);
+    }));
+
+    inputsResumeBtn?.addEventListener('click', ()=>{
+      const firstIssue = document.querySelector('.validation-focus-btn');
+      if(firstIssue){
+        firstIssue.click();
+      } else {
+        goToInputsSection('you','you-personal','in_dob');
+      }
+      setNavOpen(false);
+    });
+
+    inputsAddSalaryBtn?.addEventListener('click', ()=>{
+      goToInputsSection('you','you-earnings','in_salary');
+      setNavOpen(false);
+    });
+
     document.querySelectorAll('.tabs button').forEach(btn=>btn.addEventListener('click', ()=>{
       document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
@@ -258,7 +465,28 @@ export function createNavigationController({ getEl, document, window, onOpenMont
         const observer = new MutationObserver(()=>updateNavHints());
         observer.observe(node, { childList:true, subtree:true, attributes:true, characterData:true });
       });
+
+    const handleInputsChange = (event)=>{
+      if (!inputsAssistShell) return;
+      const target = event?.target;
+      if (!target) return;
+      if (target.closest('#view-inputs')) updateInputsAssist();
+    };
+    document.addEventListener('input', handleInputsChange);
+    document.addEventListener('change', handleInputsChange);
+
+    observeInputCollections();
     updateNavHints();
+  }
+
+  function observeInputCollections(){
+    if (typeof MutationObserver === 'undefined') return;
+    repeaterIds.forEach((id)=>{
+      const host = getEl(id);
+      if (!host) return;
+      const observer = new MutationObserver(()=>updateInputsAssist());
+      observer.observe(host, { childList:true, subtree:true });
+    });
   }
 
   return { setView, setNavOpen, setRailCollapsed, syncBottomNav, setSheet, bindNavigation, updateNavHints };

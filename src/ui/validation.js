@@ -3,7 +3,23 @@ export function renderValidationSummary(getEl, v){
   const over = getEl('overviewWarnings');
   if(!wrap || !over) return;
   const total = v.errors.length + v.warnings.length;
-  if(total===0){ wrap.style.display='none'; over.style.display='none'; wrap.innerHTML=''; over.innerHTML=''; return; }
+  const setCounts = (node) => {
+    if(!node) return;
+    node.dataset.errorCount = String(v.errors.length);
+    node.dataset.warningCount = String(v.warnings.length);
+  };
+  const clearCounts = (node) => {
+    if(!node) return;
+    delete node.dataset.errorCount;
+    delete node.dataset.warningCount;
+  };
+  if(total===0){
+    clearCounts(wrap);
+    clearCounts(over);
+    wrap.style.display='none'; over.style.display='none'; wrap.innerHTML=''; over.innerHTML=''; return;
+  }
+  setCounts(wrap);
+  setCounts(over);
 
   const fieldToTab = {
     in_dob: 'you',

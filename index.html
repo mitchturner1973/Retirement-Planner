@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Retirement Planner — Web Version</title>
-     <link rel="stylesheet" href="./styles/main.css?v=chartcard-1" />
+    <link rel="stylesheet" href="./styles/main.css?v=coach-rail-2" />
 </head>
-<body>
+<body class="coach-theme-ready">
 <div id="toastWrap" aria-live="polite" aria-atomic="true"></div>
 <div id="sideOverlay" aria-hidden="true"></div>
 
@@ -58,15 +58,78 @@
     <nav class="nav-panel" aria-label="Workspace navigation">
       <div class="nav-panel-head">Plan workspace</div>
       <div class="nav-panel-body">
-        <button class="nav-panel-item" data-view-nav data-view="inputs" data-default-hint="Setup">
-          <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 4a4 4 0 110 8 4 4 0 010-8zm-6.5 14c0-2.49 3.58-4 6.5-4s6.5 1.51 6.5 4v2H5.5z"/></svg>
-          </span>
-          <span class="nav-copy">
-            <span class="nav-label">Situation</span>
-            <span class="nav-hint" data-pill>Setup</span>
-          </span>
-        </button>
+        <div class="nav-inputs-stack">
+          <button class="nav-panel-item" data-view-nav data-view="inputs" data-default-hint="Setup">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false"><path d="M12 4a4 4 0 110 8 4 4 0 010-8zm-6.5 14c0-2.49 3.58-4 6.5-4s6.5 1.51 6.5 4v2H5.5z"/></svg>
+            </span>
+            <span class="nav-copy">
+              <span class="nav-label">Situation</span>
+              <span class="nav-hint" data-pill>Setup</span>
+            </span>
+          </button>
+
+          <section class="nav-inputs-details" id="navInputsDetails" aria-label="Inputs quick navigator">
+            <div class="nav-inputs-progress">
+              <div class="nav-inputs-progress-head">
+                <div>
+                  <div class="nav-inputs-eyebrow">Input progress</div>
+                  <div class="nav-inputs-progress-text" id="inputsNavProgressText">Gather essentials</div>
+                </div>
+                <span class="nav-inputs-pill" id="inputsNavStatusPill" data-state="start">Start here</span>
+              </div>
+              <div class="nav-inputs-progress-bar" id="inputsNavProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <span class="nav-inputs-progress-fill" id="inputsNavProgressFill" style="width:0%"></span>
+              </div>
+            </div>
+            <div class="nav-inputs-actions">
+              <button type="button" class="nav-inputs-action nav-inputs-action--primary" id="inputsNavResumeBtn">Resume checks</button>
+              <button type="button" class="nav-inputs-action nav-inputs-action--ghost" id="inputsNavAddSalaryBtn">Add salary</button>
+            </div>
+            <div class="nav-inputs-grid" role="list">
+              <button type="button" class="nav-inputs-card" role="listitem" data-input-nav data-tab="you" data-subtab="you-personal" data-input-focus="in_dob">
+                <div class="nav-inputs-card-head">
+                  <span>Personal profile</span>
+                  <span class="nav-inputs-chip" data-section-status="personal" data-state="todo">To do</span>
+                </div>
+                <div class="nav-inputs-card-body">
+                  <p class="nav-inputs-card-summary" id="inputsNavSummaryPersonal">Add DOB &amp; valuation date</p>
+                  <p class="nav-inputs-card-hint">Age, valuation, retirement ages</p>
+                </div>
+              </button>
+              <button type="button" class="nav-inputs-card" role="listitem" data-input-nav data-tab="you" data-subtab="you-earnings" data-input-focus="in_salary">
+                <div class="nav-inputs-card-head">
+                  <span>Earnings &amp; buffers</span>
+                  <span class="nav-inputs-chip" data-section-status="income" data-state="todo">To do</span>
+                </div>
+                <div class="nav-inputs-card-body">
+                  <p class="nav-inputs-card-summary" id="inputsNavSummaryIncome">Add salary and contribution rates</p>
+                  <p class="nav-inputs-card-hint">Salary, contributions, other income</p>
+                </div>
+              </button>
+              <button type="button" class="nav-inputs-card" role="listitem" data-input-nav data-tab="you" data-subtab="you-dc" data-input-focus="btnAddDc">
+                <div class="nav-inputs-card-head">
+                  <span>Pensions &amp; lump sums</span>
+                  <span class="nav-inputs-chip" data-section-status="pensions" data-state="todo">To do</span>
+                </div>
+                <div class="nav-inputs-card-body">
+                  <p class="nav-inputs-card-summary" id="inputsNavSummaryPensions">No DC or DB pensions yet</p>
+                  <p class="nav-inputs-card-hint">DC pots, DB income, contributions, lump sums</p>
+                </div>
+              </button>
+              <button type="button" class="nav-inputs-card" role="listitem" data-input-nav data-tab="partner" data-subtab="partner-personal" data-input-focus="in_householdMode">
+                <div class="nav-inputs-card-head">
+                  <span>Partner &amp; household</span>
+                  <span class="nav-inputs-chip" data-section-status="household" data-state="todo">To do</span>
+                </div>
+                <div class="nav-inputs-card-body">
+                  <p class="nav-inputs-card-summary" id="inputsNavSummaryHousehold">Single plan (partner optional)</p>
+                  <p class="nav-inputs-card-hint">Household mode, partner basics</p>
+                </div>
+              </button>
+            </div>
+          </section>
+        </div>
 
         <button class="nav-panel-item" data-view-nav data-view="assumptions" data-default-hint="Global">
           <span class="nav-icon" aria-hidden="true">
@@ -251,11 +314,47 @@
           <div id="subtab-you-earnings" class="subtab-panel" style="display:none">
             <div class="person-section">
               <div class="person-section-title">Earnings &amp; contributions</div>
-              <div class="form">
-                <div class="field w6"><label>Salary (&#163;/yr)</label><input type="number" id="in_salary" min="0" step="100" /></div>
-                <div class="field"><label>Salary growth (%/yr, nominal)</label><input type="number" id="in_salaryGrowth" step="0.1" /><div class="hint">Uses nominal pay growth for salary and contribution projections.</div></div>
-                <div class="field"><label>Employee pension (% of salary)</label><input type="number" id="in_empPct" step="0.1" /></div>
-                <div class="field"><label>Employer pension (% of salary)</label><input type="number" id="in_erPct" step="0.1" /></div>
+              <div class="inputs-guided-grid">
+                <div>
+                  <div class="inputs-insight-row">
+                    <div class="inputs-insight-card">
+                      <div class="inputs-insight-label">Salary run-rate</div>
+                      <div class="inputs-insight-value" id="earningsSalaryHeadline">£0</div>
+                      <div class="inputs-insight-meta" id="earningsSalaryNote">Add your annual salary to get started.</div>
+                    </div>
+                    <div class="inputs-insight-card">
+                      <div class="inputs-insight-label">Pension saving</div>
+                      <div class="inputs-insight-value" id="earningsContributionHeadline">£0</div>
+                      <div class="inputs-insight-meta" id="earningsContributionNote">Employee + employer total 0%.</div>
+                    </div>
+                    <div class="inputs-insight-card">
+                      <div class="inputs-insight-label">Buffer income</div>
+                      <div class="inputs-insight-value" id="earningsBufferHeadline">£0</div>
+                      <div class="inputs-insight-meta" id="earningsBufferNote">Other income + growth assumptions.</div>
+                    </div>
+                  </div>
+                  <div class="form form--elevated" aria-label="Earnings inputs">
+                    <div class="field w6"><label>Salary (&#163;/yr)</label><input type="number" id="in_salary" min="0" step="100" /></div>
+                    <div class="field"><label>Salary growth (%/yr, nominal)</label><input type="number" id="in_salaryGrowth" step="0.1" /><div class="hint">Uses nominal pay growth for salary and contribution projections.</div></div>
+                    <div class="field"><label>Employee pension (% of salary)</label><input type="number" id="in_empPct" step="0.1" /></div>
+                    <div class="field"><label>Employer pension (% of salary)</label><input type="number" id="in_erPct" step="0.1" /></div>
+                  </div>
+                  <div class="inputs-earnings-actions" role="group" aria-label="Earnings quick actions">
+                    <button type="button" class="inputs-earnings-btn" id="btnEarningsResume">Finish earnings later</button>
+                    <button type="button" class="inputs-earnings-btn inputs-earnings-btn--primary" id="btnEarningsCopyPartner">Copy to partner</button>
+                    <button type="button" class="inputs-earnings-btn" id="btnEarningsScenario">Save scenario</button>
+                  </div>
+                </div>
+                <aside class="inputs-coach-panel" aria-live="polite">
+                  <div class="inputs-coach-eyebrow">Coach</div>
+                  <h5>Next suggestion</h5>
+                  <p id="earningsCoachTip">Add your salary so the planner can size contribution headroom.</p>
+                  <ul class="inputs-coach-list">
+                    <li><span id="earningsCoachDetail1">Employer match not captured.</span></li>
+                    <li><span id="earningsCoachDetail2">Growth set to nominal rate.</span></li>
+                  </ul>
+                  <button type="button" class="inputs-coach-link" id="btnEarningsFocusContrib">Adjust employer match</button>
+                </aside>
               </div>
             </div>
           </div>

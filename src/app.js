@@ -39,6 +39,7 @@ import { buildOverviewViewModel } from './services/overviewViewModel.js';
 import { buildStressScenarioResults, buildMonteInterpretation } from './services/riskResilienceService.js';
 
 (function bootstrap() {
+  document.body.classList.add('coach-theme-ready');
   const app = createInitialAppState();
   window.__RP_APP = app;
   const toast = createToast({ getEl: $, window });
