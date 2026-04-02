@@ -40,6 +40,8 @@ import { createScenarioActions } from './services/scenarioActions.js';
 import { buildProjectionViewModel } from './services/projectionViewModel.js';
 import { buildOverviewViewModel } from './services/overviewViewModel.js';
 import { buildStressScenarioResults, buildMonteInterpretation } from './services/riskResilienceService.js';
+import { createChatService } from './services/chatService.js';
+import { createChatWidget } from './ui/chatWidget.js';
 
 (function bootstrap() {
   document.body.classList.add('coach-theme-ready');
@@ -226,6 +228,11 @@ import { buildStressScenarioResults, buildMonteInterpretation } from './services
     saveAutoInputs: scenarioActions.saveAutoInputs,
     resetInputsToDefaults: scenarioActions.resetInputsToDefaults,
   });
+
+  // Chat assistant
+  const chatService = createChatService({ readState: inputState.readState, calcProjection, evaluateStrategies });
+  const chatWidget = createChatWidget({ chatService, document });
+  chatWidget.mount();
 
   if (!autoRestore.restored) {
     inputState.setInputsFromState(defaults);

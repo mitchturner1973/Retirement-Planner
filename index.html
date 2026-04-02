@@ -1698,6 +1698,61 @@
     <div id="cmdList" class="cmdList"></div>
   </div>
 </div>
+
+<!-- Chat assistant widget -->
+<button class="chat-fab" id="chatFab" type="button" aria-label="Open pension assistant chat" title="Ask the pension assistant">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</button>
+
+<div class="chat-panel" id="chatPanel" role="dialog" aria-label="Pension assistant">
+  <div class="chat-header">
+    <span class="chat-header-title">💬 Pension Assistant</span>
+    <div class="chat-header-actions">
+      <button id="chatClearBtn" type="button" title="Clear chat">🗑</button>
+      <button id="chatSettingsBtn" type="button" title="Settings">⚙️</button>
+      <button id="chatCloseBtn" type="button" title="Close chat">✕</button>
+    </div>
+  </div>
+  <div class="chat-settings" id="chatSettings">
+    <label for="chatProvider">AI Provider</label>
+    <select id="chatProvider">
+      <option value="google">Google Gemini (free tier available)</option>
+      <option value="openai">OpenAI</option>
+    </select>
+    <label for="chatApiKey">API Key</label>
+    <input type="password" id="chatApiKey" placeholder="Your API key…" autocomplete="off" />
+    <div class="chat-privacy-row">
+      <label class="chat-toggle-label">
+        <input type="checkbox" id="chatSessionOnly" />
+        <span>Session only (don't save key)</span>
+      </label>
+    </div>
+    <div class="chat-key-info">🔐 Key is encrypted in your browser. Never sent to us — only to the AI provider you choose.</div>
+    <label for="chatModel">Model</label>
+    <div class="chat-model-row">
+      <select id="chatModel"><option value="">-- Save API key, then fetch --</option></select>
+      <button id="chatFetchModels" type="button" title="Fetch available models">🔄</button>
+    </div>
+    <div class="chat-privacy-row">
+      <label class="chat-toggle-label">
+        <input type="checkbox" id="chatAnonymise" checked />
+        <span>Anonymise my data</span>
+      </label>
+      <button id="chatPreviewData" type="button" class="chat-preview-btn" title="Preview what data will be sent">👁 Preview</button>
+    </div>
+    <div class="chat-preview-box" id="chatPreviewBox" style="display:none;"></div>
+    <div class="chat-settings-row">
+      <button id="chatSaveSettings" type="button">Save</button>
+    </div>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-bar">
+    <textarea id="chatInput" rows="1" placeholder="Ask about your pension…" aria-label="Chat message"></textarea>
+    <button id="chatSend" type="button">Send</button>
+  </div>
+  <div class="chat-disclaimer">Not financial advice. For guidance only — consult a qualified adviser.</div>
+</div>
+
 </body>
 
 </html>
