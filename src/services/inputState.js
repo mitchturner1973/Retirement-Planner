@@ -111,6 +111,10 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
     if (getEl('in_dbDeferralIncreasePct')) {
       getEl('in_dbDeferralIncreasePct').value = state.dbDeferralIncreasePct ?? defaults.dbDeferralIncreasePct;
     }
+    if (getEl('in_expenses') && state.expenses) getEl('in_expenses').value = state.expenses;
+    if (getEl('in_oneoffs') && state.oneoffs) getEl('in_oneoffs').value = state.oneoffs;
+    if (getEl('in_savings') && state.savingsItems) getEl('in_savings').value = state.savingsItems;
+    if (getEl('in_subs') && state.subscriptions) getEl('in_subs').value = state.subscriptions;
     syncDerivedAgeInputs(getEl, 'main');
     syncDerivedAgeInputs(getEl, 'spouse');
     toggleSpouseFields(state.householdMode || 'single');
@@ -249,6 +253,10 @@ export function createInputStateManager({ getEl, defaults, renderRepeaters, edit
       watchoutLowLsa: Number(getEl('in_watchoutLowLsa')?.value || defaults.watchoutLowLsa || 20000),
       dbEarlyReductionPct: Number(getEl('in_dbEarlyReductionPct')?.value || defaults.dbEarlyReductionPct || 4),
       dbDeferralIncreasePct: Number(getEl('in_dbDeferralIncreasePct')?.value || defaults.dbDeferralIncreasePct || 5),
+      expenses: getEl('in_expenses')?.value || '[]',
+      oneoffs: getEl('in_oneoffs')?.value || '[]',
+      savingsItems: getEl('in_savings')?.value || '[]',
+      subscriptions: getEl('in_subs')?.value || '[]',
     };
   }
 

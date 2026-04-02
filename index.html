@@ -665,14 +665,317 @@
       <div class="card expenses-shell space-y-4">
         <div class="view-eyebrow">YOUR FINANCES</div>
         <h3>Expenses</h3>
-        <p class="view-subtitle">Track your spending to size your retirement income target</p>
-        <div class="callout">
-          <div>📊</div>
-          <div>
-            <div class="font-bold">Coming soon</div>
-            <div class="muted small">Expense tracking will help you set realistic retirement income targets based on your actual spending patterns. For now, use the Strategy view to set your desired retirement income.</div>
-          </div>
+        <p class="view-subtitle">Track your spending, see your take-home pay, and understand what's left</p>
+
+        <!-- ── Take-home hero ── -->
+        <div id="expHero"></div>
+
+        <!-- ── Action buttons to open drawers ── -->
+        <div class="exp-actions">
+          <button type="button" class="exp-action-btn exp-action-btn--bills" data-exp-drawer="drawer-exp-bills">
+            <span class="exp-action-icon">🧾</span>
+            <span class="exp-action-label">Add Bill</span>
+            <span class="exp-action-count" id="expCountBills"></span>
+          </button>
+          <button type="button" class="exp-action-btn exp-action-btn--oneoffs" data-exp-drawer="drawer-exp-oneoffs">
+            <span class="exp-action-icon">🎯</span>
+            <span class="exp-action-label">Add One-off</span>
+            <span class="exp-action-count" id="expCountOneoffs"></span>
+          </button>
+          <button type="button" class="exp-action-btn exp-action-btn--subs" data-exp-drawer="drawer-exp-subs">
+            <span class="exp-action-icon">🔁</span>
+            <span class="exp-action-label">Add Subscription</span>
+            <span class="exp-action-count" id="expCountSubs"></span>
+          </button>
+          <button type="button" class="exp-action-btn exp-action-btn--savings" data-exp-drawer="drawer-exp-savings">
+            <span class="exp-action-icon">💰</span>
+            <span class="exp-action-label">Add Saving</span>
+            <span class="exp-action-count" id="expCountSavings"></span>
+          </button>
         </div>
+
+        <!-- ── Expense overlay ── -->
+        <div class="inp-overlay" id="expOverlay"></div>
+
+        <!-- ══════ DRAWER: Bills ══════ -->
+        <div class="inp-drawer inp-drawer--wide" id="drawer-exp-bills">
+          <div class="inp-drawer-head">
+            <h4>🧾 Add Monthly Bills</h4>
+            <button class="inp-drawer-close" type="button" data-close-exp-drawer>&times;</button>
+          </div>
+          <div class="inp-drawer-body">
+            <!-- Quick-add presets -->
+            <h5 class="exp-drawer-subtitle">Quick add common UK bills</h5>
+            <p class="exp-section-sub">Tap a preset to add it instantly — you can edit amounts afterwards</p>
+            <div class="exp-presets-grid" id="expPresets">
+              <button type="button" class="exp-preset-btn" data-preset-idx="0">🏠 Mortgage<span>£1,200/mo</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="1">🏛️ Council Tax<span>£180/mo</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="2">⚡ Gas & Electric<span>£150/mo</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="3">💧 Water<span>£40/mo</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="4">🌐 Broadband<span>£35/mo</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="5">📱 Mobile Phone<span>£30/mo</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="6">📺 TV Licence<span>£170/yr</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="7">🛒 Food Shop<span>£500/mo</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="8">🚗 Car Insurance<span>£500/yr</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="9">🚙 Car Tax<span>£190/yr</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="10">⛽ Fuel<span>£150/mo</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="11">🏡 Home Insurance<span>£350/yr</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="12">🛡️ Life Insurance<span>£30/mo</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="13">🎬 Streaming<span>£25/mo</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="14">💪 Gym<span>£40/mo</span></button>
+              <button type="button" class="exp-preset-btn" data-preset-idx="15">🍽️ Dining Out<span>£100/mo</span></button>
+            </div>
+
+            <hr class="exp-drawer-divider" />
+
+            <!-- Custom expense form -->
+            <h5 class="exp-drawer-subtitle">Or add a custom bill</h5>
+            <div class="exp-add-form exp-add-form--drawer">
+            <div class="exp-field">
+              <label for="exp_name">Name</label>
+              <input type="text" id="exp_name" placeholder="e.g. Mortgage, Netflix" autocomplete="off" />
+            </div>
+            <div class="exp-field">
+              <label for="exp_amount">Amount (£)</label>
+              <input type="number" id="exp_amount" min="0" step="1" placeholder="0" />
+            </div>
+            <div class="exp-field">
+              <label for="exp_freq">Frequency</label>
+              <select id="exp_freq">
+                <option value="monthly">Monthly</option>
+                <option value="weekly">Weekly</option>
+                <option value="annual">Annual</option>
+              </select>
+            </div>
+            <div class="exp-field">
+              <label for="exp_cat">Category</label>
+              <select id="exp_cat">
+                <optgroup label="Housing">
+                  <option value="mortgage">🏠 Mortgage / Rent</option>
+                  <option value="council_tax">🏛️ Council Tax</option>
+                </optgroup>
+                <optgroup label="Utilities">
+                  <option value="energy">⚡ Gas & Electric</option>
+                  <option value="water">💧 Water</option>
+                  <option value="broadband">🌐 Broadband / Internet</option>
+                  <option value="mobile">📱 Mobile Phone</option>
+                  <option value="tv_licence">📺 TV Licence</option>
+                </optgroup>
+                <optgroup label="Living">
+                  <option value="food">🛒 Food & Groceries</option>
+                  <option value="dining">🍽️ Dining Out</option>
+                </optgroup>
+                <optgroup label="Transport">
+                  <option value="fuel">⛽ Fuel / Petrol</option>
+                  <option value="car_insurance">🚗 Car Insurance</option>
+                  <option value="car_tax">🚙 Car Tax (VED)</option>
+                  <option value="car_finance">🔑 Car Finance / Lease</option>
+                  <option value="public_trans">🚆 Public Transport</option>
+                </optgroup>
+                <optgroup label="Insurance">
+                  <option value="home_ins">🏡 Home Insurance</option>
+                  <option value="life_ins">🛡️ Life Insurance</option>
+                  <option value="pet_ins">🐾 Pet Insurance</option>
+                </optgroup>
+                <optgroup label="Lifestyle">
+                  <option value="gym">💪 Gym / Fitness</option>
+                  <option value="streaming">🎬 Streaming / Subs</option>
+                  <option value="clothing">👕 Clothing</option>
+                  <option value="entertainment">🎭 Entertainment</option>
+                </optgroup>
+                <optgroup label="Health & Family">
+                  <option value="health">💊 Health / Dental</option>
+                  <option value="childcare">👶 Childcare / School</option>
+                  <option value="pet">🐕 Pet Costs</option>
+                </optgroup>
+                <optgroup label="Financial">
+                  <option value="debt">💳 Debt Repayments</option>
+                </optgroup>
+                <option value="other">📦 Other</option>
+              </select>
+            </div>
+            <div class="exp-field exp-field--btn">
+              <button type="button" id="btnAddExpense" class="exp-add-btn">+ Add Bill</button>
+            </div>
+            </div><!-- /exp-add-form -->
+          </div><!-- /inp-drawer-body -->
+        </div><!-- /drawer-exp-bills -->
+
+        <!-- ═══ Drawer: One-off payments ═══ -->
+        <div id="drawer-exp-oneoffs" class="inp-drawer">
+          <div class="inp-drawer-head">
+            <h4>🎯 Add One-off Payments</h4>
+            <button class="inp-drawer-close" data-close-exp-drawer>&times;</button>
+          </div>
+          <div class="inp-drawer-body">
+            <p class="exp-drawer-desc">Holidays, large purchases, home improvements — spread over 12 months for budgeting.</p>
+            <div class="exp-add-form exp-add-form--drawer">
+            <div class="exp-field">
+              <label for="exp_oneoff_name">Name</label>
+              <input type="text" id="exp_oneoff_name" placeholder="e.g. Summer holiday" autocomplete="off" />
+            </div>
+            <div class="exp-field">
+              <label for="exp_oneoff_amount">Total cost (£)</label>
+              <input type="number" id="exp_oneoff_amount" min="0" step="1" placeholder="0" />
+            </div>
+            <div class="exp-field">
+              <label for="exp_oneoff_cat">Category</label>
+              <select id="exp_oneoff_cat">
+                <option value="holiday">✈️ Holiday</option>
+                <option value="home_imp">🔨 Home Improvement</option>
+                <option value="car">🚗 Car Purchase / Repair</option>
+                <option value="appliance">🏠 Appliance</option>
+                <option value="wedding">💒 Wedding / Event</option>
+                <option value="christmas">🎄 Christmas</option>
+                <option value="gift">🎁 Gift</option>
+                <option value="medical">🏥 Medical / Dental</option>
+                <option value="education">📚 Education / Course</option>
+                <option value="other">📦 Other</option>
+              </select>
+            </div>
+            <div class="exp-field exp-field--btn">
+              <button type="button" id="btnAddOneoff" class="exp-add-btn">+ Add One-off</button>
+            </div>
+            </div><!-- /exp-add-form -->
+          </div><!-- /inp-drawer-body -->
+        </div><!-- /drawer-exp-oneoffs -->
+
+        <!-- ═══ Drawer: Subscriptions ═══ -->
+        <div id="drawer-exp-subs" class="inp-drawer">
+          <div class="inp-drawer-head">
+            <h4>🔁 Subscriptions</h4>
+            <button class="inp-drawer-close" data-close-exp-drawer>&times;</button>
+          </div>
+          <div class="inp-drawer-body">
+            <p class="exp-drawer-desc">Netflix, Spotify, iCloud, gym — recurring subscriptions you can review and cut.</p>
+            <div class="exp-add-form exp-add-form--drawer">
+            <div class="exp-field">
+              <label for="exp_sub_name">Name</label>
+              <input type="text" id="exp_sub_name" placeholder="e.g. Netflix, Spotify" autocomplete="off" />
+            </div>
+            <div class="exp-field">
+              <label for="exp_sub_amount">Amount (£)</label>
+              <input type="number" id="exp_sub_amount" min="0" step="0.01" placeholder="0" />
+            </div>
+            <div class="exp-field">
+              <label for="exp_sub_freq">Frequency</label>
+              <select id="exp_sub_freq">
+                <option value="monthly">Monthly</option>
+                <option value="weekly">Weekly</option>
+                <option value="annual">Annual</option>
+              </select>
+            </div>
+            <div class="exp-field">
+              <label for="exp_sub_cat">Category</label>
+              <select id="exp_sub_cat">
+                <optgroup label="Entertainment">
+                  <option value="streaming">🎬 Streaming (Netflix, Disney+)</option>
+                  <option value="music">🎵 Music (Spotify, Apple Music)</option>
+                  <option value="gaming">🎮 Gaming (PS+, Xbox, Steam)</option>
+                  <option value="tv">📺 TV (Sky, NOW, BT Sport)</option>
+                </optgroup>
+                <optgroup label="Fitness & Wellbeing">
+                  <option value="gym">💪 Gym / Fitness</option>
+                  <option value="health_app">🧘 Health & Wellbeing App</option>
+                </optgroup>
+                <optgroup label="Tech & Cloud">
+                  <option value="cloud">☁️ Cloud Storage (iCloud, Google)</option>
+                  <option value="software">💻 Software / Apps</option>
+                  <option value="vpn">🔒 VPN / Security</option>
+                </optgroup>
+                <optgroup label="News & Learning">
+                  <option value="news">📰 News (Times, Telegraph)</option>
+                  <option value="learning">📚 Learning (Audible, Skillshare)</option>
+                </optgroup>
+                <optgroup label="Shopping & Delivery">
+                  <option value="prime">📦 Amazon Prime</option>
+                  <option value="delivery">🛵 Delivery Pass (Deliveroo, Uber)</option>
+                </optgroup>
+                <optgroup label="Other">
+                  <option value="charity_sub">💝 Charity / Donations</option>
+                  <option value="other_sub">📋 Other Subscription</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="exp-field exp-field--btn">
+              <button type="button" id="btnAddSub" class="exp-add-btn exp-add-btn--subs">+ Add Subscription</button>
+            </div>
+            </div><!-- /exp-add-form -->
+          </div><!-- /inp-drawer-body -->
+        </div><!-- /drawer-exp-subs -->
+
+        <!-- ═══ Drawer: Savings & Goals ═══ -->
+        <div id="drawer-exp-savings" class="inp-drawer">
+          <div class="inp-drawer-head">
+            <h4>💰 Savings & Goals</h4>
+            <button class="inp-drawer-close" data-close-exp-drawer>&times;</button>
+          </div>
+          <div class="inp-drawer-body">
+            <p class="exp-drawer-desc">ISAs, emergency fund, sinking funds — money you’re putting away each month.</p>
+            <div class="exp-add-form exp-add-form--drawer">
+            <div class="exp-field">
+              <label for="exp_sav_name">Name</label>
+              <input type="text" id="exp_sav_name" placeholder="e.g. S&amp;S ISA" autocomplete="off" />
+            </div>
+            <div class="exp-field">
+              <label for="exp_sav_amount">Amount (£)</label>
+              <input type="number" id="exp_sav_amount" min="0" step="1" placeholder="0" />
+            </div>
+            <div class="exp-field">
+              <label for="exp_sav_freq">Frequency</label>
+              <select id="exp_sav_freq">
+                <option value="monthly">Monthly</option>
+                <option value="weekly">Weekly</option>
+                <option value="annual">Annual</option>
+              </select>
+            </div>
+            <div class="exp-field">
+              <label for="exp_sav_cat">Category</label>
+              <select id="exp_sav_cat">
+                <optgroup label="Investments">
+                  <option value="ss_isa">📈 Stocks & Shares ISA</option>
+                  <option value="cash_isa">🏦 Cash ISA</option>
+                  <option value="lisa">🏠 Lifetime ISA (LISA)</option>
+                  <option value="premium_bonds">🎰 Premium Bonds</option>
+                  <option value="pension_extra">🏛️ Extra Pension (SIPP)</option>
+                </optgroup>
+                <optgroup label="Safety Nets">
+                  <option value="emergency">🛟 Emergency Fund</option>
+                  <option value="general">💰 General Savings</option>
+                </optgroup>
+                <optgroup label="Sinking Funds">
+                  <option value="home_repairs">🔧 Home Repairs</option>
+                  <option value="holidays">✈️ Holidays & Fun</option>
+                  <option value="new_car">🚗 Next Car Fund</option>
+                  <option value="children">👶 Children (Jr ISA etc)</option>
+                  <option value="education">📚 Education / Training</option>
+                </optgroup>
+                <optgroup label="Other">
+                  <option value="charity">💝 Charity / Giving</option>
+                  <option value="other">📦 Other Savings</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="exp-field exp-field--btn">
+              <button type="button" id="btnAddSaving" class="exp-add-btn exp-add-btn--savings">+ Add Saving</button>
+            </div>
+            </div><!-- /exp-add-form -->
+          </div><!-- /inp-drawer-body -->
+        </div><!-- /drawer-exp-savings -->
+        <!-- ── Expense list ── -->
+        <div id="expList"></div>
+
+        <!-- ── Category breakdown chart ── -->
+        <div id="expChart"></div>
+
+        <!-- ── Retirement spending estimate ── -->
+        <div id="expRetirement"></div>
+
+        <!-- ── Hidden storage ── -->
+        <input type="hidden" id="in_expenses" value="[]" />
+        <input type="hidden" id="in_oneoffs" value="[]" />
+        <input type="hidden" id="in_subs" value="[]" />
+        <input type="hidden" id="in_savings" value="[]" />
       </div>
     </section>
 
